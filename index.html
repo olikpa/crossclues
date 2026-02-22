@@ -19,7 +19,7 @@
   --col-clr: #1a6fa8;
   --accent: #d4a017;
   --success: #2e7d52;
-  --success-bg: #edf7f0;
+  --success-bg: #d4f0e0;
   --wrong: #c0392b;
   --wrong-bg: #fdf0ef;
   --tag-bg: #f0ece3;
@@ -35,7 +35,6 @@ body {
   overflow-x: hidden;
 }
 
-/* ─── NOISE TEXTURE overlay ─── */
 body::after {
   content: '';
   position: fixed;
@@ -46,12 +45,11 @@ body::after {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
 }
 
-/* ─── SCREENS ─── */
 .screen { display: none; min-height: 100vh; }
 .screen.active { display: flex; flex-direction: column; }
 
 /* ══════════════════════════════════
-   LOBBY SCREEN
+   LOBBY
 ══════════════════════════════════ */
 #lobby {
   align-items: center;
@@ -76,7 +74,6 @@ body::after {
   letter-spacing: -.03em;
   line-height: 1;
 }
-
 .logo-cross .w-row { color: var(--row-clr); }
 .logo-cross .w-sep { color: var(--muted); font-size: .6em; }
 .logo-cross .w-col { color: var(--col-clr); }
@@ -87,7 +84,6 @@ body::after {
   color: var(--muted);
   letter-spacing: .12em;
   text-transform: uppercase;
-  font-family: 'Instrument Sans', sans-serif;
 }
 
 .lobby-card {
@@ -100,7 +96,6 @@ body::after {
   box-shadow: 0 4px 24px var(--shadow);
 }
 
-/* language pills */
 .lang-row {
   display: flex;
   gap: .5rem;
@@ -123,14 +118,12 @@ body::after {
   transition: all .18s;
   font-weight: 500;
 }
-
 .lang-pill.active {
   background: var(--card);
   color: var(--ink);
   box-shadow: 0 1px 4px var(--shadow);
 }
 
-/* divider */
 .or-divider {
   display: flex;
   align-items: center;
@@ -141,7 +134,6 @@ body::after {
   text-transform: uppercase;
   letter-spacing: .1em;
 }
-
 .or-divider::before, .or-divider::after {
   content: '';
   flex: 1;
@@ -149,7 +141,6 @@ body::after {
   background: var(--border);
 }
 
-/* section label */
 .section-lbl {
   font-size: .75rem;
   text-transform: uppercase;
@@ -159,7 +150,6 @@ body::after {
   font-weight: 600;
 }
 
-/* input field */
 .field {
   width: 100%;
   padding: .75rem 1rem;
@@ -173,15 +163,12 @@ body::after {
   transition: border-color .18s, box-shadow .18s;
   margin-bottom: .8rem;
 }
-
 .field:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(212,160,23,.15);
 }
-
 .field::placeholder { color: var(--muted); }
 
-/* big action buttons */
 .btn-main {
   width: 100%;
   padding: .85rem;
@@ -194,21 +181,11 @@ body::after {
   transition: transform .12s, opacity .18s;
   letter-spacing: .02em;
 }
-
 .btn-main:hover { opacity: .9; transform: translateY(-1px); }
 .btn-main:active { transform: translateY(0); }
+.btn-create { background: var(--ink); color: var(--bg); }
+.btn-join { background: var(--accent); color: var(--ink); }
 
-.btn-create {
-  background: var(--ink);
-  color: var(--bg);
-}
-
-.btn-join {
-  background: var(--accent);
-  color: var(--ink);
-}
-
-/* code display */
 .room-code-display {
   background: var(--tag-bg);
   border: 1.5px dashed var(--border);
@@ -217,7 +194,6 @@ body::after {
   text-align: center;
   margin-bottom: 1rem;
 }
-
 .room-code-label {
   font-size: .75rem;
   text-transform: uppercase;
@@ -225,7 +201,6 @@ body::after {
   color: var(--muted);
   margin-bottom: .4rem;
 }
-
 .room-code-value {
   font-family: 'Syne', sans-serif;
   font-size: 2.2rem;
@@ -238,7 +213,6 @@ body::after {
   content: '';
   animation: dots 1.4s infinite;
 }
-
 @keyframes dots {
   0%   { content: ''; }
   25%  { content: '.'; }
@@ -252,9 +226,57 @@ body::after {
   color: var(--muted);
   padding: .5rem 0;
 }
-
-.status-msg.connected { color: var(--success); font-weight: 600; }
 .status-msg.error { color: var(--wrong); }
+
+/* players-in-room list */
+.players-in-room {
+  margin-top: .8rem;
+}
+.players-in-room-label {
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--muted);
+  margin-bottom: .4rem;
+}
+.players-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+}
+.player-chip {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .25rem .6rem;
+  background: var(--tag-bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  font-size: .8rem;
+  font-weight: 500;
+}
+.player-chip-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.start-game-btn {
+  margin-top: .8rem;
+  width: 100%;
+  padding: .8rem;
+  background: var(--success);
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  font-family: 'Syne', sans-serif;
+  font-size: .95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity .18s;
+}
+.start-game-btn:hover { opacity: .88; }
+.start-game-btn:disabled { opacity: .4; cursor: not-allowed; }
 
 /* timer toggle row */
 .timer-row {
@@ -265,16 +287,13 @@ body::after {
   border-top: 1px solid var(--border);
   margin-top: .5rem;
 }
-
 .toggle-switch {
   position: relative;
   width: 40px; height: 22px;
   cursor: pointer;
   flex-shrink: 0;
 }
-
 .toggle-switch input { opacity: 0; width: 0; height: 0; }
-
 .toggle-slider {
   position: absolute;
   inset: 0;
@@ -282,7 +301,6 @@ body::after {
   border-radius: 11px;
   transition: .2s;
 }
-
 .toggle-slider::before {
   content: '';
   position: absolute;
@@ -293,7 +311,6 @@ body::after {
   transition: .2s;
   box-shadow: 0 1px 3px rgba(0,0,0,.2);
 }
-
 .toggle-switch input:checked + .toggle-slider { background: var(--accent); }
 .toggle-switch input:checked + .toggle-slider::before { transform: translateX(18px); }
 
@@ -309,7 +326,6 @@ body::after {
   color: var(--ink);
   outline: none;
 }
-
 .timer-input:focus { border-color: var(--accent); }
 .timer-input:disabled { opacity: .4; }
 .timer-label { font-size: .85rem; color: var(--muted); flex: 1; }
@@ -317,10 +333,7 @@ body::after {
 /* ══════════════════════════════════
    GAME SCREEN
 ══════════════════════════════════ */
-#game {
-  flex-direction: column;
-  background: var(--bg);
-}
+#game { flex-direction: column; background: var(--bg); }
 
 .game-header {
   display: flex;
@@ -340,7 +353,6 @@ body::after {
   font-size: 1.1rem;
   letter-spacing: -.02em;
 }
-
 .header-logo .r { color: var(--row-clr); }
 .header-logo .c { color: var(--col-clr); }
 
@@ -373,9 +385,7 @@ body::after {
   text-align: center;
   transition: background .3s;
 }
-
 .timer-chip.urgent { background: var(--wrong); animation: urgentPulse .5s alternate infinite; }
-
 @keyframes urgentPulse { to { opacity: .7; } }
 
 .room-chip {
@@ -387,7 +397,9 @@ body::after {
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: .2rem .55rem;
+  cursor: pointer;
 }
+.room-chip:hover { border-color: var(--muted); }
 
 .header-quit {
   padding: .3rem .7rem;
@@ -402,15 +414,13 @@ body::after {
 }
 .header-quit:hover { border-color: var(--wrong); color: var(--wrong); }
 
-/* ─── Main layout ─── */
 .game-body {
   flex: 1;
   display: grid;
-  grid-template-columns: 1fr 280px;
+  grid-template-columns: 1fr 290px;
   min-height: 0;
   overflow: hidden;
 }
-
 @media (max-width: 720px) {
   .game-body {
     grid-template-columns: 1fr;
@@ -419,7 +429,7 @@ body::after {
   }
 }
 
-/* ─── Grid area ─── */
+/* Grid area */
 .grid-area {
   display: flex;
   align-items: center;
@@ -428,17 +438,9 @@ body::after {
   overflow: auto;
 }
 
-.grid-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
+.grid-wrap { display: flex; flex-direction: column; gap: 0; }
 
-.col-headers {
-  display: flex;
-  margin-left: 96px;
-  gap: 4px;
-}
+.col-headers { display: flex; margin-left: 96px; gap: 4px; }
 
 .col-hdr {
   width: 72px;
@@ -453,11 +455,7 @@ body::after {
   word-break: break-word;
 }
 
-.grid-row-wrap {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
+.grid-row-wrap { display: flex; align-items: center; gap: 4px; }
 
 .row-hdr {
   width: 92px;
@@ -496,7 +494,6 @@ body::after {
   opacity: 0;
   transition: opacity .15s;
 }
-
 .cell:hover::before { opacity: 1; }
 .cell:hover { border-color: var(--accent); transform: scale(1.06); z-index: 2; box-shadow: 0 4px 12px var(--shadow); }
 
@@ -504,17 +501,33 @@ body::after {
 .cell.disabled:hover { border-color: var(--border); transform: none; box-shadow: 0 1px 3px var(--shadow); }
 .cell.disabled::before { display: none; }
 
+/* ── GUESSED CELL: vivid green glow ── */
 .cell.guessed {
   background: var(--success-bg);
   border-color: var(--success);
+  border-width: 2px;
   cursor: default;
+  box-shadow: 0 0 0 3px rgba(46,125,82,.18), 0 2px 8px rgba(46,125,82,.15);
 }
-.cell.guessed:hover { transform: none; }
+.cell.guessed:hover { transform: none; border-color: var(--success); box-shadow: 0 0 0 3px rgba(46,125,82,.18), 0 2px 8px rgba(46,125,82,.15); }
 
-.cell.wrong-flash {
-  animation: wrongFlash .5s ease;
+/* pop animation when first guessed */
+.cell.guessed-pop {
+  animation: guessedPop .45s cubic-bezier(.36,1.56,.64,1) both;
+}
+@keyframes guessedPop {
+  0%   { transform: scale(.85); opacity: .6; }
+  60%  { transform: scale(1.12); }
+  100% { transform: scale(1); opacity: 1; }
 }
 
+.cell-check {
+  font-size: 1.6rem;
+  color: var(--success);
+  line-height: 1;
+}
+
+.cell.wrong-flash { animation: wrongFlash .5s ease; }
 @keyframes wrongFlash {
   0%, 100% { background: var(--card); }
   50% { background: var(--wrong-bg); border-color: var(--wrong); }
@@ -523,11 +536,6 @@ body::after {
 .cell.active-target {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(212,160,23,.25), 0 2px 8px var(--shadow);
-}
-
-.cell-check {
-  font-size: 1.5rem;
-  color: var(--success);
 }
 
 .cell-coord {
@@ -541,7 +549,7 @@ body::after {
   opacity: .5;
 }
 
-/* ─── Side panel ─── */
+/* Side panel */
 .side {
   border-left: 1px solid var(--border);
   background: var(--surface);
@@ -565,7 +573,44 @@ body::after {
   font-weight: 600;
 }
 
-/* player card */
+/* Player strip - shows all players in room */
+.players-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .35rem;
+}
+.player-pill {
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+  padding: .22rem .55rem;
+  border-radius: 20px;
+  border: 1.5px solid transparent;
+  font-size: .78rem;
+  font-weight: 500;
+  transition: all .2s;
+}
+.player-pill.active-player {
+  border-color: var(--accent);
+  background: rgba(212,160,23,.08);
+  font-weight: 700;
+}
+.player-pill.is-me {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.pill-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.pill-role {
+  font-size: .65rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
 .player-card {
   display: flex;
   align-items: center;
@@ -575,7 +620,6 @@ body::after {
   border: 1px solid var(--border);
   border-radius: 10px;
 }
-
 .p-avatar {
   width: 38px; height: 38px;
   border-radius: 50%;
@@ -587,7 +631,6 @@ body::after {
   font-weight: 800;
   flex-shrink: 0;
 }
-
 .p-name {
   font-weight: 600;
   font-size: .95rem;
@@ -595,21 +638,14 @@ body::after {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.p-role { font-size: .75rem; color: var(--muted); margin-top: .1rem; }
 
-.p-role {
-  font-size: .75rem;
-  color: var(--muted);
-  margin-top: .1rem;
-}
-
-/* target / clue display */
 .target-card {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: .75rem;
 }
-
 .target-coord-badge {
   font-family: 'Syne', sans-serif;
   font-size: .75rem;
@@ -617,33 +653,18 @@ body::after {
   color: var(--muted);
   margin-bottom: .4rem;
 }
-
 .target-pair {
   display: flex;
   align-items: center;
   gap: .4rem;
   flex-wrap: wrap;
 }
-
-.tw {
-  font-size: .9rem;
-  font-weight: 600;
-  padding: .2rem .5rem;
-  border-radius: 6px;
-}
-
+.tw { font-size: .9rem; font-weight: 600; padding: .2rem .5rem; border-radius: 6px; }
 .tw-row { color: var(--row-clr); background: rgba(192,57,43,.08); }
 .tw-col { color: var(--col-clr); background: rgba(26,111,168,.08); }
 .tw-sep { color: var(--muted); font-size: .8rem; }
+.hint-note { font-size: .78rem; color: var(--muted); font-style: italic; margin-top: .5rem; }
 
-.hint-note {
-  font-size: .78rem;
-  color: var(--muted);
-  font-style: italic;
-  margin-top: .5rem;
-}
-
-/* clue input */
 .clue-field {
   width: 100%;
   padding: .7rem .9rem;
@@ -657,17 +678,8 @@ body::after {
   transition: border-color .18s, box-shadow .18s;
   margin-bottom: .6rem;
 }
-
-.clue-field:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(212,160,23,.12);
-}
-
-.clue-field:disabled {
-  background: var(--tag-bg);
-  color: var(--muted);
-  cursor: not-allowed;
-}
+.clue-field:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(212,160,23,.12); }
+.clue-field:disabled { background: var(--tag-bg); color: var(--muted); cursor: not-allowed; }
 
 .give-btn {
   width: 100%;
@@ -682,11 +694,9 @@ body::after {
   cursor: pointer;
   transition: opacity .18s;
 }
-
 .give-btn:hover:not(:disabled) { opacity: .85; }
 .give-btn:disabled { opacity: .4; cursor: not-allowed; }
 
-/* clue reveal */
 .clue-reveal {
   background: var(--card);
   border: 1.5px solid var(--accent);
@@ -695,7 +705,6 @@ body::after {
   text-align: center;
   margin-bottom: .6rem;
 }
-
 .clue-word {
   font-family: 'Instrument Serif', serif;
   font-size: 1.9rem;
@@ -703,7 +712,6 @@ body::after {
   color: var(--ink);
   letter-spacing: -.01em;
 }
-
 .clue-sub {
   font-size: .72rem;
   text-transform: uppercase;
@@ -711,15 +719,8 @@ body::after {
   color: var(--muted);
   margin-top: .3rem;
 }
+.guess-tip { font-size: .82rem; color: var(--muted); text-align: center; line-height: 1.5; }
 
-.guess-tip {
-  font-size: .82rem;
-  color: var(--muted);
-  text-align: center;
-  line-height: 1.5;
-}
-
-/* waiting overlay for non-active player */
 .waiting-note {
   background: var(--tag-bg);
   border: 1px solid var(--border);
@@ -731,7 +732,6 @@ body::after {
   line-height: 1.5;
 }
 
-/* log */
 .log-scroll {
   flex: 1;
   overflow-y: auto;
@@ -741,7 +741,6 @@ body::after {
   gap: .35rem;
   min-height: 0;
 }
-
 .log-scroll::-webkit-scrollbar { width: 4px; }
 .log-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
@@ -753,11 +752,8 @@ body::after {
   gap: .4rem;
   align-items: flex-start;
 }
-
 .log-entry .li { flex-shrink: 0; }
 .log-entry strong { color: var(--ink); }
-.log-entry .lc { font-style: italic; color: var(--accent); }
-.log-entry .ll { font-family: 'Syne', sans-serif; font-size: .72rem; color: var(--muted); }
 
 /* ══════════════════════════════════
    END SCREEN
@@ -775,107 +771,39 @@ body::after {
   text-align: center;
   animation: rise .5s ease both;
 }
-
 @keyframes rise {
   from { opacity: 0; transform: translateY(20px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
 .end-trophy { font-size: 5rem; line-height: 1; margin-bottom: 1rem; }
-
-.end-title {
-  font-family: 'Syne', sans-serif;
-  font-size: 2.5rem;
-  font-weight: 800;
-  letter-spacing: -.03em;
-  margin-bottom: .4rem;
-}
-
+.end-title { font-family: 'Syne', sans-serif; font-size: 2.5rem; font-weight: 800; letter-spacing: -.03em; margin-bottom: .4rem; }
 .end-sub { color: var(--muted); margin-bottom: 2rem; }
 
-.end-stats {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: .75rem;
-  margin-bottom: 2rem;
-}
-
-.stat-box {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 1.2rem .8rem;
-  box-shadow: 0 2px 8px var(--shadow);
-}
-
-.stat-n {
-  font-family: 'Syne', sans-serif;
-  font-size: 2.2rem;
-  font-weight: 800;
-  color: var(--ink);
-  line-height: 1;
-}
-
-.stat-desc {
-  font-size: .72rem;
-  text-transform: uppercase;
-  letter-spacing: .1em;
-  color: var(--muted);
-  margin-top: .3rem;
-}
+.end-stats { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin-bottom: 2rem; }
+.stat-box { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.2rem .8rem; box-shadow: 0 2px 8px var(--shadow); }
+.stat-n { font-family: 'Syne', sans-serif; font-size: 2.2rem; font-weight: 800; color: var(--ink); line-height: 1; }
+.stat-desc { font-size: .72rem; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin-top: .3rem; }
 
 .end-btns { display: flex; flex-direction: column; gap: .7rem; }
-
-.btn-again {
-  padding: .9rem;
-  background: var(--ink);
-  border: none;
-  border-radius: 12px;
-  color: var(--bg);
-  font-family: 'Syne', sans-serif;
-  font-size: 1rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: opacity .18s;
-}
-
+.btn-again { padding: .9rem; background: var(--success); border: none; border-radius: 12px; color: #fff; font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; cursor: pointer; transition: opacity .18s; }
 .btn-again:hover { opacity: .85; }
-
-.btn-home {
-  padding: .9rem;
-  background: transparent;
-  border: 1.5px solid var(--border);
-  border-radius: 12px;
-  color: var(--muted);
-  font-family: 'Instrument Sans', sans-serif;
-  font-size: .9rem;
-  cursor: pointer;
-  transition: all .18s;
-}
-
+.btn-home { padding: .9rem; background: transparent; border: 1.5px solid var(--border); border-radius: 12px; color: var(--muted); font-family: 'Instrument Sans', sans-serif; font-size: .9rem; cursor: pointer; transition: all .18s; }
 .btn-home:hover { border-color: var(--muted); color: var(--ink); }
 
-/* ── Firebase setup note ── */
-#firebase-setup-banner {
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  background: #fff3cd;
-  border-top: 2px solid #f0c040;
-  padding: 1rem 1.5rem;
+/* room code in end screen */
+.end-room-code {
+  font-family: 'Syne', sans-serif;
   font-size: .85rem;
-  color: #664d03;
-  z-index: 1000;
-  display: none;
-  line-height: 1.5;
-}
-
-#firebase-setup-banner a { color: #495057; font-weight: 600; }
-#firebase-setup-banner .close-banner {
-  float: right;
-  cursor: pointer;
-  font-size: 1.2rem;
-  line-height: 1;
-  margin-left: 1rem;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: .1em;
+  margin-bottom: 1rem;
+  padding: .4rem .9rem;
+  background: var(--tag-bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  display: inline-block;
 }
 
 /* toast */
@@ -894,8 +822,9 @@ body::after {
   transition: transform .3s ease;
   pointer-events: none;
   white-space: nowrap;
+  max-width: 90vw;
+  text-align: center;
 }
-
 .toast.show { transform: translateX(-50%) translateY(0); }
 </style>
 </head>
@@ -905,9 +834,9 @@ body::after {
 <div id="lobby" class="screen active">
   <div class="logo-block">
     <div class="logo-cross">
-      <span class="w-row" id="lg-cross">Cross</span>
+      <span class="w-row">Cross</span>
       <span class="w-sep">✕</span>
-      <span class="w-col" id="lg-clues">Clues</span>
+      <span class="w-col">Clues</span>
     </div>
     <div class="logo-sub" id="lg-sub">Online Cooperative Word Game</div>
   </div>
@@ -936,14 +865,24 @@ body::after {
       <button class="btn-main btn-create" onclick="createRoom()" id="btn-create">Create Room</button>
     </div>
 
-    <!-- Waiting for partner (after create) -->
+    <!-- Waiting in room (creator sees this) -->
     <div id="waiting-section" style="display:none">
       <div class="room-code-display">
-        <div class="room-code-label" id="lbl-room-code">Room Code — share with your partner</div>
+        <div class="room-code-label" id="lbl-room-code">Room Code — share with everyone</div>
         <div class="room-code-value" id="room-code-value">———</div>
       </div>
-      <div class="status-msg" id="waiting-msg">
-        <span id="waiting-text">Waiting for partner</span><span class="waiting-dots"></span>
+
+      <div class="players-in-room">
+        <div class="players-in-room-label" id="lbl-players-joined">Players joined</div>
+        <div class="players-list" id="lobby-players-list"></div>
+      </div>
+
+      <button class="start-game-btn" id="start-game-btn" onclick="hostStartGame()" disabled>
+        Start Game →
+      </button>
+
+      <div class="status-msg" id="waiting-msg" style="margin-top:.6rem">
+        <span id="waiting-text">Waiting for players</span><span class="waiting-dots"></span>
       </div>
     </div>
 
@@ -954,17 +893,12 @@ body::after {
       <div class="section-lbl" id="lbl-join-name">Your Name</div>
       <input type="text" class="field" id="join-name" maxlength="20" placeholder="Player 2">
       <div class="section-lbl" id="lbl-enter-code">Room Code</div>
-      <input type="text" class="field" id="join-code" maxlength="6" placeholder="ABC123" style="text-transform:uppercase;letter-spacing:.15em;font-family:'Syne',sans-serif;font-weight:700;">
+      <input type="text" class="field" id="join-code" maxlength="6" placeholder="ABC123"
+        style="text-transform:uppercase;letter-spacing:.15em;font-family:'Syne',sans-serif;font-weight:700;"
+        oninput="this.value=this.value.toUpperCase()">
       <button class="btn-main btn-join" onclick="joinRoom()" id="btn-join">Join Room</button>
       <div class="status-msg" id="join-status" style="margin-top:.5rem;display:none"></div>
     </div>
-  </div>
-
-  <div id="firebase-setup-banner">
-    <span class="close-banner" onclick="this.parentElement.style.display='none'">×</span>
-    <strong>Setup required:</strong> This game uses Firebase Realtime Database for live sync.
-    See the <a href="#" onclick="showFirebaseInstructions()">setup instructions</a> inside the page source
-    (search for <code>FIREBASE_CONFIG</code>) to add your free Firebase project credentials.
   </div>
 </div>
 
@@ -975,19 +909,24 @@ body::after {
     <div class="header-center">
       <span class="score-chip" id="hdr-score">0 / 25</span>
       <span class="timer-chip" id="hdr-timer" style="display:none">1:30</span>
-      <span class="room-chip" id="hdr-room">—</span>
+      <span class="room-chip" id="hdr-room" title="Click to copy room code" onclick="copyRoomCode()">—</span>
     </div>
     <button class="header-quit" id="btn-quit" onclick="quitGame()">Quit</button>
   </div>
 
   <div class="game-body">
-    <!-- Grid -->
     <div class="grid-area">
       <div id="grid-wrap" class="grid-wrap"></div>
     </div>
 
-    <!-- Side -->
     <div class="side">
+      <!-- All players strip -->
+      <div class="side-section" id="side-players">
+        <div class="side-lbl" id="lbl-players">Players</div>
+        <div class="players-strip" id="players-strip"></div>
+      </div>
+
+      <!-- Current active player -->
       <div class="side-section" id="side-player">
         <div class="side-lbl" id="lbl-now-playing">Now Playing</div>
         <div class="player-card">
@@ -999,19 +938,21 @@ body::after {
         </div>
       </div>
 
-      <!-- Giver's target + input -->
+      <!-- Giver's target -->
       <div class="side-section" id="giver-block">
         <div class="side-lbl" id="lbl-target">Target</div>
-        <div class="target-card" id="target-card">
+        <div class="target-card">
           <div class="target-coord-badge" id="tc-coord">—</div>
           <div class="target-pair" id="tc-pair"></div>
           <div class="hint-note" id="tc-hint"></div>
         </div>
       </div>
 
+      <!-- Giver's clue input -->
       <div class="side-section" id="clue-input-block">
         <div class="side-lbl" id="lbl-give-clue">Your Clue</div>
-        <input type="text" class="clue-field" id="clue-input" maxlength="40" placeholder="one word…">
+        <input type="text" class="clue-field" id="clue-input" maxlength="40" placeholder="one word…"
+          onkeydown="if(event.key==='Enter') submitClue()">
         <button class="give-btn" id="give-btn" onclick="submitClue()">Give Clue →</button>
       </div>
 
@@ -1025,12 +966,11 @@ body::after {
         <div class="guess-tip" id="guess-tip">Tap the grid cell that matches!</div>
       </div>
 
-      <!-- Waiting (for non-active turns) -->
+      <!-- Waiting note -->
       <div class="side-section" id="waiting-block" style="display:none">
-        <div class="waiting-note" id="waiting-note-text">Waiting for partner…</div>
+        <div class="waiting-note" id="waiting-note-text">Waiting…</div>
       </div>
 
-      <!-- Log header -->
       <div class="side-lbl" style="padding:.7rem 1rem .2rem;flex-shrink:0" id="lbl-log">Log</div>
       <div class="log-scroll" id="log-scroll"></div>
     </div>
@@ -1042,7 +982,8 @@ body::after {
   <div class="end-inner">
     <div class="end-trophy" id="end-trophy">🏆</div>
     <div class="end-title" id="end-title">Congratulations!</div>
-    <div class="end-sub" id="end-sub">You solved all pairs!</div>
+    <div class="end-sub" id="end-sub">You matched all pairs!</div>
+    <div class="end-room-code" id="end-room-code"></div>
     <div class="end-stats">
       <div class="stat-box">
         <div class="stat-n" id="stat-matched">0</div>
@@ -1054,34 +995,22 @@ body::after {
       </div>
     </div>
     <div class="end-btns">
-      <button class="btn-again" id="btn-play-again" onclick="playAgain()">Play Again</button>
-      <button class="btn-home" id="btn-go-home" onclick="goHome()">Home</button>
+      <button class="btn-again" id="btn-play-again" onclick="playAgain()">Play Again (same room)</button>
+      <button class="btn-home" id="btn-go-home" onclick="goHome()">Leave Room</button>
     </div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
-<!-- ═══════════════════════════════════════════
-  Firebase SDK
-════════════════════════════════════════════ -->
 <script type="module">
-// ┌─────────────────────────────────────────────────────────────────┐
-// │  FIREBASE SETUP INSTRUCTIONS                                    │
-// │                                                                 │
-// │  1. Go to https://console.firebase.google.com                   │
-// │  2. Create a new project (free Spark plan works)                │
-// │  3. Add a Web App to the project                                │
-// │  4. Copy your firebaseConfig object                             │
-// │  5. Paste it below, replacing the placeholder values            │
-// │  6. In Firebase console → Build → Realtime Database:            │
-// │     - Create database (start in test mode for easy setup)       │
-// │  7. Done! Host this HTML file anywhere (even open locally)      │
-// └─────────────────────────────────────────────────────────────────┘
-
+// ══════════════════════════════════════════════════════════════
+//  FIREBASE CONFIG  — your credentials are already set below
+// ══════════════════════════════════════════════════════════════
 const FIREBASE_CONFIG = {
- apiKey: "AIzaSyCa_uT9_f2LbjO-zAKXPVK5Fob_4NWoHLA",
+  apiKey: "AIzaSyCa_uT9_f2LbjO-zAKXPVK5Fob_4NWoHLA",
   authDomain: "cross-clues-31450.firebaseapp.com",
+  databaseURL: "https://cross-clues-31450-default-rtdb.firebaseio.com",
   projectId: "cross-clues-31450",
   storageBucket: "cross-clues-31450.firebasestorage.app",
   messagingSenderId: "1043663543507",
@@ -1089,27 +1018,17 @@ const FIREBASE_CONFIG = {
   measurementId: "G-63Z8MV0CFB"
 };
 
-// ─── Firebase imports ───────────────────────────────────────────
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
-  getDatabase, ref, set, get, update, onValue, off, remove, push
+  getDatabase, ref, set, get, update, onValue, off
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-// ─── Config check ───────────────────────────────────────────────
-const firebaseReady = FIREBASE_CONFIG.apiKey !== "YOUR_API_KEY";
+const app = initializeApp(FIREBASE_CONFIG);
+const db  = getDatabase(app);
 
-let app, db;
-if (firebaseReady) {
-  app = initializeApp(FIREBASE_CONFIG);
-  db  = getDatabase(app);
-} else {
-  document.getElementById('firebase-setup-banner').style.display = 'block';
-  console.warn('Firebase not configured — multiplayer disabled. See FIREBASE_CONFIG in source.');
-}
-
-// ═══════════════════════════════════════════════════════════════
-//   WORD LISTS (EN / ES)
-// ═══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
+//  WORD LISTS
+// ══════════════════════════════════════════════════════════════
 const WORDS = {
   en: [
     "OCEAN","FIRE","MOON","TREE","STONE","CLOCK","BRIDGE","CLOUD","WIND","MOUNTAIN",
@@ -1131,18 +1050,21 @@ const WORDS = {
   ]
 };
 
-// ═══════════════════════════════════════════════════════════════
-//   TRANSLATIONS
-// ═══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
+//  TRANSLATIONS
+// ══════════════════════════════════════════════════════════════
 const T = {
   en: {
     sub: "Online Cooperative Word Game",
     yourName: "Your Name", joinName: "Your Name",
     enterCode: "Room Code", timerToggle: "Enable timer", secs: "sec",
     createBtn: "Create Room", joinBtn: "Join Room",
-    roomCode: "Room Code — share with your partner",
-    waitingText: "Waiting for partner",
-    nowPlaying: "Now Playing", target: "Target", giveClue: "Your Clue",
+    roomCode: "Room Code — share with everyone",
+    playersJoined: "Players in room",
+    waitingText: "Waiting for players",
+    startGame: "Start Game →",
+    nowPlaying: "Now Playing", players: "Players",
+    target: "Target", giveClue: "Your Clue",
     theClue: "The Clue", oneWord: "one word",
     guessInstruction: "Tap the grid cell that matches!",
     hintNote: "Give one word that hints at both!",
@@ -1150,30 +1072,35 @@ const T = {
     cluePlaceholder: "one word…", giveBtn: "Give Clue →",
     log: "Log", quit: "Quit",
     statMatched: "Matched", statRounds: "Rounds",
-    playAgain: "Play Again", goHome: "Home",
-    congratsTitle: "Congratulations!", congratsSub: n => `You matched ${n} pairs!`,
-    wrongMsg: (clue, rw, cw) => `"${clue}" was for <strong>${rw}</strong> × <strong>${cw}</strong>`,
+    playAgain: "Play Again (same room)", goHome: "Leave Room",
+    congratsTitle: "Congratulations!",
+    congratsSub: n => `You matched all ${n} pairs!`,
+    wrongMsg: (clue, rw, cw) => `"${clue}" was for ${rw} × ${cw}`,
     p1def: "Player 1", p2def: "Player 2",
-    waitingPartner: "Waiting for your partner…",
     partnerThinking: name => `${name} is giving a clue…`,
     waitingGuess: name => `${name} is guessing…`,
-    yourTurnGive: "Your turn! Give a clue.",
-    yourTurnGuess: "Your turn! Tap a cell on the grid.",
     roundLog: (n, c) => `${n}: "${c}"`,
     correctLog: (c, r, col) => `✓ "${c}" → ${r}×${col}`,
     wrongLog: (c, r, col) => `✗ "${c}" → ${r}×${col}`,
     joinError: "Room not found. Check the code.",
-    roomFull: "Room is already full.",
-    gameInProgress: "Game already in progress.",
+    roomFull: "Room is full (max 10 players).",
+    codedRoom: code => `Room: ${code}`,
+    copiedCode: "Room code copied!",
+    needPlayers: "Need at least 2 players to start.",
+    waitingForHost: "Waiting for host to start the game…",
+    youLabel: "you",
   },
   es: {
     sub: "Juego cooperativo de palabras en línea",
     yourName: "Tu Nombre", joinName: "Tu Nombre",
     enterCode: "Código de Sala", timerToggle: "Activar temporizador", secs: "seg",
     createBtn: "Crear Sala", joinBtn: "Unirse",
-    roomCode: "Código de Sala — comparte con tu compañero",
-    waitingText: "Esperando al compañero",
-    nowPlaying: "Turno de", target: "Objetivo", giveClue: "Tu Pista",
+    roomCode: "Código de Sala — comparte con todos",
+    playersJoined: "Jugadores en la sala",
+    waitingText: "Esperando jugadores",
+    startGame: "Empezar Partida →",
+    nowPlaying: "Turno de", players: "Jugadores",
+    target: "Objetivo", giveClue: "Tu Pista",
     theClue: "La Pista", oneWord: "una palabra",
     guessInstruction: "¡Toca la celda del tablero que corresponde!",
     hintNote: "¡Da una palabra que insinúe las dos!",
@@ -1181,48 +1108,57 @@ const T = {
     cluePlaceholder: "una palabra…", giveBtn: "Dar Pista →",
     log: "Registro", quit: "Salir",
     statMatched: "Adivinadas", statRounds: "Rondas",
-    playAgain: "Jugar de Nuevo", goHome: "Inicio",
-    congratsTitle: "¡Felicidades!", congratsSub: n => `¡Adivinasteis ${n} parejas!`,
-    wrongMsg: (clue, rw, cw) => `"${clue}" era para <strong>${rw}</strong> × <strong>${cw}</strong>`,
+    playAgain: "Nueva Partida (misma sala)", goHome: "Salir de la sala",
+    congratsTitle: "¡Felicidades!",
+    congratsSub: n => `¡Adivinasteis las ${n} parejas!`,
+    wrongMsg: (clue, rw, cw) => `"${clue}" era para ${rw} × ${cw}`,
     p1def: "Jugador 1", p2def: "Jugador 2",
-    waitingPartner: "Esperando a tu compañero…",
     partnerThinking: name => `${name} está dando una pista…`,
     waitingGuess: name => `${name} está adivinando…`,
-    yourTurnGive: "¡Tu turno! Da una pista.",
-    yourTurnGuess: "¡Tu turno! Toca una celda.",
     roundLog: (n, c) => `${n}: "${c}"`,
     correctLog: (c, r, col) => `✓ "${c}" → ${r}×${col}`,
     wrongLog: (c, r, col) => `✗ "${c}" → ${r}×${col}`,
     joinError: "Sala no encontrada. Verifica el código.",
-    roomFull: "La sala está llena.",
-    gameInProgress: "El juego ya está en curso.",
+    roomFull: "La sala está llena (máx. 10 jugadores).",
+    codedRoom: code => `Sala: ${code}`,
+    copiedCode: "¡Código copiado!",
+    needPlayers: "Se necesitan al menos 2 jugadores.",
+    waitingForHost: "Esperando que el anfitrión empiece la partida…",
+    youLabel: "tú",
   }
 };
 
-// ═══════════════════════════════════════════════════════════════
-//   STATE
-// ═══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
+//  PLAYER COLORS (up to 10)
+// ══════════════════════════════════════════════════════════════
+const PLAYER_COLORS = [
+  '#c0392b','#1a6fa8','#2e7d52','#7b3fa0',
+  '#d4a017','#00868a','#e07b39','#5a5a9c',
+  '#8b4513','#1a7a4a'
+];
+
+// ══════════════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════════════
 let lang = 'en';
-let myRole = null;       // 'p1' | 'p2'
-let roomId  = null;
+let myPlayerId = null;   // unique ID for this browser tab
+let myName = '';
+let isHost = false;
+let roomId = null;
 let roomRef = null;
-let roomUnsubscribe = null;
-let localName = '';
+let gstate = null;       // latest Firebase snapshot
 
 let timerInterval = null;
 let localTimerLeft = 0;
-
-// snapshot of current game state from Firebase
-let gstate = null;
 
 const t = (key, ...args) => {
   const v = T[lang][key];
   return typeof v === 'function' ? v(...args) : (v ?? key);
 };
 
-// ═══════════════════════════════════════════════════════════════
-//   UTILS
-// ═══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
+//  UTILS
+// ══════════════════════════════════════════════════════════════
 function shuffle(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -1237,7 +1173,11 @@ function genCode() {
   return Array.from({length: 6}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
 }
 
-function showToast(msg, dur = 2200) {
+function genPlayerId() {
+  return Math.random().toString(36).slice(2) + Date.now().toString(36);
+}
+
+function showToast(msg, dur = 2400) {
   const el = document.getElementById('toast');
   el.textContent = msg;
   el.classList.add('show');
@@ -1249,103 +1189,92 @@ function showScreen(id) {
   document.getElementById(id).classList.add('active');
 }
 
-// ═══════════════════════════════════════════════════════════════
-//   LANGUAGE
-// ═══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
+//  LANGUAGE
+// ══════════════════════════════════════════════════════════════
 window.setLang = (l) => {
   lang = l;
   document.querySelectorAll('.lang-pill').forEach((b, i) => {
-    b.classList.toggle('active', (i === 0 && l === 'en') || (i === 1 && l === 'es'));
+    b.classList.toggle('active', (i===0 && l==='en') || (i===1 && l==='es'));
   });
   applyLobbyTranslations();
 };
 
 function applyLobbyTranslations() {
-  const p = T[lang];
-  document.getElementById('lg-sub').textContent = p.sub;
-  document.getElementById('lbl-your-name').textContent = p.yourName;
-  document.getElementById('lbl-join-name').textContent = p.joinName;
-  document.getElementById('lbl-enter-code').textContent = p.enterCode;
-  document.getElementById('lbl-timer-toggle').textContent = p.timerToggle;
-  document.getElementById('lbl-secs').textContent = p.secs;
-  document.getElementById('btn-create').textContent = p.createBtn;
-  document.getElementById('btn-join').textContent = p.joinBtn;
-  document.getElementById('lbl-room-code').textContent = p.roomCode;
-  document.getElementById('waiting-text').textContent = p.waitingText;
-  document.getElementById('create-name').placeholder = p.p1def;
-  document.getElementById('join-name').placeholder = p.p2def;
+  document.getElementById('lg-sub').textContent = t('sub');
+  document.getElementById('lbl-your-name').textContent = t('yourName');
+  document.getElementById('lbl-join-name').textContent = t('joinName');
+  document.getElementById('lbl-enter-code').textContent = t('enterCode');
+  document.getElementById('lbl-timer-toggle').textContent = t('timerToggle');
+  document.getElementById('lbl-secs').textContent = t('secs');
+  document.getElementById('btn-create').textContent = t('createBtn');
+  document.getElementById('btn-join').textContent = t('joinBtn');
+  document.getElementById('lbl-room-code').textContent = t('roomCode');
+  document.getElementById('lbl-players-joined').textContent = t('playersJoined');
+  document.getElementById('waiting-text').textContent = t('waitingText');
+  document.getElementById('start-game-btn').textContent = t('startGame');
+  document.getElementById('create-name').placeholder = t('p1def');
+  document.getElementById('join-name').placeholder = t('p2def');
 }
 
 function applyGameTranslations() {
-  const p = T[lang];
-  document.getElementById('lbl-now-playing').textContent = p.nowPlaying;
-  document.getElementById('lbl-target').textContent = p.target;
-  document.getElementById('lbl-give-clue').textContent = p.giveClue;
-  document.getElementById('lbl-the-clue').textContent = p.theClue;
-  document.getElementById('lbl-one-word').textContent = p.oneWord;
-  document.getElementById('guess-tip').textContent = p.guessInstruction;
-  document.getElementById('clue-input').placeholder = p.cluePlaceholder;
-  document.getElementById('give-btn').textContent = p.giveBtn;
-  document.getElementById('lbl-log').textContent = p.log;
-  document.getElementById('btn-quit').textContent = p.quit;
-  document.getElementById('lbl-stat-matched').textContent = p.statMatched;
-  document.getElementById('lbl-stat-rounds').textContent = p.statRounds;
-  document.getElementById('btn-play-again').textContent = p.playAgain;
-  document.getElementById('btn-go-home').textContent = p.goHome;
+  document.getElementById('lbl-now-playing').textContent = t('nowPlaying');
+  document.getElementById('lbl-players').textContent = t('players');
+  document.getElementById('lbl-target').textContent = t('target');
+  document.getElementById('lbl-give-clue').textContent = t('giveClue');
+  document.getElementById('lbl-the-clue').textContent = t('theClue');
+  document.getElementById('lbl-one-word').textContent = t('oneWord');
+  document.getElementById('guess-tip').textContent = t('guessInstruction');
+  document.getElementById('clue-input').placeholder = t('cluePlaceholder');
+  document.getElementById('give-btn').textContent = t('giveBtn');
+  document.getElementById('lbl-log').textContent = t('log');
+  document.getElementById('btn-quit').textContent = t('quit');
 }
 
-// ═══════════════════════════════════════════════════════════════
-//   TIMER TOGGLE
-// ═══════════════════════════════════════════════════════════════
 window.onTimerToggle = () => {
   document.getElementById('timer-secs').disabled = !document.getElementById('timer-toggle').checked;
 };
 
-// ═══════════════════════════════════════════════════════════════
-//   CREATE ROOM
-// ═══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
+//  CREATE ROOM
+// ══════════════════════════════════════════════════════════════
 window.createRoom = async () => {
-  if (!firebaseReady) { showToast('Configure Firebase first — see setup instructions'); return; }
   const name = document.getElementById('create-name').value.trim() || t('p1def');
   const useTimer = document.getElementById('timer-toggle').checked;
   const timerSecs = parseInt(document.getElementById('timer-secs').value) || 90;
 
-  roomId  = genCode();
-  myRole  = 'p1';
-  localName = name;
-  lang;   // current lang
+  myPlayerId = genPlayerId();
+  myName = name;
+  isHost = true;
+  roomId = genCode();
 
-  // Build initial game data (will be populated properly when p2 joins)
   const roomData = {
     created: Date.now(),
     lang,
     useTimer,
     timerSecs,
-    status: 'waiting',   // waiting | playing | ended
-    p1: { name, connected: true },
-    p2: null,
+    status: 'lobby',   // lobby | playing | ended
+    hostId: myPlayerId,
+    players: [{ id: myPlayerId, name }],
     game: null,
   };
 
   roomRef = ref(db, `rooms/${roomId}`);
   await set(roomRef, roomData);
 
-  // Show room code
   document.getElementById('create-section').style.display = 'none';
   document.getElementById('or-div').style.display = 'none';
   document.getElementById('join-section').style.display = 'none';
   document.getElementById('waiting-section').style.display = '';
   document.getElementById('room-code-value').textContent = roomId;
 
-  // Listen for partner
   listenRoom();
 };
 
-// ═══════════════════════════════════════════════════════════════
-//   JOIN ROOM
-// ═══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
+//  JOIN ROOM
+// ══════════════════════════════════════════════════════════════
 window.joinRoom = async () => {
-  if (!firebaseReady) { showToast('Configure Firebase first — see setup instructions'); return; }
   const name = document.getElementById('join-name').value.trim() || t('p2def');
   const code = document.getElementById('join-code').value.trim().toUpperCase();
   if (!code || code.length < 4) { showJoinError(t('joinError')); return; }
@@ -1354,47 +1283,34 @@ window.joinRoom = async () => {
   if (!snap.exists()) { showJoinError(t('joinError')); return; }
 
   const data = snap.val();
-  if (data.p2 && data.p2.connected) { showJoinError(t('roomFull')); return; }
-  if (data.status === 'playing') { showJoinError(t('gameInProgress')); return; }
+  const players = data.players || [];
 
-  roomId    = code;
-  myRole    = 'p2';
-  localName = name;
-  lang      = data.lang || 'en';
+  if (players.length >= 10) { showJoinError(t('roomFull')); return; }
+  // Allow joining even if game is in progress (spectator/late join goes to lobby state listener)
 
-  // Set lang pills
+  myPlayerId = genPlayerId();
+  myName = name;
+  isHost = false;
+  roomId = code;
+  lang = data.lang || 'en';
+
   document.querySelectorAll('.lang-pill').forEach((b, i) => {
     b.classList.toggle('active', (i===0 && lang==='en') || (i===1 && lang==='es'));
   });
 
   roomRef = ref(db, `rooms/${roomId}`);
-  await update(roomRef, { 'p2': { name, connected: true } });
-
-  // Start the game (p2 triggers game start)
-  const G = 5;
-  const pool = shuffle(WORDS[lang]);
-  const rowWords = pool.slice(0, G);
-  const colWords = pool.slice(G, G * 2);
-  const allCells = [];
-  for (let r = 0; r < G; r++) for (let c = 0; c < G; c++) allCells.push(`${r},${c}`);
-  const targetOrder = shuffle(allCells);
-
-  const gameData = {
-    rowWords, colWords,
-    targetOrder,
-    targetIndex: 0,
-    currentPlayer: 'p1',   // p1 starts as giver
-    phase: 'giving',        // giving | guessing
-    currentClue: '',
-    guessed: [],
-    rounds: 0,
-    log: [],
-    timerStartedAt: null,
-  };
-
-  await update(roomRef, { status: 'playing', game: gameData });
+  const newPlayers = [...players, { id: myPlayerId, name }];
+  await update(roomRef, { players: newPlayers });
 
   listenRoom();
+
+  // Hide join UI, show waiting
+  document.getElementById('create-section').style.display = 'none';
+  document.getElementById('or-div').style.display = 'none';
+  document.getElementById('join-section').style.display = 'none';
+  document.getElementById('waiting-section').style.display = '';
+  document.getElementById('room-code-value').textContent = roomId;
+  document.getElementById('start-game-btn').style.display = 'none'; // only host can start
 };
 
 function showJoinError(msg) {
@@ -1404,23 +1320,69 @@ function showJoinError(msg) {
   el.style.display = '';
 }
 
-// ═══════════════════════════════════════════════════════════════
-//   LISTEN TO ROOM
-// ═══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
+//  HOST STARTS GAME
+// ══════════════════════════════════════════════════════════════
+window.hostStartGame = async () => {
+  if (!isHost || !roomRef) return;
+  const snap = await get(roomRef);
+  if (!snap.exists()) return;
+  const data = snap.val();
+  const players = data.players || [];
+
+  if (players.length < 2) { showToast(t('needPlayers')); return; }
+
+  const gameData = buildNewGameData(players, data.lang || lang);
+  await update(roomRef, { status: 'playing', game: gameData });
+};
+
+function buildNewGameData(players, gameLang) {
+  const G = 5;
+  const pool = shuffle(WORDS[gameLang || lang]);
+  const rowWords = pool.slice(0, G);
+  const colWords = pool.slice(G, G * 2);
+  const allCells = [];
+  for (let r = 0; r < G; r++) for (let c = 0; c < G; c++) allCells.push(`${r},${c}`);
+  const targetOrder = shuffle(allCells);
+
+  return {
+    rowWords, colWords, targetOrder,
+    targetIndex: 0,
+    currentPlayerIndex: 0,   // index into players array
+    phase: 'giving',
+    currentClue: '',
+    guessed: [],
+    rounds: 0,
+    log: [],
+    timerStartedAt: null,
+  };
+}
+
+// ══════════════════════════════════════════════════════════════
+//  LISTEN TO ROOM
+// ══════════════════════════════════════════════════════════════
 function listenRoom() {
-  if (roomUnsubscribe) { off(roomRef); }
-  roomUnsubscribe = onValue(roomRef, (snap) => {
+  if (!roomRef) return;
+  off(roomRef);
+  onValue(roomRef, (snap) => {
     if (!snap.exists()) return;
     const data = snap.val();
+    gstate = data;
+    lang = data.lang || lang;
 
-    if (data.status === 'waiting') {
-      // Still waiting for partner
+    const players = data.players || [];
+
+    if (data.status === 'lobby') {
+      // Update lobby player list
+      renderLobbyPlayers(players);
+      // Enable start button for host if ≥2 players
+      if (isHost) {
+        document.getElementById('start-game-btn').disabled = players.length < 2;
+      }
       return;
     }
 
     if (data.status === 'playing' && data.game) {
-      gstate = data;
-      lang = data.lang || lang;
       applyGameTranslations();
       showScreen('game');
       document.getElementById('hdr-room').textContent = roomId;
@@ -1428,75 +1390,95 @@ function listenRoom() {
     }
 
     if (data.status === 'ended' && data.game) {
-      gstate = data;
       renderEndScreen(data);
     }
   });
 }
 
-// ═══════════════════════════════════════════════════════════════
-//   RENDER GAME
-// ═══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
+//  LOBBY PLAYER LIST
+// ══════════════════════════════════════════════════════════════
+function renderLobbyPlayers(players) {
+  const list = document.getElementById('lobby-players-list');
+  list.innerHTML = '';
+  players.forEach((p, i) => {
+    const chip = document.createElement('div');
+    chip.className = 'player-chip';
+    const dot = document.createElement('div');
+    dot.className = 'player-chip-dot';
+    dot.style.background = PLAYER_COLORS[i % PLAYER_COLORS.length];
+    chip.appendChild(dot);
+    const nameEl = document.createElement('span');
+    nameEl.textContent = p.id === myPlayerId ? `${p.name} (${t('youLabel')})` : p.name;
+    chip.appendChild(nameEl);
+    list.appendChild(chip);
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
+//  RENDER GAME
+// ══════════════════════════════════════════════════════════════
 function renderGame(data) {
   const g = data.game;
+  const players = data.players || [];
   const guessedSet = new Set(g.guessed || []);
-  const amGiver   = g.currentPlayer === myRole;
+
+  const currentIdx = g.currentPlayerIndex ?? 0;
+  const giverPlayer = players[currentIdx] || players[0];
+  const amGiver = giverPlayer && giverPlayer.id === myPlayerId;
+  // Everyone else is a guesser — only one person guesses (the next in rotation), but
+  // in Cross Clues the whole team guesses. We allow ANY non-giver to tap.
   const amGuesser = !amGiver;
 
   // Score
   document.getElementById('hdr-score').textContent = `${guessedSet.size} / ${g.rowWords.length * g.colWords.length}`;
 
-  // Build grid if needed (first time or new game)
-  buildGrid(g, guessedSet, g.phase, amGuesser);
-
   // Timer
   if (data.useTimer) {
     document.getElementById('hdr-timer').style.display = '';
-    if (g.timerStartedAt) {
-      startLocalTimer(data.timerSecs, g.timerStartedAt);
-    }
+    if (g.timerStartedAt) startLocalTimer(data.timerSecs, g.timerStartedAt);
+    else stopLocalTimer();
   } else {
     document.getElementById('hdr-timer').style.display = 'none';
     stopLocalTimer();
   }
 
-  // Player panel
-  const giverName   = g.currentPlayer === 'p1' ? data.p1.name : data.p2.name;
-  const guesserName = g.currentPlayer === 'p1' ? data.p2.name : data.p1.name;
+  // Players strip
+  renderPlayersStrip(players, currentIdx, g.phase);
 
-  const displayName = (g.phase === 'giving') ? giverName : guesserName;
-  const role        = (g.phase === 'giving') ? t('giver') : t('guesser');
-  const color       = g.currentPlayer === 'p1' ? 'var(--row-clr)' : 'var(--col-clr)';
+  // Active player card
+  const activeName = g.phase === 'giving'
+    ? (giverPlayer?.name || '?')
+    : (giverPlayer?.name || '?');  // giver shown throughout
+  const activeRole = g.phase === 'giving' ? t('giver') : t('giver'); // show giver always here
+  const activeColor = PLAYER_COLORS[currentIdx % PLAYER_COLORS.length];
 
-  document.getElementById('p-avatar').textContent  = displayName.charAt(0).toUpperCase();
-  document.getElementById('p-avatar').style.background = color;
-  document.getElementById('p-avatar').style.color  = '#fff';
-  document.getElementById('p-name-display').textContent = displayName;
-  document.getElementById('p-role-display').textContent = role;
+  document.getElementById('p-avatar').textContent = (giverPlayer?.name || '?').charAt(0).toUpperCase();
+  document.getElementById('p-avatar').style.background = activeColor;
+  document.getElementById('p-avatar').style.color = '#fff';
+  document.getElementById('p-name-display').textContent = giverPlayer?.name || '—';
+  document.getElementById('p-role-display').textContent = t('giver');
 
-  // Panel logic
-  const giverBlock       = document.getElementById('giver-block');
-  const clueInputBlock   = document.getElementById('clue-input-block');
-  const guesserBlock     = document.getElementById('guesser-block');
-  const waitingBlock     = document.getElementById('waiting-block');
+  // Panels
+  const giverBlock = document.getElementById('giver-block');
+  const clueInputBlock = document.getElementById('clue-input-block');
+  const guesserBlock = document.getElementById('guesser-block');
+  const waitingBlock = document.getElementById('waiting-block');
 
-  // Reset all
-  giverBlock.style.display     = 'none';
+  giverBlock.style.display = 'none';
   clueInputBlock.style.display = 'none';
-  guesserBlock.style.display   = 'none';
-  waitingBlock.style.display   = 'none';
+  guesserBlock.style.display = 'none';
+  waitingBlock.style.display = 'none';
 
   if (g.phase === 'giving') {
     if (amGiver) {
-      // Show target + clue input
-      giverBlock.style.display   = '';
+      giverBlock.style.display = '';
       clueInputBlock.style.display = '';
       document.getElementById('clue-input').disabled = false;
-      document.getElementById('give-btn').disabled   = false;
-      document.getElementById('clue-input').value    = '';
+      document.getElementById('give-btn').disabled = false;
+      document.getElementById('clue-input').value = '';
       setTimeout(() => document.getElementById('clue-input').focus(), 100);
 
-      // Set target
       const tgt = currentTargetFromState(g);
       if (tgt) {
         const [tr, tc] = tgt.split(',').map(Number);
@@ -1506,127 +1488,205 @@ function renderGame(data) {
            <span class="tw-sep">×</span>
            <span class="tw tw-col">${g.colWords[tc]}</span>`;
         document.getElementById('tc-hint').textContent = t('hintNote');
-        // Highlight target cell for giver
-        highlightCell(`${tr},${tc}`);
+        highlightTargetCell(`${tr},${tc}`);
       }
     } else {
-      // Show waiting note
       waitingBlock.style.display = '';
-      document.getElementById('waiting-note-text').textContent = t('partnerThinking', giverName);
+      document.getElementById('waiting-note-text').textContent = t('partnerThinking', giverPlayer?.name || '?');
     }
   } else if (g.phase === 'guessing') {
     if (amGuesser) {
-      // Show clue reveal
       guesserBlock.style.display = '';
       document.getElementById('revealed-clue').textContent = g.currentClue || '—';
     } else {
-      // Giver waits
-      waitingBlock.style.display = '';
-      document.getElementById('waiting-note-text').textContent = t('waitingGuess', guesserName);
-      // Still show target info for context
+      // Giver sees clue + target for context while waiting
       giverBlock.style.display = '';
+      waitingBlock.style.display = '';
       document.getElementById('clue-input').disabled = true;
+      document.getElementById('waiting-note-text').textContent = t('waitingGuess', '…');
+      // show the clue for the giver too
+      guesserBlock.style.display = '';
+      document.getElementById('revealed-clue').textContent = g.currentClue || '—';
     }
   }
+
+  // Build grid
+  buildGrid(g, guessedSet, g.phase, amGuesser);
 
   // Log
   renderLog(g.log || []);
 }
 
-function currentTargetFromState(g) {
-  const guessedSet = new Set(g.guessed || []);
-  const order = g.targetOrder || [];
-  for (let i = g.targetIndex; i < order.length; i++) {
-    if (!guessedSet.has(order[i])) return order[i];
-  }
-  return null;
+// ══════════════════════════════════════════════════════════════
+//  PLAYERS STRIP
+// ══════════════════════════════════════════════════════════════
+function renderPlayersStrip(players, currentIdx, phase) {
+  const strip = document.getElementById('players-strip');
+  strip.innerHTML = '';
+  players.forEach((p, i) => {
+    const pill = document.createElement('div');
+    pill.className = 'player-pill';
+    if (i === currentIdx) pill.classList.add('active-player');
+    if (p.id === myPlayerId) pill.classList.add('is-me');
+
+    const dot = document.createElement('div');
+    dot.className = 'pill-dot';
+    dot.style.background = PLAYER_COLORS[i % PLAYER_COLORS.length];
+
+    const nameEl = document.createElement('span');
+    let label = p.name;
+    if (p.id === myPlayerId) label += ` (${t('youLabel')})`;
+    nameEl.textContent = label;
+
+    pill.appendChild(dot);
+    pill.appendChild(nameEl);
+
+    if (i === currentIdx) {
+      const roleEl = document.createElement('span');
+      roleEl.className = 'pill-role';
+      roleEl.textContent = phase === 'giving' ? t('giver') : t('giver');
+      pill.appendChild(roleEl);
+    }
+
+    strip.appendChild(pill);
+  });
 }
 
-// ─── Grid builder ───────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+//  GRID
+// ══════════════════════════════════════════════════════════════
 function buildGrid(g, guessedSet, phase, amGuesser) {
   const wrap = document.getElementById('grid-wrap');
-  wrap.innerHTML = '';
+  // Preserve existing grid and just update cell states if possible,
+  // to avoid losing the pop animation
+  const existingGrid = wrap.querySelector('.col-headers');
 
-  const G = g.rowWords.length;
+  // If grid words changed (new game) or no grid yet, rebuild fully
+  const needsRebuild = !existingGrid ||
+    wrap.dataset.rowWords !== g.rowWords.join(',') ||
+    wrap.dataset.colWords !== g.colWords.join(',');
 
-  // Col headers
-  const colHdr = document.createElement('div');
-  colHdr.className = 'col-headers';
-  for (let c = 0; c < G; c++) {
-    const d = document.createElement('div');
-    d.className = 'col-hdr';
-    d.textContent = g.colWords[c];
-    colHdr.appendChild(d);
-  }
-  wrap.appendChild(colHdr);
+  if (needsRebuild) {
+    wrap.innerHTML = '';
+    wrap.dataset.rowWords = g.rowWords.join(',');
+    wrap.dataset.colWords = g.colWords.join(',');
 
-  for (let r = 0; r < G; r++) {
-    const row = document.createElement('div');
-    row.className = 'grid-row-wrap';
+    const G = g.rowWords.length;
 
-    const rh = document.createElement('div');
-    rh.className = 'row-hdr';
-    rh.textContent = g.rowWords[r];
-    row.appendChild(rh);
-
+    const colHdr = document.createElement('div');
+    colHdr.className = 'col-headers';
     for (let c = 0; c < G; c++) {
-      const cell = document.createElement('div');
-      cell.className = 'cell';
-      cell.id = `cell-${r}-${c}`;
-      cell.dataset.key = `${r},${c}`;
+      const d = document.createElement('div');
+      d.className = 'col-hdr';
+      d.textContent = g.colWords[c];
+      colHdr.appendChild(d);
+    }
+    wrap.appendChild(colHdr);
 
-      const coord = document.createElement('div');
-      coord.className = 'cell-coord';
-      coord.textContent = `${String.fromCharCode(65+r)}${c+1}`;
-      cell.appendChild(coord);
+    for (let r = 0; r < G; r++) {
+      const row = document.createElement('div');
+      row.className = 'grid-row-wrap';
 
-      if (guessedSet.has(`${r},${c}`)) {
-        cell.classList.add('guessed');
-        cell.innerHTML = `<span class="cell-check">✓</span>`;
-        cell.classList.add('disabled');
+      const rh = document.createElement('div');
+      rh.className = 'row-hdr';
+      rh.textContent = g.rowWords[r];
+      row.appendChild(rh);
+
+      for (let c = 0; c < G; c++) {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        cell.id = `cell-${r}-${c}`;
+
+        const coord = document.createElement('div');
+        coord.className = 'cell-coord';
+        coord.textContent = `${String.fromCharCode(65+r)}${c+1}`;
+        cell.appendChild(coord);
+
+        row.appendChild(cell);
+      }
+      wrap.appendChild(row);
+    }
+  }
+
+  // Update each cell's state
+  const G = g.rowWords.length;
+  for (let r = 0; r < G; r++) {
+    for (let c = 0; c < G; c++) {
+      const cell = document.getElementById(`cell-${r}-${c}`);
+      if (!cell) continue;
+      const key = `${r},${c}`;
+      const wasGuessed = cell.classList.contains('guessed');
+      const isGuessed = guessedSet.has(key);
+
+      // Remove old interaction listeners by replacing with clone
+      const fresh = cell.cloneNode(true);
+      cell.parentNode.replaceChild(fresh, cell);
+      const el = document.getElementById(`cell-${r}-${c}`);
+
+      el.className = 'cell';
+
+      if (isGuessed) {
+        el.classList.add('guessed', 'disabled');
+        el.innerHTML = `<div class="cell-check">✓</div>`;
+        // Add pop animation only when newly guessed
+        if (!wasGuessed) {
+          el.classList.add('guessed-pop');
+          el.addEventListener('animationend', () => el.classList.remove('guessed-pop'), {once:true});
+        }
       } else {
+        // Re-add coord label
+        el.innerHTML = `<div class="cell-coord">${String.fromCharCode(65+r)}${c+1}</div>`;
         if (phase === 'guessing' && amGuesser) {
-          cell.addEventListener('click', () => onCellClick(r, c));
+          el.addEventListener('click', () => onCellClick(r, c));
         } else {
-          cell.classList.add('disabled');
+          el.classList.add('disabled');
         }
       }
-
-      row.appendChild(cell);
     }
-    wrap.appendChild(row);
   }
 }
 
-function highlightCell(key) {
+function highlightTargetCell(key) {
   document.querySelectorAll('.cell').forEach(c => c.classList.remove('active-target'));
   const [r, c] = key.split(',');
   const el = document.getElementById(`cell-${r}-${c}`);
   if (el) el.classList.add('active-target');
 }
 
+function currentTargetFromState(g) {
+  const guessedSet = new Set(g.guessed || []);
+  const order = g.targetOrder || [];
+  for (let i = g.targetIndex || 0; i < order.length; i++) {
+    if (!guessedSet.has(order[i])) return order[i];
+  }
+  return null;
+}
+
 function renderLog(entries) {
   const scroll = document.getElementById('log-scroll');
   scroll.innerHTML = '';
-  const items = [...entries].reverse();
-  for (const entry of items) {
+  [...entries].reverse().forEach(entry => {
     const div = document.createElement('div');
     div.className = 'log-entry';
-    div.innerHTML = `<span class="li">${entry.icon}</span><span class="log-txt">${entry.text}</span>`;
+    div.innerHTML = `<span class="li">${entry.icon}</span><span>${entry.text}</span>`;
     scroll.appendChild(div);
-  }
+  });
 }
 
-// ═══════════════════════════════════════════════════════════════
-//   CELL CLICK (GUESSER)
-// ═══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
+//  CELL CLICK (GUESSER)
+// ══════════════════════════════════════════════════════════════
 window.onCellClick = async (r, c) => {
   if (!gstate || !gstate.game) return;
   const g = gstate.game;
+  const players = gstate.players || [];
 
   if (g.phase !== 'guessing') return;
-  const amGuesser = g.currentPlayer !== myRole;
-  if (!amGuesser) return;
+
+  const currentIdx = g.currentPlayerIndex ?? 0;
+  const giverPlayer = players[currentIdx];
+  // Only non-givers can guess
+  if (giverPlayer && giverPlayer.id === myPlayerId) return;
 
   const guessedSet = new Set(g.guessed || []);
   if (guessedSet.has(`${r},${c}`)) return;
@@ -1634,12 +1694,14 @@ window.onCellClick = async (r, c) => {
   const tgt = currentTargetFromState(g);
   if (!tgt) return;
 
-  const correct = tgt === `${r},${c}`;
   const [tr, tc] = tgt.split(',').map(Number);
-
+  const correct = tgt === `${r},${c}`;
   let newGuessed = [...(g.guessed || [])];
-  let newTargetIndex = g.targetIndex;
+  let newTargetIndex = g.targetIndex || 0;
   let newLog = [...(g.log || [])];
+
+  // Next player in rotation
+  const nextIdx = (currentIdx + 1) % players.length;
 
   if (correct) {
     newGuessed.push(`${r},${c}`);
@@ -1648,13 +1710,10 @@ window.onCellClick = async (r, c) => {
       icon: '✅',
       text: t('correctLog', g.currentClue, g.rowWords[tr], g.colWords[tc])
     });
-    // Flash success
-    const el = document.getElementById(`cell-${r}-${c}`);
-    if (el) el.style.transition = 'background .2s';
 
-    // Check win
     const G = g.rowWords.length;
     if (newGuessed.length >= G * G) {
+      // Game won!
       await update(ref(db, `rooms/${roomId}/game`), {
         guessed: newGuessed,
         targetIndex: newTargetIndex,
@@ -1667,53 +1726,55 @@ window.onCellClick = async (r, c) => {
       return;
     }
   } else {
-    // Flash wrong cell
     const el = document.getElementById(`cell-${r}-${c}`);
-    if (el) { el.classList.add('wrong-flash'); setTimeout(() => el.classList.remove('wrong-flash'), 600); }
-
+    if (el) {
+      el.classList.add('wrong-flash');
+      setTimeout(() => el.classList.remove('wrong-flash'), 600);
+    }
     newLog.push({
       icon: '❌',
       text: t('wrongLog', g.currentClue, g.rowWords[tr], g.colWords[tc])
     });
     newTargetIndex++;
-    showToast(t('wrongMsg', g.currentClue, g.rowWords[tr], g.colWords[tc]).replace(/<[^>]+>/g, ''));
+    showToast(t('wrongMsg', g.currentClue, g.rowWords[tr], g.colWords[tc]));
   }
 
   stopLocalTimer();
-
-  // Next turn: swap player, back to giving
-  const nextPlayer = g.currentPlayer === 'p1' ? 'p2' : 'p1';
 
   await update(ref(db, `rooms/${roomId}/game`), {
     guessed: newGuessed,
     targetIndex: newTargetIndex,
     log: newLog,
     phase: 'giving',
-    currentPlayer: nextPlayer,
+    currentPlayerIndex: nextIdx,
     currentClue: '',
     timerStartedAt: null,
     rounds: (g.rounds || 0) + 1,
   });
 };
 
-// ═══════════════════════════════════════════════════════════════
-//   SUBMIT CLUE (GIVER)
-// ═══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
+//  SUBMIT CLUE (GIVER)
+// ══════════════════════════════════════════════════════════════
 window.submitClue = async () => {
   const clue = document.getElementById('clue-input').value.trim().toUpperCase();
   if (!clue) return;
   if (!gstate || !gstate.game) return;
   const g = gstate.game;
-  if (g.phase !== 'giving') return;
-  if (g.currentPlayer !== myRole) return;
+  const players = gstate.players || [];
 
-  const newLog = [...(g.log || []), {
-    icon: '🗣️',
-    text: t('roundLog', localName, clue)
-  }];
+  if (g.phase !== 'giving') return;
+  const currentIdx = g.currentPlayerIndex ?? 0;
+  const giverPlayer = players[currentIdx];
+  if (!giverPlayer || giverPlayer.id !== myPlayerId) return;
 
   document.getElementById('give-btn').disabled = true;
   document.getElementById('clue-input').disabled = true;
+
+  const newLog = [...(g.log || []), {
+    icon: '🗣️',
+    text: t('roundLog', myName, clue)
+  }];
 
   const timerStartedAt = gstate.useTimer ? Date.now() : null;
 
@@ -1725,22 +1786,21 @@ window.submitClue = async () => {
   });
 };
 
-// ═══════════════════════════════════════════════════════════════
-//   LOCAL TIMER
-// ═══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
+//  TIMER
+// ══════════════════════════════════════════════════════════════
 function startLocalTimer(totalSecs, startedAt) {
   stopLocalTimer();
   const elapsed = Math.floor((Date.now() - startedAt) / 1000);
   localTimerLeft = Math.max(0, totalSecs - elapsed);
   renderTimerDisplay();
 
-  timerInterval = setInterval(() => {
+  timerInterval = setInterval(async () => {
     localTimerLeft--;
     renderTimerDisplay();
     if (localTimerLeft <= 0) {
       stopLocalTimer();
-      // Auto-advance if it's our turn
-      handleTimerExpiry();
+      await handleTimerExpiry();
     }
   }, 1000);
 }
@@ -1761,18 +1821,23 @@ function renderTimerDisplay() {
 async function handleTimerExpiry() {
   if (!gstate || !gstate.game) return;
   const g = gstate.game;
+  const players = gstate.players || [];
+  const currentIdx = g.currentPlayerIndex ?? 0;
+  const giverPlayer = players[currentIdx];
 
-  // Only the relevant player should push the state change
-  const isMyTurn = (g.phase === 'giving' && g.currentPlayer === myRole) ||
-                   (g.phase === 'guessing' && g.currentPlayer !== myRole);
-  if (!isMyTurn) return;
+  // Only the responsible party fires the update
+  const isMyResponsibility =
+    (g.phase === 'giving'   && giverPlayer?.id === myPlayerId) ||
+    (g.phase === 'guessing' && giverPlayer?.id !== myPlayerId);
 
-  const nextPlayer = g.currentPlayer === 'p1' ? 'p2' : 'p1';
+  if (!isMyResponsibility) return;
+
+  const nextIdx = (currentIdx + 1) % players.length;
   const newLog = [...(g.log || []), { icon: '⏱️', text: 'Time expired' }];
 
   await update(ref(db, `rooms/${roomId}/game`), {
     phase: 'giving',
-    currentPlayer: nextPlayer,
+    currentPlayerIndex: nextIdx,
     currentClue: '',
     timerStartedAt: null,
     rounds: (g.rounds || 0) + 1,
@@ -1781,9 +1846,9 @@ async function handleTimerExpiry() {
   });
 }
 
-// ═══════════════════════════════════════════════════════════════
-//   END SCREEN
-// ═══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
+//  END SCREEN
+// ══════════════════════════════════════════════════════════════
 function renderEndScreen(data) {
   stopLocalTimer();
   showScreen('end');
@@ -1792,6 +1857,7 @@ function renderEndScreen(data) {
   document.getElementById('end-trophy').textContent = '🏆';
   document.getElementById('end-title').textContent = t('congratsTitle');
   document.getElementById('end-sub').textContent = t('congratsSub', n);
+  document.getElementById('end-room-code').textContent = t('codedRoom', roomId);
   document.getElementById('stat-matched').textContent = n;
   document.getElementById('stat-rounds').textContent = g.rounds || 0;
   document.getElementById('btn-play-again').textContent = t('playAgain');
@@ -1800,51 +1866,41 @@ function renderEndScreen(data) {
   document.getElementById('lbl-stat-rounds').textContent = t('statRounds');
 }
 
-// ═══════════════════════════════════════════════════════════════
-//   NAVIGATION
-// ═══════════════════════════════════════════════════════════════
-window.quitGame = () => {
-  if (confirm(lang === 'es' ? '¿Salir del juego?' : 'Quit the game?')) {
-    stopLocalTimer();
-    if (roomRef) off(roomRef);
-    goHome();
-  }
-};
-
+// ══════════════════════════════════════════════════════════════
+//  PLAY AGAIN — same room, no new code needed
+// ══════════════════════════════════════════════════════════════
 window.playAgain = async () => {
-  if (!firebaseReady || !roomRef || !gstate) { goHome(); return; }
+  if (!roomRef || !gstate) return;
   stopLocalTimer();
 
-  const G = 5;
-  const pool = shuffle(WORDS[lang]);
-  const rowWords = pool.slice(0, G);
-  const colWords = pool.slice(G, G * 2);
-  const allCells = [];
-  for (let r = 0; r < G; r++) for (let c = 0; c < G; c++) allCells.push(`${r},${c}`);
-  const targetOrder = shuffle(allCells);
-
-  const gameData = {
-    rowWords, colWords, targetOrder,
-    targetIndex: 0,
-    currentPlayer: 'p1',
-    phase: 'giving',
-    currentClue: '',
-    guessed: [],
-    rounds: 0,
-    log: [],
-    timerStartedAt: null,
-  };
-
+  const players = gstate.players || [];
+  // Reset game with same players, host can trigger or anyone
+  const gameData = buildNewGameData(players, gstate.lang || lang);
   await update(roomRef, { status: 'playing', game: gameData });
+};
+
+// ══════════════════════════════════════════════════════════════
+//  QUIT / HOME
+// ══════════════════════════════════════════════════════════════
+window.quitGame = () => {
+  const msg = lang === 'es' ? '¿Salir del juego?' : 'Quit the game?';
+  if (confirm(msg)) {
+    stopLocalTimer();
+    if (roomRef) off(roomRef);
+    resetToLobby();
+  }
 };
 
 window.goHome = () => {
   stopLocalTimer();
   if (roomRef) off(roomRef);
-  roomId = roomRef = roomUnsubscribe = null;
-  myRole = null; gstate = null;
+  resetToLobby();
+};
 
-  // Reset lobby UI
+function resetToLobby() {
+  roomId = null; roomRef = null; gstate = null;
+  myPlayerId = null; myName = ''; isHost = false;
+
   document.getElementById('create-section').style.display = '';
   document.getElementById('or-div').style.display = '';
   document.getElementById('join-section').style.display = '';
@@ -1852,29 +1908,21 @@ window.goHome = () => {
   document.getElementById('join-status').style.display = 'none';
   document.getElementById('join-code').value = '';
   document.getElementById('log-scroll').innerHTML = '';
+  document.getElementById('start-game-btn').style.display = '';
 
   showScreen('lobby');
+  applyLobbyTranslations();
+}
+
+window.copyRoomCode = () => {
+  if (!roomId) return;
+  navigator.clipboard.writeText(roomId).catch(() => {});
+  showToast(t('copiedCode'));
 };
 
-// ═══════════════════════════════════════════════════════════════
-//   FIREBASE INSTRUCTIONS (fallback demo)
-// ═══════════════════════════════════════════════════════════════
-window.showFirebaseInstructions = () => {
-  alert(
-    'Firebase Setup:\n\n' +
-    '1. Go to https://console.firebase.google.com\n' +
-    '2. Create a free project\n' +
-    '3. Add a Web App\n' +
-    '4. Copy the firebaseConfig\n' +
-    '5. Edit this HTML file and paste it into FIREBASE_CONFIG\n' +
-    '6. Enable Realtime Database (Build → Realtime Database)\n' +
-    '7. Done!'
-  );
-};
-
-// ═══════════════════════════════════════════════════════════════
-//   INIT
-// ═══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════════════
 applyLobbyTranslations();
 </script>
 </body>
