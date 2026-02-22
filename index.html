@@ -414,6 +414,20 @@ body::after {
 }
 .header-quit:hover { border-color: var(--wrong); color: var(--wrong); }
 
+.header-new-game {
+  padding: .3rem .8rem;
+  border: 1.5px solid var(--success);
+  border-radius: 8px;
+  background: transparent;
+  font-family: 'Syne', sans-serif;
+  font-size: .8rem;
+  font-weight: 700;
+  color: var(--success);
+  cursor: pointer;
+  transition: all .15s;
+}
+.header-new-game:hover { background: var(--success); color: #fff; }
+
 .game-body {
   flex: 1;
   display: grid;
@@ -911,6 +925,7 @@ body::after {
       <span class="timer-chip" id="hdr-timer" style="display:none">1:30</span>
       <span class="room-chip" id="hdr-room" title="Click to copy room code" onclick="copyRoomCode()">—</span>
     </div>
+    <button class="header-new-game" id="btn-new-game" onclick="playAgain()">New Game</button>
     <button class="header-quit" id="btn-quit" onclick="quitGame()">Quit</button>
   </div>
 
@@ -1070,7 +1085,7 @@ const T = {
     hintNote: "Give one word that hints at both!",
     giver: "Clue Giver", guesser: "Guesser",
     cluePlaceholder: "one word…", giveBtn: "Give Clue →",
-    log: "Log", quit: "Quit",
+    log: "Log", quit: "Quit", newGame: "New Game",
     statMatched: "Matched", statRounds: "Rounds",
     playAgain: "Play Again (same room)", goHome: "Leave Room",
     congratsTitle: "Congratulations!",
@@ -1106,7 +1121,7 @@ const T = {
     hintNote: "¡Da una palabra que insinúe las dos!",
     giver: "Da la Pista", guesser: "Adivina",
     cluePlaceholder: "una palabra…", giveBtn: "Dar Pista →",
-    log: "Registro", quit: "Salir",
+    log: "Registro", quit: "Salir", newGame: "Nuevo Juego",
     statMatched: "Adivinadas", statRounds: "Rondas",
     playAgain: "Nueva Partida (misma sala)", goHome: "Salir de la sala",
     congratsTitle: "¡Felicidades!",
@@ -1229,6 +1244,7 @@ function applyGameTranslations() {
   document.getElementById('give-btn').textContent = t('giveBtn');
   document.getElementById('lbl-log').textContent = t('log');
   document.getElementById('btn-quit').textContent = t('quit');
+  document.getElementById('btn-new-game').textContent = t('newGame');
 }
 
 window.onTimerToggle = () => {
