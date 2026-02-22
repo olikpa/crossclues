@@ -547,6 +547,34 @@ body::after {
   50% { background: var(--wrong-bg); border-color: var(--wrong); }
 }
 
+/* Missed cell — stays red permanently until end of game */
+.cell.missed {
+  background: #fde8e8;
+  border-color: var(--wrong);
+  border-width: 2px;
+  box-shadow: 0 0 0 3px rgba(192,57,43,.18), 0 2px 8px rgba(192,57,43,.12);
+  cursor: default;
+}
+.cell.missed:hover { transform: none; border-color: var(--wrong); }
+.cell.missed::before { display: none; }
+
+/* Pop-in animation when a cell first becomes missed */
+.cell.missed-pop {
+  animation: missedPop .4s cubic-bezier(.36,1.4,.64,1) both;
+}
+@keyframes missedPop {
+  0%   { transform: scale(.9); }
+  60%  { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+.cell-miss-icon {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--wrong);
+  line-height: 1;
+}
+
 .cell.active-target {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(212,160,23,.25), 0 2px 8px var(--shadow);
@@ -1045,25 +1073,247 @@ const db  = getDatabase(app);
 //  WORD LISTS
 // ══════════════════════════════════════════════════════════════
 const WORDS = {
-  en: [
-    "OCEAN","FIRE","MOON","TREE","STONE","CLOCK","BRIDGE","CLOUD","WIND","MOUNTAIN",
-    "BOOK","HEART","STAR","RIVER","LION","SHIP","GOLD","SHADOW","FLOWER","DREAM",
-    "SWORD","EAGLE","DESERT","MIRROR","CROWN","ANCHOR","THUNDER","CANDLE","FEATHER","WAVE",
-    "KEY","DOOR","BELL","FISH","RAIN","SNOW","LEAF","NIGHT","ROAD","KING",
-    "CAVE","WING","FLAME","ROSE","MAP","CAGE","BONE","SONG","LIGHT","HORN",
-    "WOLF","TRAIL","GARDEN","SILVER","TOWER","STORM","ARROW","PEARL","CRYSTAL","FROST",
-    "SEAL","FORGE","BEACON","TIDE","ORBIT","DUSK","MIST","LORE","SHIELD","VEIL"
-  ],
   es: [
-    "OCÉANO","FUEGO","LUNA","ÁRBOL","PIEDRA","RELOJ","PUENTE","NUBE","VIENTO","MONTAÑA",
-    "LIBRO","CORAZÓN","ESTRELLA","RÍO","LEÓN","BARCO","ORO","SOMBRA","FLOR","SUEÑO",
-    "ESPADA","ÁGUILA","DESIERTO","ESPEJO","CORONA","ANCLA","TRUENO","VELA","PLUMA","OLA",
-    "LLAVE","PUERTA","CAMPANA","PEZ","LLUVIA","NIEVE","HOJA","NOCHE","CAMINO","REY",
-    "CUEVA","ALA","LLAMA","ROSA","MAPA","JAULA","HUESO","CANCIÓN","LUZ","CUERNO",
-    "LOBO","SENDERO","JARDÍN","PLATA","TORRE","TORMENTA","FLECHA","PERLA","CRISTAL","ESCARCHA",
-    "FOCA","FRAGUA","FARO","MAREA","ÓRBITA","CREPÚSCULO","NIEBLA","LEYENDA","ESCUDO","VELO"
+    // LUGARES NATURALES
+    "Selva","Desierto","Playa","Volcán","Isla","Cueva","Océano","Río","Montaña","Bosque",
+    "Pantano","Glaciar","Pradera","Cascada","Acantilado","Valle","Jungla","Polo","Arrecife",
+    "Abismo","Horizonte","Estanque","Jardín","Invernadero",
+    // LUGARES CONSTRUIDOS
+    "Ciudad","Pueblo","Hospital","Escuela","Parque","Cine","Estadio","Biblioteca",
+    "Aeropuerto","Granja","Castillo","Prisión","Laboratorio","Hotel","Restaurante",
+    "Oficina","Iglesia","Museo","Cementerio","Zoológico","Tienda","Supermercado",
+    "Puente","Estación","Gimnasio","Teatro","Circo","Casino","Banco","Fábrica",
+    "Mina","Puerto","Faro","Templo","Pirámide","Torre","Muro","Trinchera",
+    "Mansión","Cabaña","Rascacielos","Metro","Carretera","Callejón","Plaza",
+    "Mercado","Universidad","Guardería","Comisaría","Cuartel","Juzgado",
+    "Parlamento","Ayuntamiento","Catedral","Sinagoga","Mezquita","Santuario",
+    "Altar","Tumba","Ruinas","Laberinto","Helipuerto","Quiosco",
+    // ESPACIO
+    "Espacio","Marte","Estrella","Planeta","Cometa","Galaxia","Universo","Satélite","Cohete",
+    // OBJETOS COTIDIANOS
+    "Manzana","Pan","Café","Chocolate","Pizza","Queso","Huevo","Vino",
+    "Cuchillo","Tenedor","Martillo","Llave","Reloj","Teléfono","Cámara","Libro",
+    "Espejo","Lámpara","Silla","Mesa","Cama","Maleta","Dinero","Guitarra","Pelota",
+    "Bicicleta","Coche","Avión","Barco","Tren","Paraguas","Gafas","Zapato","Sombrero",
+    "Anillo","Jabón","Cepillo","Papel","Pintura","Piedra","Radio",
+    "Botella","Caja","Bolsa","Cesta","Cuchara","Plato","Vaso","Sartén","Olla","Horno",
+    "Nevera","Toalla","Peine","Esponja","Almohada","Sábana","Manta","Cortina",
+    "Microondas","Aspiradora","Lavadora","Plancha","Ventilador","Estufa","Grifo",
+    "Ladrillo","Cemento","Clavo","Tornillo","Sierra","Taladro","Brújula","Mapa",
+    "Telescopio","Microscopio","Jeringuilla","Pastilla","Vendaje","Muleta","Termómetro",
+    "Dron","Chip","Láser","Prismáticos","Batería","Enchufe","Cable","Pantalla","Laptop",
+    // ANIMALES
+    "Perro","Gato","Caballo","León","Elefante","Pájaro","Pez","Serpiente","Araña","Abeja",
+    "Tigre","Oso","Lobo","Tiburón","Ballena","Delfín","Águila","Búho","Mariposa","Hormiga",
+    "Rana","Tortuga","Cocodrilo","Mono","Vaca","Oveja","Cerdo","Pollo","Ratón","Conejo",
+    // PERSONAS Y PROFESIONES
+    "Médico","Policía","Bombero","Profesor","Chef","Artista","Piloto","Astronauta",
+    "Soldado","Rey","Bebé","Gigante","Fantasma","Robot","Alien","Pirata","Payaso",
+    "Mago","Atleta","Científico","Abogado","Granjero","Actor","Cantante","Bailarín",
+    "Periodista","Carpintero","Fotógrafo","Detective","Espía","Ninja","Caballero",
+    "Vikingo","Vaquero","Zombi","Vampiro","Sirena","Dragón","Juez","Político",
+    "Banquero","Marinero","Minero","Mecánico","Electricista","Fontanero","Peluquero","Veterinario",
+    // NATURALEZA
+    "Árbol","Flor","Nube",
+    // CUERPO HUMANO
+    "Átomo","Sangre","Hueso","Cerebro","Corazón","Pulmón","Mano","Pie","Ojo","Oreja",
+    "Nariz","Boca","Diente","Pelo","Piel","Uña","Músculo","Esqueleto","Nervio","Gen",
+    // CONCEPTOS ABSTRACTOS
+    "Amor","Miedo","Tiempo","Sueño","Guerra","Paz","Música","Magia","Suerte","Destino",
+    "Ruido","Calor","Velocidad","Peso","Altura","Color","Forma","Número","Historia","Futuro",
+    "Mentira","Verdad","Crimen","Justicia","Veneno","Medicina","Electricidad",
+    "Fuego","Agua","Aire","Tierra","Oro","Basura","Regalo","Vacaciones","Peligro",
+    "Odio","Alegría","Tristeza","Ira","Orgullo","Envidia","Poder","Libertad","Ley",
+    "Deuda","Éxito","Fracaso","Victoria","Derrota","Secreto","Misterio","Enigma",
+    "Arte","Ciencia","Religión","Política","Idioma","Sonido","Ritmo","Poesía","Danza",
+    "Juego","Deporte","Trabajo","Fiesta","Boda","Funeral","Viaje","Aventura",
+    "Caos","Orden","Energía","Fuerza","Gravedad","Vacío","Infinito",
+    "Mañana","Semana","Mes","Año","Siglo","Pasado","Presente","Eternidad",
+    // VERBOS/ACCIONES
+    "Volar","Nadar","Correr","Dormir","Comer","Cantar","Bailar","Escribir","Leer","Pelear",
+    "Ganar","Perder","Romper","Arreglar","Comprar","Vender",
+    // ADJETIVOS
+    "Grande","Pequeño","Rápido","Lento","Viejo","Nuevo","Caro","Barato","Pesado","Ligero",
+    "Duro","Blando","Dulce","Salado","Amargo","Picante","Sucio","Limpio","Mojado","Seco",
+    "Fuerte","Débil","Invisible","Brillante","Oscuro","Rojo","Azul","Verde","Amarillo",
+    "Blanco","Negro","Redondo","Cuadrado","Largo","Corto","Caliente","Helado","Suave",
+    "Áspero","Lleno","Abierto","Cerrado","Joven","Anciano","Rico","Pobre","Sano","Enfermo",
+    "Vivo","Muerto","Real","Falso","Fácil","Difícil","Útil","Solo","Libre","Preso",
+    "Cerca","Lejos","Arriba","Abajo","Dentro","Fuera","Norte","Sur","Este","Oeste"
+  ],
+  en: [
+    // NATURAL PLACES
+    "Jungle","Desert","Beach","Volcano","Island","Cave","Ocean","River","Mountain","Forest",
+    "Swamp","Glacier","Meadow","Waterfall","Cliff","Valley","Reef","Abyss","Horizon","Pond",
+    // BUILT PLACES
+    "City","Village","Hospital","School","Park","Cinema","Stadium","Library",
+    "Airport","Farm","Castle","Prison","Laboratory","Hotel","Restaurant",
+    "Office","Church","Museum","Cemetery","Zoo","Store","Bridge","Station",
+    "Gym","Theater","Circus","Casino","Bank","Factory","Mine","Harbor","Lighthouse",
+    "Temple","Pyramid","Tower","Wall","Trench","Mansion","Skyscraper","Subway",
+    "Highway","Alley","Square","Market","University","Precinct","Barracks","Courthouse",
+    "Parliament","Cathedral","Mosque","Sanctuary","Altar","Tomb","Ruins","Maze","Greenhouse",
+    // SPACE
+    "Space","Mars","Star","Planet","Comet","Galaxy","Universe","Satellite","Rocket",
+    // OBJECTS
+    "Apple","Bread","Coffee","Chocolate","Pizza","Cheese","Egg","Wine",
+    "Knife","Fork","Hammer","Key","Clock","Phone","Camera","Book",
+    "Mirror","Lamp","Chair","Table","Bed","Suitcase","Money","Guitar","Ball",
+    "Bicycle","Car","Airplane","Ship","Train","Umbrella","Glasses","Shoe","Hat",
+    "Ring","Soap","Brush","Paper","Paint","Stone","Radio",
+    "Bottle","Box","Bag","Spoon","Plate","Cup","Pan","Oven","Fridge",
+    "Towel","Pillow","Blanket","Curtain","Microwave","Drill","Compass","Map",
+    "Telescope","Microscope","Syringe","Pill","Bandage","Thermometer",
+    "Drone","Chip","Laser","Binoculars","Battery","Screen","Laptop",
+    // ANIMALS
+    "Dog","Cat","Horse","Lion","Elephant","Bird","Fish","Snake","Spider","Bee",
+    "Tiger","Bear","Wolf","Shark","Whale","Dolphin","Eagle","Owl","Butterfly","Ant",
+    "Frog","Turtle","Crocodile","Monkey","Cow","Sheep","Pig","Chicken","Mouse","Rabbit",
+    // PEOPLE
+    "Doctor","Police","Firefighter","Teacher","Chef","Artist","Pilot","Astronaut",
+    "Soldier","King","Baby","Giant","Ghost","Robot","Alien","Pirate","Clown",
+    "Wizard","Athlete","Scientist","Lawyer","Farmer","Actor","Singer","Dancer",
+    "Journalist","Carpenter","Photographer","Detective","Spy","Ninja","Knight",
+    "Viking","Cowboy","Zombie","Vampire","Mermaid","Dragon","Judge","Politician",
+    "Sailor","Miner","Mechanic","Electrician","Plumber","Barber","Vet",
+    // BODY
+    "Blood","Bone","Brain","Heart","Lung","Hand","Foot","Eye","Ear",
+    "Nose","Mouth","Tooth","Hair","Skin","Muscle","Skeleton","Nerve","Gene",
+    // ABSTRACT
+    "Love","Fear","Time","Dream","War","Peace","Music","Magic","Luck","Destiny",
+    "Noise","Heat","Speed","Weight","Height","Color","Shape","Number","History","Future",
+    "Lie","Truth","Crime","Justice","Poison","Medicine","Fire","Water","Air","Earth",
+    "Gold","Trash","Gift","Danger","Hate","Joy","Sadness","Anger","Pride","Envy",
+    "Power","Freedom","Law","Debt","Success","Failure","Victory","Defeat","Secret","Mystery",
+    "Art","Science","Religion","Politics","Language","Sound","Rhythm","Poetry","Dance",
+    "Game","Sport","Work","Party","Wedding","Journey","Adventure","Chaos","Order",
+    "Energy","Gravity","Infinity","Morning","Week","Month","Year","Century","Past","Eternity",
+    // ADJECTIVES
+    "Big","Small","Fast","Slow","Old","New","Expensive","Heavy","Light",
+    "Hard","Soft","Sweet","Salty","Bitter","Spicy","Dirty","Clean","Wet","Dry",
+    "Strong","Weak","Invisible","Bright","Dark","Red","Blue","Green","Yellow",
+    "White","Black","Round","Square","Long","Short","Hot","Cold","Smooth","Rough",
+    "Full","Open","Closed","Young","Rich","Poor","Healthy","Sick","Alive","Dead",
+    "Real","Fake","Easy","Difficult","Useful","Alone","Free","Near","Far","Up","Down"
   ]
 };
+
+// ── SIMILARITY GROUPS ─────────────────────────────────────────────────────────
+// Words in the same group will never appear together on the same 5x5 grid.
+// Add as many groups as needed; each entry is a Set for O(1) lookup.
+const SIMILAR_GROUPS_ES = [
+  new Set(["Selva","Jungla","Bosque"]),
+  new Set(["Océano","Mar","Río","Lago","Estanque","Arrecife"]),
+  new Set(["Montaña","Volcán","Acantilado","Valle","Colina"]),
+  new Set(["Desierto","Pradera","Pantano","Glaciar"]),
+  new Set(["Playa","Isla","Puerto","Faro"]),
+  new Set(["Ciudad","Pueblo","Plaza","Callejón","Mercado","Rascacielos","Carretera","Metro"]),
+  new Set(["Iglesia","Catedral","Sinagoga","Mezquita","Templo","Santuario","Altar"]),
+  new Set(["Hospital","Guardería","Universidad","Escuela","Laboratorio","Comisaría","Cuartel","Juzgado","Parlamento","Ayuntamiento"]),
+  new Set(["Hotel","Mansión","Cabaña","Castillo"]),
+  new Set(["Cine","Teatro","Circo","Casino","Estadio","Gimnasio"]),
+  new Set(["Tienda","Supermercado","Mercado","Banco","Quiosco"]),
+  new Set(["Estrella","Luna","Sol","Planeta","Cometa","Galaxia","Universo","Espacio","Marte","Satélite","Cohete"]),
+  new Set(["Fuego","Calor","Llama","Volcán"]),
+  new Set(["Nieve","Hielo","Glaciar","Frío","Helado","Polo"]),
+  new Set(["Agua","Lluvia","Río","Océano","Lago"]),
+  new Set(["Árbol","Flor","Jardín","Invernadero","Bosque","Selva"]),
+  new Set(["Nube","Lluvia","Niebla","Horizonte"]),
+  new Set(["Perro","Gato","Conejo","Ratón"]),
+  new Set(["León","Tigre","Leopardo","Pantera"]),
+  new Set(["Ballena","Delfín","Tiburón","Pez"]),
+  new Set(["Águila","Búho","Pájaro"]),
+  new Set(["Araña","Hormiga","Abeja","Mariposa"]),
+  new Set(["Serpiente","Cocodrilo","Rana","Tortuga"]),
+  new Set(["Vaca","Oveja","Cerdo","Caballo","Pollo"]),
+  new Set(["Mono","Gorila","Elefante","Oso"]),
+  new Set(["Amor","Odio","Envidia","Orgullo","Ira","Alegría","Tristeza"]),
+  new Set(["Guerra","Paz","Crimen","Justicia","Ley","Derrota","Victoria"]),
+  new Set(["Miedo","Peligro","Veneno","Muerte"]),
+  new Set(["Música","Sonido","Ritmo","Danza","Cantar","Bailar"]),
+  new Set(["Arte","Poesía","Pintura","Danza"]),
+  new Set(["Ciencia","Medicina","Laboratorio","Microscopio","Telescopio"]),
+  new Set(["Mañana","Tarde","Noche","Semana","Mes","Año","Siglo","Pasado","Presente","Futuro","Eternidad"]),
+  new Set(["Mano","Pie","Ojo","Oreja","Nariz","Boca","Diente","Pelo","Piel","Uña","Músculo","Hueso","Esqueleto","Nervio","Cerebro","Corazón","Pulmón","Sangre"]),
+  new Set(["Cuchillo","Tenedor","Cuchara","Plato","Vaso","Sartén","Olla","Horno","Nevera","Microondas"]),
+  new Set(["Cama","Almohada","Sábana","Manta"]),
+  new Set(["Silla","Mesa","Cortina","Ventana","Puerta","Lámpara"]),
+  new Set(["Lavadora","Aspiradora","Plancha","Ventilador","Estufa","Grifo"]),
+  new Set(["Coche","Bicicleta","Tren","Avión","Barco","Metro"]),
+  new Set(["Rojo","Azul","Verde","Amarillo","Blanco","Negro"]),
+  new Set(["Grande","Pequeño","Largo","Corto","Alto","Bajo"]),
+  new Set(["Rápido","Lento","Velocidad","Tiempo"]),
+  new Set(["Caliente","Helado","Frío","Calor"]),
+  new Set(["Dulce","Salado","Amargo","Picante"]),
+  new Set(["Sucio","Limpio","Mojado","Seco"]),
+  new Set(["Fuerte","Débil","Duro","Blando","Suave","Áspero"]),
+  new Set(["Lleno","Vacío","Abierto","Cerrado"]),
+  new Set(["Arriba","Abajo","Dentro","Fuera","Cerca","Lejos"]),
+  new Set(["Norte","Sur","Este","Oeste"]),
+  new Set(["Vivo","Muerto","Sano","Enfermo"]),
+  new Set(["Rico","Pobre","Deuda","Dinero","Oro"]),
+  new Set(["Zombi","Vampiro","Fantasma","Dragón","Sirena"]),
+  new Set(["Pirata","Vikingo","Ninja","Caballero","Vaquero"]),
+  new Set(["Rey","Juez","Político","Banquero"]),
+  new Set(["Médico","Veterinario","Enfermero"]),
+  new Set(["Detective","Espía","Policía"]),
+  new Set(["Cantante","Bailarín","Actor","Artista"]),
+];
+
+const SIMILAR_GROUPS_EN = [
+  new Set(["Jungle","Forest","Woods"]),
+  new Set(["Ocean","Sea","River","Lake","Pond","Reef"]),
+  new Set(["Mountain","Volcano","Cliff","Valley"]),
+  new Set(["Desert","Meadow","Swamp","Glacier"]),
+  new Set(["Beach","Island","Harbor","Lighthouse"]),
+  new Set(["City","Village","Square","Alley","Market","Skyscraper","Highway","Subway"]),
+  new Set(["Church","Cathedral","Mosque","Temple","Sanctuary","Altar"]),
+  new Set(["Hospital","University","School","Laboratory","Precinct","Barracks","Courthouse"]),
+  new Set(["Hotel","Mansion","Castle"]),
+  new Set(["Cinema","Theater","Circus","Casino","Stadium","Gym"]),
+  new Set(["Store","Market","Bank"]),
+  new Set(["Star","Moon","Sun","Planet","Comet","Galaxy","Universe","Space","Mars","Satellite","Rocket"]),
+  new Set(["Fire","Heat","Flame"]),
+  new Set(["Snow","Ice","Glacier","Cold","Frozen","Pole"]),
+  new Set(["Water","Rain","River","Ocean","Lake"]),
+  new Set(["Tree","Flower","Garden","Greenhouse","Forest","Jungle"]),
+  new Set(["Cloud","Rain","Fog","Horizon"]),
+  new Set(["Dog","Cat","Rabbit","Mouse"]),
+  new Set(["Lion","Tiger","Leopard"]),
+  new Set(["Whale","Dolphin","Shark","Fish"]),
+  new Set(["Eagle","Owl","Bird"]),
+  new Set(["Spider","Ant","Bee","Butterfly"]),
+  new Set(["Snake","Crocodile","Frog","Turtle"]),
+  new Set(["Cow","Sheep","Pig","Horse","Chicken"]),
+  new Set(["Love","Hate","Envy","Pride","Anger","Joy","Sadness"]),
+  new Set(["War","Peace","Crime","Justice","Law","Defeat","Victory"]),
+  new Set(["Music","Sound","Rhythm","Dance","Sing"]),
+  new Set(["Art","Poetry","Painting","Dance"]),
+  new Set(["Science","Medicine","Laboratory","Microscope","Telescope"]),
+  new Set(["Morning","Night","Week","Month","Year","Century","Past","Present","Future","Eternity"]),
+  new Set(["Hand","Foot","Eye","Ear","Nose","Mouth","Tooth","Hair","Skin","Muscle","Bone","Brain","Heart","Lung","Blood"]),
+  new Set(["Knife","Fork","Spoon","Plate","Cup","Pan","Oven","Fridge","Microwave"]),
+  new Set(["Bed","Pillow","Blanket"]),
+  new Set(["Chair","Table","Curtain","Lamp"]),
+  new Set(["Car","Bicycle","Train","Airplane","Ship","Subway"]),
+  new Set(["Red","Blue","Green","Yellow","White","Black"]),
+  new Set(["Big","Small","Long","Short"]),
+  new Set(["Fast","Slow","Speed","Time"]),
+  new Set(["Hot","Cold","Heat","Frozen"]),
+  new Set(["Sweet","Salty","Bitter","Spicy"]),
+  new Set(["Dirty","Clean","Wet","Dry"]),
+  new Set(["Strong","Weak","Hard","Soft","Smooth","Rough"]),
+  new Set(["Full","Empty","Open","Closed"]),
+  new Set(["Up","Down","Inside","Outside","Near","Far"]),
+  new Set(["North","South","East","West"]),
+  new Set(["Alive","Dead","Healthy","Sick"]),
+  new Set(["Rich","Poor","Debt","Money","Gold"]),
+  new Set(["Zombie","Vampire","Ghost","Dragon","Mermaid"]),
+  new Set(["Pirate","Viking","Ninja","Knight","Cowboy"]),
+  new Set(["Doctor","Vet"]),
+  new Set(["Detective","Spy","Police"]),
+  new Set(["Singer","Dancer","Actor","Artist"]),
+];
 
 // ══════════════════════════════════════════════════════════════
 //  TRANSLATIONS
@@ -1350,13 +1600,45 @@ window.hostStartGame = async () => {
 
   const gameData = buildNewGameData(players, data.lang || lang);
   await update(roomRef, { status: 'playing', game: gameData });
+
+  // Force host into game screen immediately without waiting for onValue
+  const newData = { ...data, status: 'playing', game: gameData };
+  gstate = newData;
+  applyGameTranslations();
+  showScreen('game');
+  document.getElementById('hdr-room').textContent = roomId;
+  renderGame(newData);
 };
 
 function buildNewGameData(players, gameLang) {
   const G = 5;
-  const pool = shuffle(WORDS[gameLang || lang]);
-  const rowWords = pool.slice(0, G);
-  const colWords = pool.slice(G, G * 2);
+  const L = gameLang || lang;
+  const pool = shuffle(WORDS[L] || WORDS.es);
+  const groups = L === 'en' ? SIMILAR_GROUPS_EN : SIMILAR_GROUPS_ES;
+
+  // Pick 10 words (5 rows + 5 cols) ensuring no two words share a similarity group
+  function pickWords(source, count) {
+    const picked = [];
+    for (const word of source) {
+      if (picked.length >= count) break;
+      // Check this word doesn't conflict with any already picked
+      const conflicts = groups.some(g => g.has(word) && picked.some(p => g.has(p)));
+      if (!conflicts) picked.push(word);
+    }
+    // If somehow we couldn't fill (very unlikely), pad with remaining words
+    if (picked.length < count) {
+      for (const word of source) {
+        if (picked.length >= count) break;
+        if (!picked.includes(word)) picked.push(word);
+      }
+    }
+    return picked;
+  }
+
+  const rowWords = pickWords(pool, G);
+  const remaining = pool.filter(w => !rowWords.includes(w));
+  const colWords = pickWords(remaining, G);
+
   const allCells = [];
   for (let r = 0; r < G; r++) for (let c = 0; c < G; c++) allCells.push(`${r},${c}`);
   const targetOrder = shuffle(allCells);
@@ -1364,7 +1646,7 @@ function buildNewGameData(players, gameLang) {
   return {
     rowWords, colWords, targetOrder,
     targetIndex: 0,
-    currentPlayerIndex: 0,   // index into players array
+    currentPlayerIndex: 0,
     phase: 'giving',
     currentClue: '',
     guessed: [],
@@ -1527,7 +1809,8 @@ function renderGame(data) {
   }
 
   // Build grid
-  buildGrid(g, guessedSet, g.phase, amGuesser);
+  const missedSet = new Set(g.missed || []);
+  buildGrid(g, guessedSet, missedSet, g.phase, amGuesser);
 
   // Log
   renderLog(g.log || []);
@@ -1571,13 +1854,9 @@ function renderPlayersStrip(players, currentIdx, phase) {
 // ══════════════════════════════════════════════════════════════
 //  GRID
 // ══════════════════════════════════════════════════════════════
-function buildGrid(g, guessedSet, phase, amGuesser) {
+function buildGrid(g, guessedSet, missedSet, phase, amGuesser) {
   const wrap = document.getElementById('grid-wrap');
-  // Preserve existing grid and just update cell states if possible,
-  // to avoid losing the pop animation
   const existingGrid = wrap.querySelector('.col-headers');
-
-  // If grid words changed (new game) or no grid yet, rebuild fully
   const needsRebuild = !existingGrid ||
     wrap.dataset.rowWords !== g.rowWords.join(',') ||
     wrap.dataset.colWords !== g.colWords.join(',');
@@ -1586,9 +1865,7 @@ function buildGrid(g, guessedSet, phase, amGuesser) {
     wrap.innerHTML = '';
     wrap.dataset.rowWords = g.rowWords.join(',');
     wrap.dataset.colWords = g.colWords.join(',');
-
     const G = g.rowWords.length;
-
     const colHdr = document.createElement('div');
     colHdr.className = 'col-headers';
     for (let c = 0; c < G; c++) {
@@ -1598,33 +1875,23 @@ function buildGrid(g, guessedSet, phase, amGuesser) {
       colHdr.appendChild(d);
     }
     wrap.appendChild(colHdr);
-
     for (let r = 0; r < G; r++) {
       const row = document.createElement('div');
       row.className = 'grid-row-wrap';
-
       const rh = document.createElement('div');
       rh.className = 'row-hdr';
       rh.textContent = g.rowWords[r];
       row.appendChild(rh);
-
       for (let c = 0; c < G; c++) {
         const cell = document.createElement('div');
         cell.className = 'cell';
         cell.id = `cell-${r}-${c}`;
-
-        const coord = document.createElement('div');
-        coord.className = 'cell-coord';
-        coord.textContent = `${String.fromCharCode(65+r)}${c+1}`;
-        cell.appendChild(coord);
-
         row.appendChild(cell);
       }
       wrap.appendChild(row);
     }
   }
 
-  // Update each cell's state
   const G = g.rowWords.length;
   for (let r = 0; r < G; r++) {
     for (let c = 0; c < G; c++) {
@@ -1632,25 +1899,35 @@ function buildGrid(g, guessedSet, phase, amGuesser) {
       if (!cell) continue;
       const key = `${r},${c}`;
       const wasGuessed = cell.classList.contains('guessed');
-      const isGuessed = guessedSet.has(key);
+      const wasMissed  = cell.classList.contains('missed');
+      const isGuessed  = guessedSet.has(key);
+      const isMissed   = missedSet.has(key);
 
-      // Remove old interaction listeners by replacing with clone
-      const fresh = cell.cloneNode(true);
+      // Replace node to clear event listeners
+      const fresh = cell.cloneNode(false); // shallow — we'll set innerHTML below
       cell.parentNode.replaceChild(fresh, cell);
       const el = document.getElementById(`cell-${r}-${c}`);
-
       el.className = 'cell';
 
       if (isGuessed) {
+        // ✅ Green — correctly guessed
         el.classList.add('guessed', 'disabled');
         el.innerHTML = `<div class="cell-check">✓</div>`;
-        // Add pop animation only when newly guessed
         if (!wasGuessed) {
           el.classList.add('guessed-pop');
           el.addEventListener('animationend', () => el.classList.remove('guessed-pop'), {once:true});
         }
+      } else if (isMissed) {
+        // ❌ Red — this cross was missed, stays red for the whole game
+        el.classList.add('missed', 'disabled');
+        el.innerHTML = `<div class="cell-miss-icon">✕</div>
+          <div class="cell-coord">${String.fromCharCode(65+r)}${c+1}</div>`;
+        if (!wasMissed) {
+          el.classList.add('missed-pop');
+          el.addEventListener('animationend', () => el.classList.remove('missed-pop'), {once:true});
+        }
       } else {
-        // Re-add coord label
+        // Normal cell
         el.innerHTML = `<div class="cell-coord">${String.fromCharCode(65+r)}${c+1}</div>`;
         if (phase === 'guessing' && amGuesser) {
           el.addEventListener('click', () => onCellClick(r, c));
@@ -1715,6 +1992,7 @@ window.onCellClick = async (r, c) => {
   let newGuessed = [...(g.guessed || [])];
   let newTargetIndex = g.targetIndex || 0;
   let newLog = [...(g.log || [])];
+  let newMissed = [...(g.missed || [])];
 
   // Next player in rotation
   const nextIdx = (currentIdx + 1) % players.length;
@@ -1742,11 +2020,16 @@ window.onCellClick = async (r, c) => {
       return;
     }
   } else {
+    // Flash the clicked (wrong) cell red
     const el = document.getElementById(`cell-${r}-${c}`);
     if (el) {
       el.classList.add('wrong-flash');
       setTimeout(() => el.classList.remove('wrong-flash'), 600);
     }
+    // Mark the correct cell as missed — saved to Firebase so all players see it
+    const missedKey = `${tr},${tc}`;
+    newMissed = [...(g.missed || [])];
+    if (!newMissed.includes(missedKey)) newMissed.push(missedKey);
     newLog.push({
       icon: '❌',
       text: t('wrongLog', g.currentClue, g.rowWords[tr], g.colWords[tc])
@@ -1759,6 +2042,7 @@ window.onCellClick = async (r, c) => {
 
   await update(ref(db, `rooms/${roomId}/game`), {
     guessed: newGuessed,
+    missed: newMissed,
     targetIndex: newTargetIndex,
     log: newLog,
     phase: 'giving',
@@ -1890,9 +2174,17 @@ window.playAgain = async () => {
   stopLocalTimer();
 
   const players = gstate.players || [];
-  // Reset game with same players, host can trigger or anyone
-  const gameData = buildNewGameData(players, gstate.lang || lang);
+  const gameLang = gstate.lang || lang;
+  const gameData = buildNewGameData(players, gameLang);
   await update(roomRef, { status: 'playing', game: gameData });
+
+  // Force local screen update immediately for whoever clicked the button
+  const newData = { ...gstate, status: 'playing', game: gameData };
+  gstate = newData;
+  applyGameTranslations();
+  showScreen('game');
+  document.getElementById('hdr-room').textContent = roomId;
+  renderGame(newData);
 };
 
 // ══════════════════════════════════════════════════════════════
