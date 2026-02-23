@@ -263,13 +263,11 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;op
 .btn-reassign:hover{background:var(--accent);color:var(--ink)}
 .end-room-code{font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;color:var(--muted);letter-spacing:.1em;margin-bottom:1rem;padding:.4rem .9rem;background:var(--tag-bg);border:1px solid var(--border);border-radius:20px;display:inline-block}
 
-/* ═══ GAME OVER (coop) ═══════════════════════════════════════ */
-#gameover{align-items:center;justify-content:center;padding:2rem;background:var(--bg)}
-.gameover-inner{max-width:380px;width:100%;text-align:center;animation:rise .5s ease both}
-.gameover-icon{font-size:5rem;line-height:1;margin-bottom:1rem}
-.gameover-title{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;letter-spacing:-.03em;margin-bottom:.5rem;color:var(--wrong)}
-.gameover-sub{color:var(--muted);margin-bottom:2rem;line-height:1.5}
-.gameover-btns{display:flex;flex-direction:column;gap:.7rem}
+/* ═══ GAME OVER MODAL ═══════════════════════════════════════ */
+.gameover-icon{font-size:4rem;line-height:1;margin-bottom:.8rem}
+.gameover-title{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;letter-spacing:-.03em;margin-bottom:.4rem;color:var(--wrong)}
+.gameover-sub{color:var(--muted);margin-bottom:1.5rem;line-height:1.5;font-size:.95rem}
+.gameover-btns{display:flex;flex-direction:column;gap:.6rem}
 
 .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:var(--bg);padding:.65rem 1.2rem;border-radius:24px;font-size:.9rem;font-weight:500;z-index:500;transition:transform .3s ease;pointer-events:none;white-space:nowrap;max-width:90vw;text-align:center}
 .toast.show{transform:translateX(-50%) translateY(0)}
@@ -427,14 +425,15 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;op
   </div>
 </div>
 
-<!-- ═══════════════ GAME OVER (coop) ═══════════════ -->
-<div id="gameover" class="screen">
-  <div class="gameover-inner">
+<!-- ═══════════════ GAME OVER MODAL ═══════════════ -->
+<div id="gameover-modal" style="display:none;position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;background:rgba(28,23,16,.55);backdrop-filter:blur(3px)">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:24px;padding:2.2rem 2rem;box-shadow:0 8px 40px rgba(28,23,16,.22);max-width:340px;width:90%;text-align:center;animation:rise .35s ease both">
     <div class="gameover-icon">💥</div>
     <div class="gameover-title" id="go-title">Game Over</div>
-    <div class="gameover-sub" id="go-sub">You missed a cross. Better luck next time!</div>
+    <div class="gameover-sub" id="go-sub">You missed a cross.</div>
     <div class="gameover-btns">
-      <button class="btn-again" id="btn-go-again" onclick="playAgain()">Try Again (same room)</button>
+      <button class="btn-again" id="btn-go-again" onclick="playAgain('same')">Try Again</button>
+      <button class="btn-reassign" id="btn-go-analyze" onclick="closeGameOverModal()" style="padding:.8rem">🔍 Analyze the board</button>
       <button class="btn-home" id="btn-go-home2" onclick="goHome()">Leave Room</button>
     </div>
   </div>
@@ -726,6 +725,7 @@ const T = {
     gameOverTitle:"Game Over!",
     gameOverSub:(r,c)=>`You missed: "${r}" × "${c}"`,
     tryAgain:"Try Again (same room)",
+    analyzeBoard:"🔍 Analyze the board",
     tryAgainCoop:"Play Again",
   },
   es: {
@@ -769,6 +769,7 @@ const T = {
     gameOverTitle:"¡Game Over!",
     gameOverSub:(r,c)=>`Fallaron: "${r}" × "${c}"`,
     tryAgain:"Intentar de nuevo (misma sala)",
+    analyzeBoard:"🔍 Analizar el tablero",
     tryAgainCoop:"Jugar de nuevo",
   }
 };
@@ -1219,6 +1220,8 @@ function renderPlayersStrip(players,giverPlayer,mode,teams,numT,activeTeamN){
 
 // ── GRID ─────────────────────────────────────────────────────
 function buildGrid(g,guessedSet,missedSet,phase,amGuesser){
+  const wrongChosen=g.wrongChosenCell||null;
+  const correctFlash=g.correctFlashCell||null;
   const wrap=document.getElementById('grid-wrap');
   const needsRebuild=!wrap.querySelector('.col-headers')||
     wrap.dataset.rw!==g.rowWords.join(',')||wrap.dataset.cw!==g.colWords.join(',');
@@ -1266,6 +1269,16 @@ function buildGrid(g,guessedSet,missedSet,phase,amGuesser){
         el.classList.add('missed','disabled');
         el.innerHTML=`<div class="cell-miss-icon">✕</div><div class="cell-coord">${String.fromCharCode(65+r)}${c+1}</div>`;
         if(!wasMissed){ el.classList.add('missed-pop'); el.addEventListener('animationend',()=>el.classList.remove('missed-pop'),{once:true}); }
+      } else if(key===correctFlash){
+        // RED: the cell that was the right answer
+        el.classList.add('correct-flash','disabled');
+        el.innerHTML=`<div class="cell-correct-icon">✕</div><div class="cell-coord">${String.fromCharCode(65+r)}${c+1}</div>`;
+        const wasCF=cell.classList.contains('correct-flash');
+        if(!wasCF){ el.classList.add('correct-flash-pop'); el.addEventListener('animationend',()=>el.classList.remove('correct-flash-pop'),{once:true}); }
+      } else if(key===wrongChosen){
+        // ORANGE 4s: the cell the guesser actually chose
+        el.classList.add('wrong-chosen','disabled');
+        el.innerHTML=`<div class="cell-miss-icon">✕</div><div class="cell-coord">${String.fromCharCode(65+r)}${c+1}</div>`;
       } else {
         el.innerHTML=`<div class="cell-coord">${String.fromCharCode(65+r)}${c+1}</div>`;
         if(phase==='guessing'&&amGuesser){
@@ -1372,58 +1385,47 @@ window.onCellClick=async(r,c)=>{
   } else {
     playSound('wrong');
 
-    // The CORRECT cell flashes RED — "this was the answer"
-    const correctEl=document.getElementById(`cell-${tr}-${tc}`);
-    if(correctEl&&!guessedSet.has(`${tr},${tc}`)){
-      correctEl.classList.remove('disabled');
-      correctEl.innerHTML=`<div class="cell-correct-icon">✕</div><div class="cell-coord">${String.fromCharCode(65+tr)}${tc+1}</div>`;
-      correctEl.classList.add('correct-flash','correct-flash-pop');
-      correctEl.addEventListener('animationend',()=>correctEl.classList.remove('correct-flash-pop'),{once:true});
-    }
-
-    // The WRONG cell (what I chose) flashes ORANGE for 4s — "this is what you picked"
-    const wrongEl=document.getElementById(`cell-${r}-${c}`);
-    if(wrongEl&&!(r===tr&&c===tc)){
-      wrongEl.classList.remove('disabled');
-      wrongEl.innerHTML=`<div class="cell-miss-icon">✕</div><div class="cell-coord">${String.fromCharCode(65+r)}${c+1}</div>`;
-      wrongEl.classList.add('wrong-chosen');
-      // Remove after 4s (Firebase will re-render correctly anyway)
-      setTimeout(()=>{ wrongEl.classList.remove('wrong-chosen'); wrongEl.innerHTML=`<div class="cell-coord">${String.fromCharCode(65+r)}${c+1}</div>`; },4000);
-    } else if(wrongEl){
-      // Same cell — just flash
-      wrongEl.classList.add('wrong-flash'); setTimeout(()=>wrongEl.classList.remove('wrong-flash'),600);
-    }
+    // Store wrong/correct cells in Firebase so ALL players see the highlight
+    // wrongChosenCell = orange 4s (what the guesser picked)
+    // correctFlashCell = red permanent until next round (the right answer)
+    const wrongKey=`${r},${c}`;
+    const correctKey=`${tr},${tc}`;
 
     newLog.push({icon:'❌',text:t('wrongLog',g.currentClue,g.rowWords[tr],g.colWords[tc])});
     showToast(t('wrongMsg',g.currentClue,g.rowWords[tr],g.colWords[tc]));
 
-    // Coop mode: game over immediately
+    // Coop mode: show flashes for 4s, then game over
     if(mode==='coop'){
       stopLocalTimer();
-      // Wait 4s showing the correct cell in red, then trigger game over
       const missedKey=`${tr},${tc}`;
       if(!newMissed.includes(missedKey)) newMissed.push(missedKey);
       newTargetIndex++;
       newLog.push({icon:'💥',text:`GAME OVER`});
+      // Store flash state in Firebase so ALL players see orange (chosen) + red (correct)
       await update(ref(db,`rooms/${roomId}/game`),{
         guessed:newGuessed,missed:newMissed,targetIndex:newTargetIndex,
         log:newLog,phase:'giving',currentClue:'',timerStartedAt:null,
         gameOverCell:`${tr},${tc}`,gameOverClue:g.currentClue,
         gameOverRow:g.rowWords[tr],gameOverCol:g.colWords[tc],
+        wrongChosenCell:wrongKey,   // orange 4s
+        correctFlashCell:correctKey, // red permanent
       });
-      // Delay status change so everyone sees the red flash for 4s
-      setTimeout(async()=>{ await update(roomRef,{status:'gameover'}); },4000);
+      // After 4s trigger game over status (all players see the modal then)
+      setTimeout(async()=>{
+        await update(roomRef,{status:'gameover'});
+      },4000);
       return;
     }
 
-    // Teams mode: miss is recorded, game continues
+    // Teams mode: miss recorded, game continues, flash visible to all
     newTargetIndex++;
     const missedKey=`${tr},${tc}`;
     if(!newMissed.includes(missedKey)) newMissed.push(missedKey);
-
     stopLocalTimer();
     const upd=advanceTurn(g,players,newGuessed,newMissed,newLog,newTargetIndex,newGbt,correct,tr,tc);
-    // After 4 seconds the correct-flash cell will be replaced by missed (orange) on next render
+    // Store flash cells so all players see them; advanceTurn will clear on next turn
+    upd.wrongChosenCell=wrongKey;
+    upd.correctFlashCell=correctKey;
     await update(ref(db,`rooms/${roomId}/game`),upd);
   }
 };
@@ -1435,6 +1437,8 @@ function advanceTurn(g,players,newGuessed,newMissed,newLog,newTargetIndex,newGbt
     targetIndex:newTargetIndex,log:newLog,
     phase:'giving',currentClue:'',timerStartedAt:null,
     rounds:(g.rounds||0)+1,
+    wrongChosenCell:null,   // clear flash on next turn
+    correctFlashCell:null,
   };
 
   if(mode==='teams'&&g.teams){
@@ -1581,13 +1585,22 @@ function renderEndScreen(data){
 
 // ── GAME OVER SCREEN (coop) ───────────────────────────────────
 function renderGameOverScreen(data){
-  stopLocalTimer(); showScreen('gameover');
+  stopLocalTimer();
   const g=data.game;
   document.getElementById('go-title').textContent=t('gameOverTitle');
   document.getElementById('go-sub').textContent=t('gameOverSub',g.gameOverRow||'?',g.gameOverCol||'?');
   document.getElementById('btn-go-again').textContent=t('tryAgain');
+  document.getElementById('btn-go-analyze').textContent=t('analyzeBoard');
   document.getElementById('btn-go-home2').textContent=t('goHome');
+  // Stay on game screen, show modal overlay
+  showScreen('game');
+  const modal=document.getElementById('gameover-modal');
+  modal.style.display='flex';
 }
+
+window.closeGameOverModal=()=>{
+  document.getElementById('gameover-modal').style.display='none';
+};
 
 // ── PLAY AGAIN ────────────────────────────────────────────────
 // ── END SCREEN TEAM REASSIGN ─────────────────────────────────
@@ -1669,18 +1682,57 @@ window.playAgain=async(how)=>{
   const gameData=buildGameData(players,gstate.lang||lang,curMode,teamsMap,nt);
   const newData={...gstate,status:'playing',mode:curMode,numTeams:nt,game:gameData};
   await update(roomRef,{status:'playing',mode:curMode,numTeams:nt,game:gameData});
+  // Hide game-over modal if open
+  const goModal=document.getElementById('gameover-modal');
+  if(goModal) goModal.style.display='none';
   gstate=newData; applyGameTrans(); showScreen('game');
   document.getElementById('hdr-room').textContent=roomId;
   renderGame(newData);
 };
 
 // ── QUIT / HOME ───────────────────────────────────────────────
+async function leaveRoom(){
+  stopLocalTimer();
+  if(roomRef && myPlayerId){
+    try {
+      const snap=await get(roomRef);
+      if(snap.exists()){
+        const data=snap.val();
+        const updatedPlayers=(data.players||[]).filter(p=>p.id!==myPlayerId);
+        // If no one left, just remove the room listener; otherwise update players
+        if(updatedPlayers.length===0){
+          off(roomRef);
+        } else {
+          // Also remove from team assignments if teams mode
+          const updates={players:updatedPlayers};
+          if(data.game?.teams){
+            const newTeams=JSON.parse(JSON.stringify(data.game.teams));
+            const nt=data.game.numTeams||2;
+            for(let n=1;n<=nt;n++){
+              if(newTeams[n]?.players){
+                newTeams[n].players=newTeams[n].players.filter(p=>p.id!==myPlayerId);
+                // Re-clamp giverIndex
+                const len=Math.max(newTeams[n].players.length,1);
+                newTeams[n].giverIndex=(newTeams[n].giverIndex||0)%len;
+              }
+            }
+            updates['game/teams']=newTeams;
+          }
+          await update(roomRef,updates);
+          off(roomRef);
+        }
+      }
+    } catch(e){ off(roomRef); }
+  }
+  resetToLobby();
+}
+
 window.quitGame=()=>{
   if(confirm(lang==='es'?'¿Salir del juego?':'Quit the game?')){
-    stopLocalTimer(); if(roomRef) off(roomRef); resetToLobby();
+    leaveRoom();
   }
 };
-window.goHome=()=>{ stopLocalTimer(); if(roomRef) off(roomRef); resetToLobby(); };
+window.goHome=()=>{ leaveRoom(); };
 
 function resetToLobby(){
   roomId=null;roomRef=null;gstate=null;myPlayerId=null;myName='';isHost=false;
@@ -1692,6 +1744,8 @@ function resetToLobby(){
   document.getElementById('start-game-btn').style.display='';
   document.getElementById('mode-btn-coop').classList.add('active');
   document.getElementById('mode-btn-teams').classList.remove('active');
+  const goModal=document.getElementById('gameover-modal');
+  if(goModal) goModal.style.display='none';
   showScreen('lobby'); applyLobbyTrans();
 }
 
