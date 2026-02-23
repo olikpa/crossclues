@@ -549,13 +549,13 @@ body::after {
 
 /* Missed cell — stays red permanently until end of game */
 .cell.missed {
-  background: #fde8e8;
-  border-color: var(--wrong);
+  background: #fff0e0;
+  border-color: #e07b00;
   border-width: 2px;
-  box-shadow: 0 0 0 3px rgba(192,57,43,.18), 0 2px 8px rgba(192,57,43,.12);
+  box-shadow: 0 0 0 3px rgba(224,123,0,.22), 0 2px 8px rgba(224,123,0,.14);
   cursor: default;
 }
-.cell.missed:hover { transform: none; border-color: var(--wrong); }
+.cell.missed:hover { transform: none; border-color: #e07b00; }
 .cell.missed::before { display: none; }
 
 /* Pop-in animation when a cell first becomes missed */
@@ -571,7 +571,7 @@ body::after {
 .cell-miss-icon {
   font-size: 1.4rem;
   font-weight: 700;
-  color: var(--wrong);
+  color: #e07b00;
   line-height: 1;
 }
 
@@ -848,6 +848,51 @@ body::after {
   display: inline-block;
 }
 
+
+/* ── MODE SELECTOR ────────────────────────────────────────── */
+.mode-selector {
+  margin-top: .9rem;
+  padding-top: .9rem;
+  border-top: 1px solid var(--border);
+}
+.mode-pills { display: flex; gap: .5rem; margin-top: .4rem; }
+.mode-pill {
+  flex: 1; padding: .55rem .4rem;
+  border: 1.5px solid var(--border); border-radius: 10px;
+  background: transparent;
+  font-family: 'Instrument Sans', sans-serif; font-size: .82rem; font-weight: 500;
+  color: var(--muted); cursor: pointer; transition: all .18s; text-align: center;
+}
+.mode-pill.active { border-color: var(--accent); background: rgba(212,160,23,.1); color: var(--ink); font-weight: 600; }
+
+/* Team assignment rows */
+.team-assign-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: .45rem 0; border-bottom: 1px solid var(--border); font-size: .85rem;
+}
+.team-assign-row:last-child { border-bottom: none; }
+.team-assign-name { font-weight: 500; }
+.team-select {
+  padding: .25rem .5rem; border: 1.5px solid var(--border); border-radius: 8px;
+  background: var(--surface); font-family: 'Instrument Sans', sans-serif;
+  font-size: .82rem; color: var(--ink); outline: none; cursor: pointer;
+}
+.team-select:focus { border-color: var(--accent); }
+
+/* ── TEAMS SCORE BAR (in-game) ───────────────────────────── */
+.teams-score-bar {
+  display: flex; gap: .5rem; padding: .6rem 1rem;
+  border-bottom: 1px solid var(--border); flex-shrink: 0; background: var(--card);
+}
+.team-score-chip {
+  flex: 1; padding: .4rem .6rem; border-radius: 10px;
+  border: 2px solid transparent; text-align: center;
+  font-family: 'Syne', sans-serif; font-size: .85rem; font-weight: 700; transition: all .2s;
+}
+.team-score-chip.active-team { transform: scale(1.04); box-shadow: 0 2px 8px var(--shadow); }
+.team-score-n { font-size: 1.4rem; line-height: 1; }
+.team-score-label { font-size: .65rem; text-transform: uppercase; letter-spacing: .08em; opacity: .7; margin-top: .1rem; }
+
 /* toast */
 .toast {
   position: fixed;
@@ -919,6 +964,23 @@ body::after {
         <div class="players-list" id="lobby-players-list"></div>
       </div>
 
+      <!-- Mode selector — host only, visible when ≥2 players -->
+      <div class="mode-selector" id="mode-selector" style="display:none">
+        <div class="section-lbl" id="lbl-game-mode">Game Mode</div>
+        <div class="mode-pills">
+          <button class="mode-pill active" id="mode-pill-coop" onclick="selectMode('coop')">
+            🤝 <span id="lbl-mode-coop">Cooperative</span>
+          </button>
+          <button class="mode-pill" id="mode-pill-teams" onclick="selectMode('teams')">
+            ⚔️ <span id="lbl-mode-teams">Teams</span>
+          </button>
+        </div>
+        <div id="teams-config" style="display:none;margin-top:.8rem">
+          <div class="section-lbl" id="lbl-assign-teams">Assign players to teams</div>
+          <div id="team-assign-list"></div>
+        </div>
+      </div>
+
       <button class="start-game-btn" id="start-game-btn" onclick="hostStartGame()" disabled>
         Start Game →
       </button>
@@ -956,6 +1018,9 @@ body::after {
     <button class="header-new-game" id="btn-new-game" onclick="playAgain()">New Game</button>
     <button class="header-quit" id="btn-quit" onclick="quitGame()">Quit</button>
   </div>
+
+  <!-- Teams scoreboard — only shown in teams mode -->
+  <div class="teams-score-bar" id="teams-score-bar" style="display:none"></div>
 
   <div class="game-body">
     <div class="grid-area">
@@ -1338,6 +1403,14 @@ const T = {
     log: "Log", quit: "Quit", newGame: "New Game",
     statMatched: "Matched", statRounds: "Rounds",
     playAgain: "Play Again (same room)", goHome: "Leave Room",
+    newGame: "New Game", gameMode: "Game Mode",
+    modeCoop: "Cooperative", modeTeams: "Teams",
+    assignTeams: "Assign players to teams",
+    team: "Team", team1: "Team 1", team2: "Team 2",
+    wins: "wins", tieGame: "It's a tie!",
+    teamsNeedBoth: "Each team needs at least 1 player.",
+    sameTeamWatch: "Your team is giving — watch!",
+    otherTeamGuessing: "Other team is guessing…",
     congratsTitle: "Congratulations!",
     congratsSub: n => `You matched all ${n} pairs!`,
     wrongMsg: (clue, rw, cw) => `"${clue}" was for ${rw} × ${cw}`,
@@ -1374,6 +1447,14 @@ const T = {
     log: "Registro", quit: "Salir", newGame: "Nuevo Juego",
     statMatched: "Adivinadas", statRounds: "Rondas",
     playAgain: "Nueva Partida (misma sala)", goHome: "Salir de la sala",
+    newGame: "Nuevo Juego", gameMode: "Modo de Juego",
+    modeCoop: "Cooperativo", modeTeams: "Equipos",
+    assignTeams: "Asignar jugadores a equipos",
+    team: "Equipo", team1: "Equipo 1", team2: "Equipo 2",
+    wins: "gana", tieGame: "¡Empate!",
+    teamsNeedBoth: "Cada equipo necesita al menos 1 jugador.",
+    sameTeamWatch: "Tu equipo da la pista — ¡observá!",
+    otherTeamGuessing: "El otro equipo está adivinando…",
     congratsTitle: "¡Felicidades!",
     congratsSub: n => `¡Adivinasteis las ${n} parejas!`,
     wrongMsg: (clue, rw, cw) => `"${clue}" era para ${rw} × ${cw}`,
@@ -1405,19 +1486,24 @@ const PLAYER_COLORS = [
 // ══════════════════════════════════════════════════════════════
 //  STATE
 // ══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════════════
 let lang = 'en';
-let myPlayerId = null;   // unique ID for this browser tab
+let myPlayerId = null;
 let myName = '';
 let isHost = false;
 let roomId = null;
 let roomRef = null;
-let gstate = null;       // latest Firebase snapshot
+let gstate = null;
+let selectedMode = 'coop';   // 'coop' | 'teams'
+let teamAssignments = {};    // { playerId: 1|2 }
 
 let timerInterval = null;
 let localTimerLeft = 0;
 
 const t = (key, ...args) => {
-  const v = T[lang][key];
+  const v = T[lang]?.[key];
   return typeof v === 'function' ? v(...args) : (v ?? key);
 };
 
@@ -1432,26 +1518,70 @@ function shuffle(arr) {
   }
   return a;
 }
-
 function genCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  return Array.from({length: 6}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+  return Array.from({length:6}, () => chars[Math.floor(Math.random()*chars.length)]).join('');
+}
+function genPlayerId() { return Math.random().toString(36).slice(2) + Date.now().toString(36); }
+// ── SOUND ─────────────────────────────────────────────────────
+function playPing() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(880, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(660, ctx.currentTime + 0.15);
+    gain.gain.setValueAtTime(0.18, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.5);
+  } catch(e) {}
 }
 
-function genPlayerId() {
-  return Math.random().toString(36).slice(2) + Date.now().toString(36);
-}
-
-function showToast(msg, dur = 2400) {
+function showToast(msg, dur = 3000) {
   const el = document.getElementById('toast');
   el.textContent = msg;
   el.classList.add('show');
   setTimeout(() => el.classList.remove('show'), dur);
 }
-
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+}
+
+// ══════════════════════════════════════════════════════════════
+//  SOUND
+// ══════════════════════════════════════════════════════════════
+function playSound(type) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    if (type === 'clue_ready') {
+      osc.frequency.setValueAtTime(520, ctx.currentTime);
+      osc.frequency.setValueAtTime(780, ctx.currentTime + 0.13);
+      gain.gain.setValueAtTime(0.18, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.45);
+      osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.45);
+    } else if (type === 'correct') {
+      osc.frequency.setValueAtTime(660, ctx.currentTime);
+      osc.frequency.setValueAtTime(880, ctx.currentTime + 0.1);
+      gain.gain.setValueAtTime(0.15, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+      osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.4);
+    } else if (type === 'wrong') {
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(220, ctx.currentTime);
+      osc.frequency.setValueAtTime(180, ctx.currentTime + 0.12);
+      gain.gain.setValueAtTime(0.12, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+      osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.35);
+    }
+  } catch(e) {}
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -1459,42 +1589,47 @@ function showScreen(id) {
 // ══════════════════════════════════════════════════════════════
 window.setLang = (l) => {
   lang = l;
-  document.querySelectorAll('.lang-pill').forEach((b, i) => {
-    b.classList.toggle('active', (i===0 && l==='en') || (i===1 && l==='es'));
+  document.querySelectorAll('.lang-pill').forEach((b,i) => {
+    b.classList.toggle('active', (i===0&&l==='en')||(i===1&&l==='es'));
   });
   applyLobbyTranslations();
 };
 
 function applyLobbyTranslations() {
-  document.getElementById('lg-sub').textContent = t('sub');
-  document.getElementById('lbl-your-name').textContent = t('yourName');
-  document.getElementById('lbl-join-name').textContent = t('joinName');
-  document.getElementById('lbl-enter-code').textContent = t('enterCode');
-  document.getElementById('lbl-timer-toggle').textContent = t('timerToggle');
-  document.getElementById('lbl-secs').textContent = t('secs');
-  document.getElementById('btn-create').textContent = t('createBtn');
-  document.getElementById('btn-join').textContent = t('joinBtn');
-  document.getElementById('lbl-room-code').textContent = t('roomCode');
-  document.getElementById('lbl-players-joined').textContent = t('playersJoined');
-  document.getElementById('waiting-text').textContent = t('waitingText');
-  document.getElementById('start-game-btn').textContent = t('startGame');
-  document.getElementById('create-name').placeholder = t('p1def');
-  document.getElementById('join-name').placeholder = t('p2def');
+  const ids = {
+    'lg-sub':'sub','lbl-your-name':'yourName','lbl-join-name':'joinName',
+    'lbl-enter-code':'enterCode','lbl-timer-toggle':'timerToggle','lbl-secs':'secs',
+    'btn-create':'createBtn','btn-join':'joinBtn','lbl-room-code':'roomCode',
+    'lbl-players-joined':'playersJoined','waiting-text':'waitingText',
+    'start-game-btn':'startGame','lbl-game-mode':'gameMode',
+    'lbl-mode-coop':'modeCoop','lbl-mode-teams':'modeTeams',
+    'lbl-assign-teams':'assignTeams',
+  };
+  Object.entries(ids).forEach(([id,key]) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = t(key);
+  });
+  const cn = document.getElementById('create-name');
+  if (cn) cn.placeholder = t('p1def');
+  const jn = document.getElementById('join-name');
+  if (jn) jn.placeholder = t('p2def');
 }
 
 function applyGameTranslations() {
-  document.getElementById('lbl-now-playing').textContent = t('nowPlaying');
-  document.getElementById('lbl-players').textContent = t('players');
-  document.getElementById('lbl-target').textContent = t('target');
-  document.getElementById('lbl-give-clue').textContent = t('giveClue');
-  document.getElementById('lbl-the-clue').textContent = t('theClue');
-  document.getElementById('lbl-one-word').textContent = t('oneWord');
-  document.getElementById('guess-tip').textContent = t('guessInstruction');
-  document.getElementById('clue-input').placeholder = t('cluePlaceholder');
-  document.getElementById('give-btn').textContent = t('giveBtn');
-  document.getElementById('lbl-log').textContent = t('log');
-  document.getElementById('btn-quit').textContent = t('quit');
-  document.getElementById('btn-new-game').textContent = t('newGame');
+  const ids = {
+    'lbl-now-playing':'nowPlaying','lbl-players':'players','lbl-target':'target',
+    'lbl-give-clue':'giveClue','lbl-the-clue':'theClue','lbl-one-word':'oneWord',
+    'guess-tip':'guessInstruction','lbl-log':'log','btn-quit':'quit',
+    'btn-new-game':'newGame',
+  };
+  Object.entries(ids).forEach(([id,key]) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = t(key);
+  });
+  const ci = document.getElementById('clue-input');
+  if (ci) ci.placeholder = t('cluePlaceholder');
+  const gb = document.getElementById('give-btn');
+  if (gb) gb.textContent = t('giveBtn');
 }
 
 window.onTimerToggle = () => {
@@ -1502,38 +1637,59 @@ window.onTimerToggle = () => {
 };
 
 // ══════════════════════════════════════════════════════════════
+//  MODE SELECTION (lobby)
+// ══════════════════════════════════════════════════════════════
+window.selectMode = (mode) => {
+  selectedMode = mode;
+  document.getElementById('mode-pill-coop').classList.toggle('active', mode==='coop');
+  document.getElementById('mode-pill-teams').classList.toggle('active', mode==='teams');
+  document.getElementById('teams-config').style.display = mode==='teams' ? '' : 'none';
+  if (mode==='teams' && gstate) renderTeamAssign(gstate.players||[]);
+};
+
+function renderTeamAssign(players) {
+  const container = document.getElementById('team-assign-list');
+  if (!container) return;
+  container.innerHTML = '';
+  players.forEach(p => {
+    if (!teamAssignments[p.id]) teamAssignments[p.id] = 1;
+    const row = document.createElement('div');
+    row.className = 'team-assign-row';
+    const nameEl = document.createElement('span');
+    nameEl.className = 'team-assign-name';
+    nameEl.textContent = p.id === myPlayerId ? `${p.name} (${t('youLabel')})` : p.name;
+    const sel = document.createElement('select');
+    sel.className = 'team-select';
+    sel.innerHTML = `<option value="1">🔴 ${t('team1')}</option><option value="2">🔵 ${t('team2')}</option>`;
+    sel.value = String(teamAssignments[p.id]);
+    sel.onchange = () => { teamAssignments[p.id] = parseInt(sel.value); };
+    row.appendChild(nameEl);
+    row.appendChild(sel);
+    container.appendChild(row);
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
 //  CREATE ROOM
 // ══════════════════════════════════════════════════════════════
 window.createRoom = async () => {
   const name = document.getElementById('create-name').value.trim() || t('p1def');
   const useTimer = document.getElementById('timer-toggle').checked;
-  const timerSecs = parseInt(document.getElementById('timer-secs').value) || 90;
-
-  myPlayerId = genPlayerId();
-  myName = name;
-  isHost = true;
-  roomId = genCode();
-
+  const timerSecs = parseInt(document.getElementById('timer-secs').value)||90;
+  myPlayerId = genPlayerId(); myName = name; isHost = true; roomId = genCode();
   const roomData = {
-    created: Date.now(),
-    lang,
-    useTimer,
-    timerSecs,
-    status: 'lobby',   // lobby | playing | ended
-    hostId: myPlayerId,
-    players: [{ id: myPlayerId, name }],
-    game: null,
+    created: Date.now(), lang, useTimer, timerSecs,
+    status: 'lobby', hostId: myPlayerId,
+    players: [{ id: myPlayerId, name }], game: null,
   };
-
   roomRef = ref(db, `rooms/${roomId}`);
   await set(roomRef, roomData);
-
   document.getElementById('create-section').style.display = 'none';
   document.getElementById('or-div').style.display = 'none';
   document.getElementById('join-section').style.display = 'none';
   document.getElementById('waiting-section').style.display = '';
   document.getElementById('room-code-value').textContent = roomId;
-
+  document.getElementById('mode-selector').style.display = 'none';
   listenRoom();
 };
 
@@ -1544,50 +1700,34 @@ window.joinRoom = async () => {
   const name = document.getElementById('join-name').value.trim() || t('p2def');
   const code = document.getElementById('join-code').value.trim().toUpperCase();
   if (!code || code.length < 4) { showJoinError(t('joinError')); return; }
-
   const snap = await get(ref(db, `rooms/${code}`));
   if (!snap.exists()) { showJoinError(t('joinError')); return; }
-
   const data = snap.val();
-  const players = data.players || [];
-
-  if (players.length >= 10) { showJoinError(t('roomFull')); return; }
-  // Allow joining even if game is in progress (spectator/late join goes to lobby state listener)
-
-  myPlayerId = genPlayerId();
-  myName = name;
-  isHost = false;
-  roomId = code;
-  lang = data.lang || 'en';
-
-  document.querySelectorAll('.lang-pill').forEach((b, i) => {
-    b.classList.toggle('active', (i===0 && lang==='en') || (i===1 && lang==='es'));
+  if ((data.players||[]).length >= 10) { showJoinError(t('roomFull')); return; }
+  myPlayerId = genPlayerId(); myName = name; isHost = false;
+  roomId = code; lang = data.lang || 'en';
+  document.querySelectorAll('.lang-pill').forEach((b,i) => {
+    b.classList.toggle('active', (i===0&&lang==='en')||(i===1&&lang==='es'));
   });
-
   roomRef = ref(db, `rooms/${roomId}`);
-  const newPlayers = [...players, { id: myPlayerId, name }];
-  await update(roomRef, { players: newPlayers });
-
+  await update(roomRef, { players: [...(data.players||[]), {id:myPlayerId, name}] });
   listenRoom();
-
-  // Hide join UI, show waiting
   document.getElementById('create-section').style.display = 'none';
   document.getElementById('or-div').style.display = 'none';
   document.getElementById('join-section').style.display = 'none';
   document.getElementById('waiting-section').style.display = '';
   document.getElementById('room-code-value').textContent = roomId;
-  document.getElementById('start-game-btn').style.display = 'none'; // only host can start
+  document.getElementById('start-game-btn').style.display = 'none';
+  document.getElementById('mode-selector').style.display = 'none';
 };
 
 function showJoinError(msg) {
   const el = document.getElementById('join-status');
-  el.textContent = msg;
-  el.className = 'status-msg error';
-  el.style.display = '';
+  el.textContent = msg; el.className = 'status-msg error'; el.style.display = '';
 }
 
 // ══════════════════════════════════════════════════════════════
-//  HOST STARTS GAME
+//  HOST START GAME
 // ══════════════════════════════════════════════════════════════
 window.hostStartGame = async () => {
   if (!isHost || !roomRef) return;
@@ -1595,14 +1735,15 @@ window.hostStartGame = async () => {
   if (!snap.exists()) return;
   const data = snap.val();
   const players = data.players || [];
-
   if (players.length < 2) { showToast(t('needPlayers')); return; }
-
-  const gameData = buildNewGameData(players, data.lang || lang);
-  await update(roomRef, { status: 'playing', game: gameData });
-
-  // Force host into game screen immediately without waiting for onValue
-  const newData = { ...data, status: 'playing', game: gameData };
+  if (selectedMode === 'teams') {
+    const t1 = players.filter(p => (teamAssignments[p.id]||1) === 1);
+    const t2 = players.filter(p => (teamAssignments[p.id]||1) === 2);
+    if (t1.length === 0 || t2.length === 0) { showToast(t('teamsNeedBoth')); return; }
+  }
+  const gameData = buildNewGameData(players, data.lang||lang, selectedMode, teamAssignments);
+  await update(roomRef, { status:'playing', mode:selectedMode, game:gameData });
+  const newData = { ...data, status:'playing', mode:selectedMode, game:gameData };
   gstate = newData;
   applyGameTranslations();
   showScreen('game');
@@ -1610,46 +1751,57 @@ window.hostStartGame = async () => {
   renderGame(newData);
 };
 
-function buildNewGameData(players, gameLang) {
+// ══════════════════════════════════════════════════════════════
+//  BUILD NEW GAME DATA
+// ══════════════════════════════════════════════════════════════
+function buildNewGameData(players, gameLang, mode, teamsMap) {
   const G = 5;
   const L = gameLang || lang;
   const pool = shuffle(WORDS[L] || WORDS.es);
   const groups = L === 'en' ? SIMILAR_GROUPS_EN : SIMILAR_GROUPS_ES;
 
-  // Pick 10 words (5 rows + 5 cols) ensuring no two words share a similarity group
   function pickWords(source, count) {
     const picked = [];
     for (const word of source) {
       if (picked.length >= count) break;
-      // Check this word doesn't conflict with any already picked
-      const conflicts = groups.some(g => g.has(word) && picked.some(p => g.has(p)));
-      if (!conflicts) picked.push(word);
+      if (!groups.some(g => g.has(word) && picked.some(p => g.has(p)))) picked.push(word);
     }
-    // If somehow we couldn't fill (very unlikely), pad with remaining words
-    if (picked.length < count) {
-      for (const word of source) {
-        if (picked.length >= count) break;
-        if (!picked.includes(word)) picked.push(word);
-      }
+    while (picked.length < count) {
+      const w = source.find(w => !picked.includes(w));
+      if (w) picked.push(w); else break;
     }
     return picked;
   }
 
   const rowWords = pickWords(pool, G);
-  const remaining = pool.filter(w => !rowWords.includes(w));
-  const colWords = pickWords(remaining, G);
-
+  const colWords = pickWords(pool.filter(w => !rowWords.includes(w)), G);
   const allCells = [];
-  for (let r = 0; r < G; r++) for (let c = 0; c < G; c++) allCells.push(`${r},${c}`);
-  const targetOrder = shuffle(allCells);
+  for (let r=0;r<G;r++) for (let c=0;c<G;c++) allCells.push(`${r},${c}`);
+
+  // Build teams structure
+  let teams = null;
+  if (mode === 'teams' && teamsMap) {
+    const t1 = players.filter(p => (teamsMap[p.id]||1) === 1);
+    const t2 = players.filter(p => (teamsMap[p.id]||1) === 2);
+    teams = {
+      1: { players: t1, score: 0, giverIndex: Math.floor(Math.random()*t1.length) },
+      2: { players: t2, score: 0, giverIndex: Math.floor(Math.random()*t2.length) },
+    };
+  }
+
+  // Random starting player
+  const startIdx = Math.floor(Math.random() * players.length);
 
   return {
-    rowWords, colWords, targetOrder,
+    rowWords, colWords, targetOrder: shuffle(allCells),
     targetIndex: 0,
-    currentPlayerIndex: 0,
+    mode: mode || 'coop',
+    teams,
+    currentTeam: 1,              // teams mode: which team's turn
+    currentPlayerIndex: startIdx, // coop mode: who is giver
     phase: 'giving',
     currentClue: '',
-    guessed: [],
+    guessed: [], missed: [],
     rounds: 0,
     log: [],
     timerStartedAt: null,
@@ -1667,24 +1819,35 @@ function listenRoom() {
     const data = snap.val();
     gstate = data;
     lang = data.lang || lang;
-
     const players = data.players || [];
 
     if (data.status === 'lobby') {
-      // Update lobby player list
       renderLobbyPlayers(players);
-      // Enable start button for host if ≥2 players
       if (isHost) {
-        document.getElementById('start-game-btn').disabled = players.length < 2;
+        const startBtn = document.getElementById('start-game-btn');
+        startBtn.disabled = players.length < 2;
+        const modeEl = document.getElementById('mode-selector');
+        if (modeEl) modeEl.style.display = players.length >= 2 ? '' : 'none';
+        if (selectedMode === 'teams') renderTeamAssign(players);
       }
       return;
     }
 
     if (data.status === 'playing' && data.game) {
+      const prevPhase = gstate && gstate.game ? gstate.game.phase : null;
+      const prevClue  = gstate && gstate.game ? gstate.game.currentClue : '';
       applyGameTranslations();
       showScreen('game');
       document.getElementById('hdr-room').textContent = roomId;
       renderGame(data);
+      // Play a soft ping for guessers when a new clue just arrived
+      const players = data.players || [];
+      const giverPlayer = players[data.game.currentPlayerIndex ?? 0];
+      const amGiver = giverPlayer && giverPlayer.id === myPlayerId;
+      if (!amGiver && data.game.phase === 'guessing' &&
+          (prevPhase !== 'guessing' || prevClue !== data.game.currentClue)) {
+        playPing();
+      }
     }
 
     if (data.status === 'ended' && data.game) {
@@ -1698,6 +1861,7 @@ function listenRoom() {
 // ══════════════════════════════════════════════════════════════
 function renderLobbyPlayers(players) {
   const list = document.getElementById('lobby-players-list');
+  if (!list) return;
   list.innerHTML = '';
   players.forEach((p, i) => {
     const chip = document.createElement('div');
@@ -1714,24 +1878,59 @@ function renderLobbyPlayers(players) {
 }
 
 // ══════════════════════════════════════════════════════════════
-//  RENDER GAME
+//  RENDER GAME  (mode-aware)
 // ══════════════════════════════════════════════════════════════
 function renderGame(data) {
   const g = data.game;
   const players = data.players || [];
+  const mode = g.mode || 'coop';
   const guessedSet = new Set(g.guessed || []);
+  const missedSet  = new Set(g.missed  || []);
 
-  const currentIdx = g.currentPlayerIndex ?? 0;
-  const giverPlayer = players[currentIdx] || players[0];
-  const amGiver = giverPlayer && giverPlayer.id === myPlayerId;
-  // Everyone else is a guesser — only one person guesses (the next in rotation), but
-  // in Cross Clues the whole team guesses. We allow ANY non-giver to tap.
-  const amGuesser = !amGiver;
+  // ── Determine giver and whether I can guess ───────────────
+  let giverPlayer, amGiver, amGuesser, activeTeamN;
 
-  // Score
-  document.getElementById('hdr-score').textContent = `${guessedSet.size} / ${g.rowWords.length * g.colWords.length}`;
+  if (mode === 'teams' && g.teams) {
+    activeTeamN = g.currentTeam || 1;
+    const teamData = g.teams[activeTeamN];
+    const gi = (teamData.giverIndex || 0) % teamData.players.length;
+    giverPlayer = teamData.players[gi];
+    amGiver = giverPlayer?.id === myPlayerId;
+    // Guessing team = the OTHER team
+    const myTeamN = getMyTeam(g);
+    amGuesser = (myTeamN !== null) && (myTeamN !== activeTeamN);
+  } else {
+    const idx = g.currentPlayerIndex ?? 0;
+    giverPlayer = players[idx] || players[0];
+    amGiver   = giverPlayer?.id === myPlayerId;
+    amGuesser = !amGiver;
+  }
 
-  // Timer
+  // ── Score ─────────────────────────────────────────────────
+  document.getElementById('hdr-score').textContent =
+    `${guessedSet.size} / ${g.rowWords.length * g.colWords.length}`;
+
+  // ── Teams score bar ───────────────────────────────────────
+  const bar = document.getElementById('teams-score-bar');
+  if (mode === 'teams' && g.teams) {
+    bar.style.display = '';
+    bar.innerHTML = '';
+    [1,2].forEach(n => {
+      const td = g.teams[n];
+      const chip = document.createElement('div');
+      chip.className = 'team-score-chip' + (n === activeTeamN ? ' active-team' : '');
+      chip.style.cssText = n===1
+        ? 'background:rgba(192,57,43,.1);border-color:#c0392b;color:#c0392b'
+        : 'background:rgba(26,111,168,.1);border-color:#1a6fa8;color:#1a6fa8';
+      chip.innerHTML = `<div class="team-score-n">${td.score||0}</div>
+        <div class="team-score-label">${t('team')} ${n}${n===activeTeamN?' 🎯':''}</div>`;
+      bar.appendChild(chip);
+    });
+  } else {
+    bar.style.display = 'none';
+  }
+
+  // ── Timer ─────────────────────────────────────────────────
   if (data.useTimer) {
     document.getElementById('hdr-timer').style.display = '';
     if (g.timerStartedAt) startLocalTimer(data.timerSecs, g.timerStartedAt);
@@ -1741,46 +1940,40 @@ function renderGame(data) {
     stopLocalTimer();
   }
 
-  // Players strip
-  renderPlayersStrip(players, currentIdx, g.phase);
+  // ── Players strip ─────────────────────────────────────────
+  renderPlayersStrip(players, giverPlayer, mode, g.teams, activeTeamN);
 
-  // Active player card
-  const activeName = g.phase === 'giving'
-    ? (giverPlayer?.name || '?')
-    : (giverPlayer?.name || '?');  // giver shown throughout
-  const activeRole = g.phase === 'giving' ? t('giver') : t('giver'); // show giver always here
-  const activeColor = PLAYER_COLORS[currentIdx % PLAYER_COLORS.length];
-
-  document.getElementById('p-avatar').textContent = (giverPlayer?.name || '?').charAt(0).toUpperCase();
-  document.getElementById('p-avatar').style.background = activeColor;
+  // ── Active player card ────────────────────────────────────
+  const giverColor = mode === 'teams'
+    ? (activeTeamN === 1 ? '#c0392b' : '#1a6fa8')
+    : PLAYER_COLORS[(g.currentPlayerIndex??0) % PLAYER_COLORS.length];
+  document.getElementById('p-avatar').textContent =
+    (giverPlayer?.name||'?').charAt(0).toUpperCase();
+  document.getElementById('p-avatar').style.background = giverColor;
   document.getElementById('p-avatar').style.color = '#fff';
   document.getElementById('p-name-display').textContent = giverPlayer?.name || '—';
   document.getElementById('p-role-display').textContent = t('giver');
 
-  // Panels
-  const giverBlock = document.getElementById('giver-block');
+  // ── Side panels ───────────────────────────────────────────
+  const giverBlock     = document.getElementById('giver-block');
   const clueInputBlock = document.getElementById('clue-input-block');
-  const guesserBlock = document.getElementById('guesser-block');
-  const waitingBlock = document.getElementById('waiting-block');
-
-  giverBlock.style.display = 'none';
-  clueInputBlock.style.display = 'none';
-  guesserBlock.style.display = 'none';
-  waitingBlock.style.display = 'none';
+  const guesserBlock   = document.getElementById('guesser-block');
+  const waitingBlock   = document.getElementById('waiting-block');
+  giverBlock.style.display = clueInputBlock.style.display =
+  guesserBlock.style.display = waitingBlock.style.display = 'none';
 
   if (g.phase === 'giving') {
     if (amGiver) {
-      giverBlock.style.display = '';
-      clueInputBlock.style.display = '';
+      giverBlock.style.display = clueInputBlock.style.display = '';
       document.getElementById('clue-input').disabled = false;
       document.getElementById('give-btn').disabled = false;
       document.getElementById('clue-input').value = '';
       setTimeout(() => document.getElementById('clue-input').focus(), 100);
-
       const tgt = currentTargetFromState(g);
       if (tgt) {
-        const [tr, tc] = tgt.split(',').map(Number);
-        document.getElementById('tc-coord').textContent = `${String.fromCharCode(65+tr)}${tc+1}`;
+        const [tr,tc] = tgt.split(',').map(Number);
+        document.getElementById('tc-coord').textContent =
+          `${String.fromCharCode(65+tr)}${tc+1}`;
         document.getElementById('tc-pair').innerHTML =
           `<span class="tw tw-row">${g.rowWords[tr]}</span>
            <span class="tw-sep">×</span>
@@ -1790,65 +1983,98 @@ function renderGame(data) {
       }
     } else {
       waitingBlock.style.display = '';
-      document.getElementById('waiting-note-text').textContent = t('partnerThinking', giverPlayer?.name || '?');
+      document.getElementById('waiting-note-text').textContent =
+        t('partnerThinking', giverPlayer?.name || '?');
     }
-  } else if (g.phase === 'guessing') {
+  } else { // guessing
+    const newClue = g.currentClue || '—';
+    if (newClue !== '—' && newClue !== document.getElementById('revealed-clue').textContent) {
+      playSound('clue_ready');
+    }
+    document.getElementById('revealed-clue').textContent = newClue;
+
     if (amGuesser) {
       guesserBlock.style.display = '';
-      document.getElementById('revealed-clue').textContent = g.currentClue || '—';
     } else {
-      // Giver sees clue + target for context while waiting
-      giverBlock.style.display = '';
-      waitingBlock.style.display = '';
-      document.getElementById('clue-input').disabled = true;
-      document.getElementById('waiting-note-text').textContent = t('waitingGuess', '…');
-      // show the clue for the giver too
+      // Giver and same-team watchers see the clue but can't click
       guesserBlock.style.display = '';
-      document.getElementById('revealed-clue').textContent = g.currentClue || '—';
+      waitingBlock.style.display = '';
+      const watchMsg = amGiver
+        ? t('waitingGuess', '…')
+        : (mode === 'teams' ? t('sameTeamWatch') : t('waitingGuess', '…'));
+      document.getElementById('waiting-note-text').textContent = watchMsg;
     }
   }
 
-  // Build grid
-  const missedSet = new Set(g.missed || []);
   buildGrid(g, guessedSet, missedSet, g.phase, amGuesser);
-
-  // Log
   renderLog(g.log || []);
+}
+
+function getMyTeam(g) {
+  if (!g.teams) return null;
+  for (const n of [1,2]) {
+    if ((g.teams[n]?.players||[]).some(p => p.id === myPlayerId)) return n;
+  }
+  return null;
 }
 
 // ══════════════════════════════════════════════════════════════
 //  PLAYERS STRIP
 // ══════════════════════════════════════════════════════════════
-function renderPlayersStrip(players, currentIdx, phase) {
+function renderPlayersStrip(players, giverPlayer, mode, teams, activeTeamN) {
   const strip = document.getElementById('players-strip');
   strip.innerHTML = '';
-  players.forEach((p, i) => {
-    const pill = document.createElement('div');
-    pill.className = 'player-pill';
-    if (i === currentIdx) pill.classList.add('active-player');
-    if (p.id === myPlayerId) pill.classList.add('is-me');
 
-    const dot = document.createElement('div');
-    dot.className = 'pill-dot';
-    dot.style.background = PLAYER_COLORS[i % PLAYER_COLORS.length];
-
-    const nameEl = document.createElement('span');
-    let label = p.name;
-    if (p.id === myPlayerId) label += ` (${t('youLabel')})`;
-    nameEl.textContent = label;
-
-    pill.appendChild(dot);
-    pill.appendChild(nameEl);
-
-    if (i === currentIdx) {
-      const roleEl = document.createElement('span');
-      roleEl.className = 'pill-role';
-      roleEl.textContent = phase === 'giving' ? t('giver') : t('giver');
-      pill.appendChild(roleEl);
-    }
-
-    strip.appendChild(pill);
-  });
+  if (mode === 'teams' && teams) {
+    // Show two team columns
+    [1,2].forEach(n => {
+      const teamEl = document.createElement('div');
+      teamEl.style.cssText = 'display:flex;flex-direction:column;gap:.25rem;flex:1;';
+      const hdr = document.createElement('div');
+      hdr.style.cssText = `font-size:.65rem;font-weight:700;text-transform:uppercase;
+        letter-spacing:.08em;color:${n===1?'#c0392b':'#1a6fa8'};margin-bottom:.15rem;`;
+      hdr.textContent = `${t('team')} ${n}${n===activeTeamN?' 🎯':''}`;
+      teamEl.appendChild(hdr);
+      (teams[n]?.players||[]).forEach(p => {
+        const pill = document.createElement('div');
+        pill.className = 'player-pill' + (p.id===myPlayerId?' is-me':'') +
+          (p.id===giverPlayer?.id?' active-player':'');
+        pill.style.borderColor = n===1?'rgba(192,57,43,.3)':'rgba(26,111,168,.3)';
+        const dot = document.createElement('div');
+        dot.className = 'pill-dot';
+        dot.style.background = n===1?'#c0392b':'#1a6fa8';
+        const nameEl = document.createElement('span');
+        nameEl.textContent = p.id===myPlayerId ? `${p.name}(${t('youLabel')})` : p.name;
+        pill.appendChild(dot); pill.appendChild(nameEl);
+        if (p.id===giverPlayer?.id) {
+          const role = document.createElement('span');
+          role.className = 'pill-role'; role.textContent = t('giver');
+          pill.appendChild(role);
+        }
+        teamEl.appendChild(pill);
+      });
+      strip.appendChild(teamEl);
+    });
+  } else {
+    players.forEach((p, i) => {
+      const pill = document.createElement('div');
+      pill.className = 'player-pill' +
+        (p.id===giverPlayer?.id?' active-player':'') +
+        (p.id===myPlayerId?' is-me':'');
+      const dot = document.createElement('div');
+      dot.className = 'pill-dot';
+      dot.style.background = PLAYER_COLORS[i % PLAYER_COLORS.length];
+      const nameEl = document.createElement('span');
+      nameEl.textContent = p.id===myPlayerId ? `${p.name} (${t('youLabel')})` : p.name;
+      pill.appendChild(dot); pill.appendChild(nameEl);
+      if (p.id===giverPlayer?.id) {
+        const role = document.createElement('span');
+        role.className = 'pill-role'; role.textContent = t('giver');
+        pill.appendChild(role);
+      }
+      strip.appendChild(pill);
+    });
+  }
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -1856,8 +2082,7 @@ function renderPlayersStrip(players, currentIdx, phase) {
 // ══════════════════════════════════════════════════════════════
 function buildGrid(g, guessedSet, missedSet, phase, amGuesser) {
   const wrap = document.getElementById('grid-wrap');
-  const existingGrid = wrap.querySelector('.col-headers');
-  const needsRebuild = !existingGrid ||
+  const needsRebuild = !wrap.querySelector('.col-headers') ||
     wrap.dataset.rowWords !== g.rowWords.join(',') ||
     wrap.dataset.colWords !== g.colWords.join(',');
 
@@ -1868,24 +2093,21 @@ function buildGrid(g, guessedSet, missedSet, phase, amGuesser) {
     const G = g.rowWords.length;
     const colHdr = document.createElement('div');
     colHdr.className = 'col-headers';
-    for (let c = 0; c < G; c++) {
+    for (let c=0;c<G;c++) {
       const d = document.createElement('div');
-      d.className = 'col-hdr';
-      d.textContent = g.colWords[c];
+      d.className = 'col-hdr'; d.textContent = g.colWords[c];
       colHdr.appendChild(d);
     }
     wrap.appendChild(colHdr);
-    for (let r = 0; r < G; r++) {
+    for (let r=0;r<G;r++) {
       const row = document.createElement('div');
       row.className = 'grid-row-wrap';
       const rh = document.createElement('div');
-      rh.className = 'row-hdr';
-      rh.textContent = g.rowWords[r];
+      rh.className = 'row-hdr'; rh.textContent = g.rowWords[r];
       row.appendChild(rh);
-      for (let c = 0; c < G; c++) {
+      for (let c=0;c<G;c++) {
         const cell = document.createElement('div');
-        cell.className = 'cell';
-        cell.id = `cell-${r}-${c}`;
+        cell.className = 'cell'; cell.id = `cell-${r}-${c}`;
         row.appendChild(cell);
       }
       wrap.appendChild(row);
@@ -1893,8 +2115,8 @@ function buildGrid(g, guessedSet, missedSet, phase, amGuesser) {
   }
 
   const G = g.rowWords.length;
-  for (let r = 0; r < G; r++) {
-    for (let c = 0; c < G; c++) {
+  for (let r=0;r<G;r++) {
+    for (let c=0;c<G;c++) {
       const cell = document.getElementById(`cell-${r}-${c}`);
       if (!cell) continue;
       const key = `${r},${c}`;
@@ -1902,24 +2124,20 @@ function buildGrid(g, guessedSet, missedSet, phase, amGuesser) {
       const wasMissed  = cell.classList.contains('missed');
       const isGuessed  = guessedSet.has(key);
       const isMissed   = missedSet.has(key);
-
-      // Replace node to clear event listeners
-      const fresh = cell.cloneNode(false); // shallow — we'll set innerHTML below
+      const fresh = cell.cloneNode(false);
       cell.parentNode.replaceChild(fresh, cell);
       const el = document.getElementById(`cell-${r}-${c}`);
       el.className = 'cell';
 
       if (isGuessed) {
-        // ✅ Green — correctly guessed
-        el.classList.add('guessed', 'disabled');
+        el.classList.add('guessed','disabled');
         el.innerHTML = `<div class="cell-check">✓</div>`;
         if (!wasGuessed) {
           el.classList.add('guessed-pop');
           el.addEventListener('animationend', () => el.classList.remove('guessed-pop'), {once:true});
         }
       } else if (isMissed) {
-        // ❌ Red — this cross was missed, stays red for the whole game
-        el.classList.add('missed', 'disabled');
+        el.classList.add('missed','disabled');
         el.innerHTML = `<div class="cell-miss-icon">✕</div>
           <div class="cell-coord">${String.fromCharCode(65+r)}${c+1}</div>`;
         if (!wasMissed) {
@@ -1927,10 +2145,9 @@ function buildGrid(g, guessedSet, missedSet, phase, amGuesser) {
           el.addEventListener('animationend', () => el.classList.remove('missed-pop'), {once:true});
         }
       } else {
-        // Normal cell
         el.innerHTML = `<div class="cell-coord">${String.fromCharCode(65+r)}${c+1}</div>`;
-        if (phase === 'guessing' && amGuesser) {
-          el.addEventListener('click', () => onCellClick(r, c));
+        if (phase==='guessing' && amGuesser) {
+          el.addEventListener('click', () => onCellClick(r,c));
         } else {
           el.classList.add('disabled');
         }
@@ -1941,15 +2158,15 @@ function buildGrid(g, guessedSet, missedSet, phase, amGuesser) {
 
 function highlightTargetCell(key) {
   document.querySelectorAll('.cell').forEach(c => c.classList.remove('active-target'));
-  const [r, c] = key.split(',');
+  const [r,c] = key.split(',');
   const el = document.getElementById(`cell-${r}-${c}`);
   if (el) el.classList.add('active-target');
 }
 
 function currentTargetFromState(g) {
-  const guessedSet = new Set(g.guessed || []);
-  const order = g.targetOrder || [];
-  for (let i = g.targetIndex || 0; i < order.length; i++) {
+  const guessedSet = new Set(g.guessed||[]);
+  const order = g.targetOrder||[];
+  for (let i=g.targetIndex||0; i<order.length; i++) {
     if (!guessedSet.has(order[i])) return order[i];
   }
   return null;
@@ -1967,122 +2184,126 @@ function renderLog(entries) {
 }
 
 // ══════════════════════════════════════════════════════════════
-//  CELL CLICK (GUESSER)
+//  CELL CLICK — mode-aware
 // ══════════════════════════════════════════════════════════════
 window.onCellClick = async (r, c) => {
-  if (!gstate || !gstate.game) return;
+  if (!gstate?.game) return;
   const g = gstate.game;
   const players = gstate.players || [];
-
+  const mode = g.mode || 'coop';
   if (g.phase !== 'guessing') return;
 
-  const currentIdx = g.currentPlayerIndex ?? 0;
-  const giverPlayer = players[currentIdx];
-  // Only non-givers can guess
-  if (giverPlayer && giverPlayer.id === myPlayerId) return;
+  // Check I'm allowed to click
+  if (mode === 'teams' && g.teams) {
+    const activeTeamN = g.currentTeam || 1;
+    const myTeamN = getMyTeam(g);
+    if (myTeamN === activeTeamN || myTeamN === null) return; // active team can't guess
+    const gi = (g.teams[activeTeamN].giverIndex||0) % g.teams[activeTeamN].players.length;
+    const giverPlayer = g.teams[activeTeamN].players[gi];
+    if (giverPlayer?.id === myPlayerId) return;
+  } else {
+    const giverPlayer = players[g.currentPlayerIndex??0];
+    if (giverPlayer?.id === myPlayerId) return;
+  }
 
-  const guessedSet = new Set(g.guessed || []);
+  const guessedSet = new Set(g.guessed||[]);
   if (guessedSet.has(`${r},${c}`)) return;
-
   const tgt = currentTargetFromState(g);
   if (!tgt) return;
 
-  const [tr, tc] = tgt.split(',').map(Number);
+  const [tr,tc] = tgt.split(',').map(Number);
   const correct = tgt === `${r},${c}`;
-  let newGuessed = [...(g.guessed || [])];
-  let newTargetIndex = g.targetIndex || 0;
-  let newLog = [...(g.log || [])];
-  let newMissed = [...(g.missed || [])];
+  let newGuessed = [...(g.guessed||[])];
+  let newMissed  = [...(g.missed||[])];
+  let newLog     = [...(g.log||[])];
+  let newTargetIndex = g.targetIndex||0;
 
-  // Next player in rotation
-  const nextIdx = (currentIdx + 1) % players.length;
+  // Advance turn
+  let nextPlayerIdx, nextTeam, newTeams;
+  if (mode === 'teams' && g.teams) {
+    const activeTeamN = g.currentTeam || 1;
+    const otherTeamN  = activeTeamN === 1 ? 2 : 1;
+    newTeams = JSON.parse(JSON.stringify(g.teams)); // deep copy
+    if (correct) {
+      newTeams[activeTeamN].score = (newTeams[activeTeamN].score||0) + 1;
+    }
+    // Advance giver within the active team, then switch teams
+    newTeams[activeTeamN].giverIndex =
+      ((newTeams[activeTeamN].giverIndex||0) + 1) % newTeams[activeTeamN].players.length;
+    nextTeam = otherTeamN;
+    nextPlayerIdx = g.currentPlayerIndex;
+  } else {
+    nextPlayerIdx = ((g.currentPlayerIndex??0) + 1) % players.length;
+    nextTeam = null;
+    newTeams = null;
+  }
 
   if (correct) {
+    playSound('correct');
     newGuessed.push(`${r},${c}`);
     newTargetIndex++;
-    newLog.push({
-      icon: '✅',
-      text: t('correctLog', g.currentClue, g.rowWords[tr], g.colWords[tc])
-    });
+    newLog.push({ icon:'✅', text: t('correctLog', g.currentClue, g.rowWords[tr], g.colWords[tc]) });
 
-    const G = g.rowWords.length;
-    if (newGuessed.length >= G * G) {
-      // Game won!
-      await update(ref(db, `rooms/${roomId}/game`), {
-        guessed: newGuessed,
-        targetIndex: newTargetIndex,
-        log: newLog,
-        phase: 'giving',
-        currentClue: '',
-        timerStartedAt: null,
-      });
-      await update(roomRef, { status: 'ended' });
+    if (newGuessed.length >= g.rowWords.length * g.colWords.length) {
+      // Win!
+      const winUpdate = { guessed:newGuessed, targetIndex:newTargetIndex,
+        log:newLog, phase:'giving', currentClue:'', timerStartedAt:null };
+      if (newTeams) winUpdate.teams = newTeams;
+      await update(ref(db,`rooms/${roomId}/game`), winUpdate);
+      await update(roomRef, { status:'ended' });
       return;
     }
   } else {
-    // Flash the clicked (wrong) cell red
+    playSound('wrong');
     const el = document.getElementById(`cell-${r}-${c}`);
-    if (el) {
-      el.classList.add('wrong-flash');
-      setTimeout(() => el.classList.remove('wrong-flash'), 600);
-    }
-    // Mark the correct cell as missed — saved to Firebase so all players see it
+    if (el) { el.classList.add('wrong-flash'); setTimeout(()=>el.classList.remove('wrong-flash'),600); }
     const missedKey = `${tr},${tc}`;
-    newMissed = [...(g.missed || [])];
     if (!newMissed.includes(missedKey)) newMissed.push(missedKey);
-    newLog.push({
-      icon: '❌',
-      text: t('wrongLog', g.currentClue, g.rowWords[tr], g.colWords[tc])
-    });
+    newLog.push({ icon:'❌', text: t('wrongLog', g.currentClue, g.rowWords[tr], g.colWords[tc]) });
     newTargetIndex++;
     showToast(t('wrongMsg', g.currentClue, g.rowWords[tr], g.colWords[tc]));
   }
 
   stopLocalTimer();
-
-  await update(ref(db, `rooms/${roomId}/game`), {
-    guessed: newGuessed,
-    missed: newMissed,
-    targetIndex: newTargetIndex,
-    log: newLog,
-    phase: 'giving',
-    currentPlayerIndex: nextIdx,
-    currentClue: '',
-    timerStartedAt: null,
-    rounds: (g.rounds || 0) + 1,
-  });
+  const upd = {
+    guessed:newGuessed, missed:newMissed,
+    targetIndex:newTargetIndex, log:newLog,
+    phase:'giving', currentClue:'', timerStartedAt:null,
+    currentPlayerIndex: nextPlayerIdx,
+    rounds: (g.rounds||0)+1,
+  };
+  if (nextTeam !== null) upd.currentTeam = nextTeam;
+  if (newTeams)          upd.teams = newTeams;
+  await update(ref(db,`rooms/${roomId}/game`), upd);
 };
 
 // ══════════════════════════════════════════════════════════════
-//  SUBMIT CLUE (GIVER)
+//  SUBMIT CLUE
 // ══════════════════════════════════════════════════════════════
 window.submitClue = async () => {
   const clue = document.getElementById('clue-input').value.trim().toUpperCase();
-  if (!clue) return;
-  if (!gstate || !gstate.game) return;
+  if (!clue || !gstate?.game) return;
   const g = gstate.game;
-  const players = gstate.players || [];
-
+  const players = gstate.players||[];
+  const mode = g.mode||'coop';
   if (g.phase !== 'giving') return;
-  const currentIdx = g.currentPlayerIndex ?? 0;
-  const giverPlayer = players[currentIdx];
-  if (!giverPlayer || giverPlayer.id !== myPlayerId) return;
+
+  // Verify I'm the giver
+  if (mode === 'teams' && g.teams) {
+    const activeTeamN = g.currentTeam||1;
+    const gi = (g.teams[activeTeamN].giverIndex||0) % g.teams[activeTeamN].players.length;
+    if (g.teams[activeTeamN].players[gi]?.id !== myPlayerId) return;
+  } else {
+    const giverPlayer = players[g.currentPlayerIndex??0];
+    if (giverPlayer?.id !== myPlayerId) return;
+  }
 
   document.getElementById('give-btn').disabled = true;
   document.getElementById('clue-input').disabled = true;
-
-  const newLog = [...(g.log || []), {
-    icon: '🗣️',
-    text: t('roundLog', myName, clue)
-  }];
-
-  const timerStartedAt = gstate.useTimer ? Date.now() : null;
-
-  await update(ref(db, `rooms/${roomId}/game`), {
-    phase: 'guessing',
-    currentClue: clue,
-    log: newLog,
-    timerStartedAt,
+  const newLog = [...(g.log||[]), { icon:'🗣️', text: t('roundLog', myName, clue) }];
+  await update(ref(db,`rooms/${roomId}/game`), {
+    phase:'guessing', currentClue:clue, log:newLog,
+    timerStartedAt: gstate.useTimer ? Date.now() : null,
   });
 };
 
@@ -2091,59 +2312,59 @@ window.submitClue = async () => {
 // ══════════════════════════════════════════════════════════════
 function startLocalTimer(totalSecs, startedAt) {
   stopLocalTimer();
-  const elapsed = Math.floor((Date.now() - startedAt) / 1000);
-  localTimerLeft = Math.max(0, totalSecs - elapsed);
+  localTimerLeft = Math.max(0, totalSecs - Math.floor((Date.now()-startedAt)/1000));
   renderTimerDisplay();
-
   timerInterval = setInterval(async () => {
     localTimerLeft--;
     renderTimerDisplay();
-    if (localTimerLeft <= 0) {
-      stopLocalTimer();
-      await handleTimerExpiry();
-    }
+    if (localTimerLeft <= 0) { stopLocalTimer(); await handleTimerExpiry(); }
   }, 1000);
 }
-
-function stopLocalTimer() {
-  clearInterval(timerInterval);
-  timerInterval = null;
-}
-
+function stopLocalTimer() { clearInterval(timerInterval); timerInterval = null; }
 function renderTimerDisplay() {
   const el = document.getElementById('hdr-timer');
-  const m = Math.floor(localTimerLeft / 60);
-  const s = localTimerLeft % 60;
+  const m = Math.floor(localTimerLeft/60), s = localTimerLeft%60;
   el.textContent = `${m}:${s.toString().padStart(2,'0')}`;
-  el.classList.toggle('urgent', localTimerLeft <= 10);
+  el.classList.toggle('urgent', localTimerLeft<=10);
 }
-
 async function handleTimerExpiry() {
-  if (!gstate || !gstate.game) return;
+  if (!gstate?.game) return;
   const g = gstate.game;
-  const players = gstate.players || [];
-  const currentIdx = g.currentPlayerIndex ?? 0;
-  const giverPlayer = players[currentIdx];
-
-  // Only the responsible party fires the update
-  const isMyResponsibility =
-    (g.phase === 'giving'   && giverPlayer?.id === myPlayerId) ||
-    (g.phase === 'guessing' && giverPlayer?.id !== myPlayerId);
-
-  if (!isMyResponsibility) return;
-
-  const nextIdx = (currentIdx + 1) % players.length;
-  const newLog = [...(g.log || []), { icon: '⏱️', text: 'Time expired' }];
-
-  await update(ref(db, `rooms/${roomId}/game`), {
-    phase: 'giving',
-    currentPlayerIndex: nextIdx,
-    currentClue: '',
-    timerStartedAt: null,
-    rounds: (g.rounds || 0) + 1,
-    targetIndex: (g.targetIndex || 0) + (g.phase === 'guessing' ? 1 : 0),
-    log: newLog,
-  });
+  const players = gstate.players||[];
+  const mode = g.mode||'coop';
+  let isMyResp;
+  if (mode==='teams'&&g.teams) {
+    const activeTeamN = g.currentTeam||1;
+    const gi = (g.teams[activeTeamN].giverIndex||0)%g.teams[activeTeamN].players.length;
+    const giverPlayer = g.teams[activeTeamN].players[gi];
+    const myTeamN = getMyTeam(g);
+    isMyResp = (g.phase==='giving'&&giverPlayer?.id===myPlayerId)||
+               (g.phase==='guessing'&&myTeamN!==activeTeamN&&myPlayerId===
+                 (gstate.players||[]).find(p=>p.id===myPlayerId)?.id);
+  } else {
+    const giverPlayer = players[g.currentPlayerIndex??0];
+    isMyResp = (g.phase==='giving'&&giverPlayer?.id===myPlayerId)||
+               (g.phase==='guessing'&&giverPlayer?.id!==myPlayerId);
+  }
+  if (!isMyResp) return;
+  const newLog = [...(g.log||[]), {icon:'⏱️', text:'Time expired'}];
+  const upd = {
+    phase:'giving', currentClue:'', timerStartedAt:null,
+    rounds:(g.rounds||0)+1,
+    targetIndex:(g.targetIndex||0)+(g.phase==='guessing'?1:0),
+    log:newLog,
+  };
+  if (mode==='teams'&&g.teams) {
+    const activeTeamN = g.currentTeam||1;
+    const newTeams = JSON.parse(JSON.stringify(g.teams));
+    newTeams[activeTeamN].giverIndex =
+      ((newTeams[activeTeamN].giverIndex||0)+1)%newTeams[activeTeamN].players.length;
+    upd.currentTeam = activeTeamN===1?2:1;
+    upd.teams = newTeams;
+  } else {
+    upd.currentPlayerIndex = ((g.currentPlayerIndex??0)+1)%(players.length||1);
+  }
+  await update(ref(db,`rooms/${roomId}/game`), upd);
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -2153,33 +2374,46 @@ function renderEndScreen(data) {
   stopLocalTimer();
   showScreen('end');
   const g = data.game;
-  const n = (g.guessed || []).length;
+  const mode = g.mode||'coop';
+  const n = (g.guessed||[]).length;
   document.getElementById('end-trophy').textContent = '🏆';
-  document.getElementById('end-title').textContent = t('congratsTitle');
-  document.getElementById('end-sub').textContent = t('congratsSub', n);
   document.getElementById('end-room-code').textContent = t('codedRoom', roomId);
   document.getElementById('stat-matched').textContent = n;
-  document.getElementById('stat-rounds').textContent = g.rounds || 0;
+  document.getElementById('stat-rounds').textContent = g.rounds||0;
   document.getElementById('btn-play-again').textContent = t('playAgain');
   document.getElementById('btn-go-home').textContent = t('goHome');
   document.getElementById('lbl-stat-matched').textContent = t('statMatched');
   document.getElementById('lbl-stat-rounds').textContent = t('statRounds');
+
+  if (mode==='teams'&&g.teams) {
+    const s1 = g.teams[1]?.score||0, s2 = g.teams[2]?.score||0;
+    document.getElementById('end-title').textContent =
+      s1>s2 ? `🔴 ${t('team')} 1 ${t('wins')}!` :
+      s2>s1 ? `🔵 ${t('team')} 2 ${t('wins')}!` :
+      t('tieGame');
+    document.getElementById('end-sub').textContent =
+      `${t('team')} 1: ${s1} pts  —  ${t('team')} 2: ${s2} pts`;
+  } else {
+    document.getElementById('end-title').textContent = t('congratsTitle');
+    document.getElementById('end-sub').textContent = t('congratsSub', n);
+  }
 }
 
 // ══════════════════════════════════════════════════════════════
-//  PLAY AGAIN — same room, no new code needed
+//  PLAY AGAIN — same room
 // ══════════════════════════════════════════════════════════════
 window.playAgain = async () => {
-  if (!roomRef || !gstate) return;
+  if (!roomRef||!gstate) return;
   stopLocalTimer();
-
-  const players = gstate.players || [];
-  const gameLang = gstate.lang || lang;
-  const gameData = buildNewGameData(players, gameLang);
-  await update(roomRef, { status: 'playing', game: gameData });
-
-  // Force local screen update immediately for whoever clicked the button
-  const newData = { ...gstate, status: 'playing', game: gameData };
+  const players = gstate.players||[];
+  const curMode = gstate.mode||'coop';
+  let teamsMap = {};
+  if (gstate.game?.teams) {
+    [1,2].forEach(n => (gstate.game.teams[n]?.players||[]).forEach(p => { teamsMap[p.id]=n; }));
+  }
+  const gameData = buildNewGameData(players, gstate.lang||lang, curMode, teamsMap);
+  await update(roomRef, { status:'playing', mode:curMode, game:gameData });
+  const newData = { ...gstate, status:'playing', mode:curMode, game:gameData };
   gstate = newData;
   applyGameTranslations();
   showScreen('game');
@@ -2191,47 +2425,40 @@ window.playAgain = async () => {
 //  QUIT / HOME
 // ══════════════════════════════════════════════════════════════
 window.quitGame = () => {
-  const msg = lang === 'es' ? '¿Salir del juego?' : 'Quit the game?';
-  if (confirm(msg)) {
-    stopLocalTimer();
-    if (roomRef) off(roomRef);
-    resetToLobby();
+  if (confirm(lang==='es'?'¿Salir del juego?':'Quit the game?')) {
+    stopLocalTimer(); if (roomRef) off(roomRef); resetToLobby();
   }
 };
-
-window.goHome = () => {
-  stopLocalTimer();
-  if (roomRef) off(roomRef);
-  resetToLobby();
-};
+window.goHome = () => { stopLocalTimer(); if (roomRef) off(roomRef); resetToLobby(); };
 
 function resetToLobby() {
-  roomId = null; roomRef = null; gstate = null;
-  myPlayerId = null; myName = ''; isHost = false;
-
-  document.getElementById('create-section').style.display = '';
-  document.getElementById('or-div').style.display = '';
-  document.getElementById('join-section').style.display = '';
-  document.getElementById('waiting-section').style.display = 'none';
-  document.getElementById('join-status').style.display = 'none';
-  document.getElementById('join-code').value = '';
-  document.getElementById('log-scroll').innerHTML = '';
-  document.getElementById('start-game-btn').style.display = '';
-
+  roomId=null; roomRef=null; gstate=null;
+  myPlayerId=null; myName=''; isHost=false;
+  selectedMode='coop'; teamAssignments={};
+  ['create-section','or-div','join-section'].forEach(id => {
+    document.getElementById(id).style.display='';
+  });
+  ['waiting-section','join-status'].forEach(id => {
+    document.getElementById(id).style.display='none';
+  });
+  document.getElementById('join-code').value='';
+  document.getElementById('log-scroll').innerHTML='';
+  document.getElementById('start-game-btn').style.display='';
+  document.getElementById('mode-pill-coop').classList.add('active');
+  document.getElementById('mode-pill-teams').classList.remove('active');
+  document.getElementById('teams-config').style.display='none';
   showScreen('lobby');
   applyLobbyTranslations();
 }
 
 window.copyRoomCode = () => {
   if (!roomId) return;
-  navigator.clipboard.writeText(roomId).catch(() => {});
+  navigator.clipboard.writeText(roomId).catch(()=>{});
   showToast(t('copiedCode'));
 };
 
-// ══════════════════════════════════════════════════════════════
-//  INIT
-// ══════════════════════════════════════════════════════════════
 applyLobbyTranslations();
+
 </script>
 </body>
 </html>
