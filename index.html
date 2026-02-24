@@ -1621,15 +1621,10 @@ window.copyRoomCode=()=>{if(!roomId)return;navigator.clipboard.writeText(roomId)
 
 applyLobbyTrans();
 
-// Remove player when tab hidden (closed/backgrounded on mobile)
-document.addEventListener('visibilitychange', ()=>{
-  if(document.visibilityState==='hidden' && roomRef && myPlayerId && gstate){
-    leaveRoom();
-  }
-});
-// Also catch desktop tab/window close
-window.addEventListener('pagehide', ()=>{
-  if(roomRef && myPlayerId && gstate) leaveRoom();
+// Remove player only when tab/window is truly closed (not just switching tabs)
+// pagehide with persisted=false = real unload; persisted=true = bfcache (back button)
+window.addEventListener('pagehide', (e)=>{
+  if(!e.persisted && roomRef && myPlayerId && gstate) leaveRoom();
 });
 </script>
 </body>
