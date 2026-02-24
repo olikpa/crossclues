@@ -286,6 +286,14 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;op
         </div>
       </div>
 
+      <div class="opt-group">
+        <div class="section-lbl" id="lbl-theme">Temática</div>
+        <div class="opt-grid">
+          <button class="opt-btn active" id="theme-btn-classic" onclick="selectTheme('classic')">🌍 <span id="lbl-theme-classic">Clásica</span></button>
+          <button class="opt-btn" id="theme-btn-football" onclick="selectTheme('football')">⚽ <span id="lbl-theme-football">Fútbol</span></button>
+        </div>
+      </div>
+
       <div class="timer-row">
         <label class="toggle-switch">
           <input type="checkbox" id="timer-toggle" onchange="onTimerToggle()">
@@ -450,6 +458,11 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;op
         <button class="config-opt-btn active" id="cfg-mode-coop" onclick="setCfgMode('coop')">🤝 <span id="cfg-lbl-coop">Cooperativo</span></button>
         <button class="config-opt-btn" id="cfg-mode-teams" onclick="setCfgMode('teams')">⚔️ <span id="cfg-lbl-teams">Equipos</span></button>
       </div>
+      <div class="host-config-title" style="margin-bottom:.35rem;margin-top:.4rem;font-size:.72rem;color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0" id="lbl-theme-cfg">Temática</div>
+      <div class="config-opt-grid">
+        <button class="config-opt-btn active" id="cfg-theme-classic" onclick="setCfgTheme('classic')">🌍 <span id="cfg-lbl-theme-classic">Clásica</span></button>
+        <button class="config-opt-btn" id="cfg-theme-football" onclick="setCfgTheme('football')">⚽ <span id="cfg-lbl-theme-football">Fútbol</span></button>
+      </div>
       <div class="host-config-title" style="margin-bottom:.35rem;margin-top:.4rem;font-size:.72rem;color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0" id="lbl-size-cfg">Tablero</div>
       <div class="config-opt-grid">
         <button class="config-opt-btn" id="cfg-size-3" onclick="setCfgSize(3)">3×3</button>
@@ -565,6 +578,69 @@ const SIMILAR_EN=[
   new Set(["Singer","Dancer","Actor","Artist"]),
 ];
 
+
+// ── FOOTBALL WORDS (theme: football) ────────────────────────
+// Language-agnostic: same words used for both ES and EN since they are proper nouns
+const FOOTBALL_WORDS = [
+  // Competiciones
+  "Champions League","Copa Libertadores","Premier League","La Liga","Serie A",
+  "Bundesliga","Ligue 1","Copa del Rey","Mundial de Fútbol","Copa América",
+  "Eurocopa","MLS","Europa League","FA Cup","Copa Italia","Copa Alemania",
+  "Community Shield","Copa Sudamericana","Recopa Sudamericana","Mundial de Clubes",
+  "UEFA Nations League",
+  // Clubes Europa
+  "Real Madrid","FC Barcelona","Atletico de Madrid","Sevilla","Valencia","Athletic Bilbao",
+  "Manchester City","Liverpool","Manchester United","Arsenal","Chelsea","Tottenham","Aston Villa",
+  "Juventus","AC Milan","Inter de Milan","AS Roma","Napoli","Lazio","Fiorentina",
+  "Bayern Munich","Borussia Dortmund","Bayer Leverkusen","RB Leipzig",
+  "PSG","Olympique de Lyon","Olympique de Marsella",
+  "Benfica","Porto","Sporting de Lisboa",
+  "Ajax","PSV Eindhoven","Feyenoord",
+  // Clubes Sudamérica
+  "Boca Juniors","River Plate","Independiente","Racing Club","San Lorenzo",
+  "Flamengo","Palmeiras","Corinthians","Sao Paulo","Gremio","Santos","Cruzeiro",
+  "Peñarol","Nacional","Colo Colo","Universidad de Chile",
+  "Atletico Nacional","Millonarios",
+  // Clubes MLS
+  "Inter Miami","LA Galaxy","New York City FC",
+  // DTs
+  "Pep Guardiola","Alex Ferguson","Carlo Ancelotti","Jose Mourinho","Jurgen Klopp",
+  "Diego Simeone","Zinedine Zidane","Johan Cruyff","Rinus Michels","Vicente del Bosque",
+  "Marcello Lippi","Arrigo Sacchi","Fabio Capello","Louis van Gaal","Arsene Wenger",
+  "Ottmar Hitzfeld","Brian Clough","Jupp Heynckes","Lionel Scaloni","Marcelo Bielsa",
+  "Carlos Bianchi","Luiz Felipe Scolari","Tele Santana","Carlos Bilardo","Cesar Luis Menotti",
+  "Mario Zagallo","Giovanni Trapattoni","Guus Hiddink","Antonio Conte","Massimiliano Allegri",
+  // Jugadores históricos / clásicos
+  "Lionel Messi","Diego Maradona","Pelé","Cristiano Ronaldo","Franz Beckenbauer",
+  "Michel Platini","Gerd Müller","Eusebio","Marco van Basten","George Best",
+  "Bobby Charlton","Garrincha","Zico","Romario","Roberto Baggio",
+  "Paolo Maldini","Franco Baresi","Lev Yashin","Gianluigi Buffon","Iker Casillas",
+  "Manuel Neuer","Sergio Ramos","Carles Puyol","Andres Iniesta","Xavi Hernandez",
+  "Luka Modric","Toni Kroos","Karim Benzema","Thierry Henry","Wayne Rooney",
+  "Luis Suarez","Neymar Jr","Kaka","Andrea Pirlo","Steven Gerrard",
+  "Frank Lampard","Paul Scholes","David Beckham","Gabriel Batistuta","Hernan Crespo",
+  "Juan Roman Riquelme","Javier Zanetti","Cafu","Roberto Carlos","Dani Alves",
+  "Fabio Cannavaro","Alessandro Del Piero","Francesco Totti","Raul Gonzalez",
+  "Oliver Kahn","Peter Schmeichel","Dino Zoff","Gordon Banks",
+  "Ruud Gullit","Lothar Matthäus","Dennis Bergkamp","Clarence Seedorf",
+  "Hugo Sanchez","Mario Kempes","Daniel Passarella","Enzo Francescoli",
+  "Carlos Valderrama","Hristo Stoichkov","Eric Cantona","Alan Shearer",
+  "Ruud van Nistelrooy","Miroslav Klose","Filippo Inzaghi","David Villa","Fernando Torres",
+  "Sergio Agüero","Angel Di Maria",
+  // Jugadores actuales
+  "Kylian Mbappé","Erling Haaland","Robert Lewandowski","Zlatan Ibrahimovic",
+  "Kevin De Bruyne","Mohamed Salah","Harry Kane","Vinicius Jr","Jude Bellingham",
+  "Rodri","Antoine Griezmann","Lautaro Martinez","Alisson Becker","Thibaut Courtois",
+  "Jan Oblak","Marcelo","Gerard Pique","Patrick Vieira","Claude Makelele",
+  "Roy Keane","Pavel Nedved","George Weah","Michael Owen","Luis Figo","Rivaldo",
+  "Shevchenko","Petr Cech","Rio Ferdinand","John Terry","Gary Neville","Ashley Cole",
+  "Javier Mascherano","Radamel Falcao","James Rodriguez","Alexis Sanchez","Arturo Vidal",
+  "Edinson Cavani","Diego Forlan","Virgil van Dijk","Joshua Kimmich"
+];
+
+// Football has no similar-word groups (all are proper nouns, all distinct)
+const SIMILAR_FOOTBALL = [];
+
 // ── TRANSLATIONS ─────────────────────────────────────────────
 const T={
   en:{
@@ -672,7 +748,7 @@ const T={
 // ── STATE ────────────────────────────────────────────────────
 let lang='es', myPlayerId=null, myName='', isHost=false;
 let roomId=null, roomRef=null, gstate=null;
-let selectedMode='coop', selectedSize=4, numTeams=2, teamAssignments={};
+let selectedMode='coop', selectedSize=4, selectedTheme='classic', numTeams=2, teamAssignments={};
 let timerInterval=null, localTimerLeft=0;
 let soundEnabled=true, gridZoom=1;
 let pendingNewGameHow=null; // 'same'|'new'|null
@@ -757,6 +833,7 @@ function applyLobbyTrans(){
     'lbl-players-joined':'playersJoined','waiting-text':'waitingText','start-game-btn':'startGame',
     'lbl-game-mode':'gameMode','lbl-mode-coop':'modeCoop','lbl-mode-teams':'modeTeams',
     'lbl-grid-size':'gridSize',
+    'lbl-theme':'themeLbl','lbl-theme-classic':'themeClassic','lbl-theme-football':'themeFootball',
     'lbl-assign-teams':'assignTeams','lbl-num-teams':'numTeams'};
   Object.entries(ids).forEach(([id,k])=>{const el=document.getElementById(id);if(el)el.textContent=t(k);});
   const cn=document.getElementById('create-name');if(cn)cn.placeholder=t('p1def');
@@ -781,6 +858,11 @@ window.selectMode=(mode)=>{
 window.selectSize=(g)=>{
   selectedSize=g;
   [3,4,5,6].forEach(n=>document.getElementById(`size-btn-${n}`)?.classList.toggle('active',n===g));
+};
+window.selectTheme=(th)=>{
+  selectedTheme=th;
+  document.getElementById('theme-btn-classic')?.classList.toggle('active',th==='classic');
+  document.getElementById('theme-btn-football')?.classList.toggle('active',th==='football');
 };
 window.onNumTeamsChange=()=>{
   numTeams=parseInt(document.getElementById('num-teams-sel').value)||2;
@@ -819,7 +901,7 @@ window.createRoom=async()=>{
   roomRef=ref(db,`rooms/${roomId}`);
   await set(roomRef,{created:Date.now(),lang,useTimer,timerSecs,status:'lobby',
     hostId:myPlayerId,players:[{id:myPlayerId,name}],game:null,
-    mode:selectedMode,numTeams,gridSize:selectedSize,readyMap:{}});
+    mode:selectedMode,numTeams,gridSize:selectedSize,theme:selectedTheme,readyMap:{}});
   document.getElementById('create-section').style.display='none';
   document.getElementById('or-div').style.display='none';
   document.getElementById('join-section').style.display='none';
@@ -944,21 +1026,28 @@ window.hostStartGame=async()=>{
   const data=snap.val();
   const players=data.players||[];
   if(players.length<2){showToast(t('needPlayers'));return;}
-  const mode=selectedMode,nt=numTeams,gs=selectedSize;
+  const mode=selectedMode,nt=numTeams,gs=selectedSize,th=selectedTheme;
   if(mode==='teams'){
     for(let n=1;n<=nt;n++){
       if(!players.some(p=>(teamAssignments[p.id]||1)===n)){showToast(t('teamsNeedAll'));return;}
     }
   }
-  const gameData=buildGameData(players,data.lang||lang,mode,teamAssignments,nt,gs);
-  await update(roomRef,{status:'playing',mode,numTeams:nt,gridSize:gs,game:gameData,readyMap:{}});
+  const gameData=buildGameData(players,data.lang||lang,mode,teamAssignments,nt,gs,th);
+  await update(roomRef,{status:'playing',mode,numTeams:nt,gridSize:gs,theme:th,game:gameData,readyMap:{}});
 };
 
 // ── BUILD GAME ────────────────────────────────────────────────
-function buildGameData(players,gameLang,mode,teamsMap,nt,gs){
+function buildGameData(players,gameLang,mode,teamsMap,nt,gs,theme){
   const G=gs||5;const L=gameLang||lang;
-  const pool=shuffle(WORDS[L]||WORDS.es);
-  const groups=L==='en'?SIMILAR_EN:SIMILAR_ES;
+  const th=theme||'classic';
+  let pool,groups;
+  if(th==='football'){
+    pool=shuffle(FOOTBALL_WORDS);
+    groups=SIMILAR_FOOTBALL;
+  } else {
+    pool=shuffle(WORDS[L]||WORDS.es);
+    groups=L==='en'?SIMILAR_EN:SIMILAR_ES;
+  }
   function pickWords(src,count){
     const picked=[];
     for(const w of src){if(picked.length>=count)break;if(!groups.some(g=>g.has(w)&&picked.some(p=>g.has(p))))picked.push(w);}
@@ -1402,8 +1491,13 @@ window.closeGameOverModal=()=>{ closeModal('gameover-modal'); };
 
 // ── WIN MODAL ────────────────────────────────────────────────
 // State for host new-game config inside win modal
-let cfgMode='coop', cfgSize=4, cfgTimerEnabled=false, cfgTimerSecs=90;
+let cfgMode='coop', cfgSize=4, cfgTheme='classic', cfgTimerEnabled=false, cfgTimerSecs=90;
 
+window.setCfgTheme=(th)=>{
+  cfgTheme=th;
+  document.getElementById('cfg-theme-classic')?.classList.toggle('active',th==='classic');
+  document.getElementById('cfg-theme-football')?.classList.toggle('active',th==='football');
+};
 window.setCfgMode=(m)=>{
   cfgMode=m;
   document.getElementById('cfg-mode-coop').classList.toggle('active',m==='coop');
@@ -1425,7 +1519,7 @@ function renderWinModal(data){
   const G=g.gridSize||g.rowWords?.length||5;
 
   // Set defaults for host config from current game
-  cfgMode=mode; cfgSize=G;
+  cfgMode=mode; cfgSize=G; cfgTheme=data.theme||'classic';
   cfgTimerEnabled=data.useTimer||false; cfgTimerSecs=data.timerSecs||90;
 
   // Title + sub
@@ -1467,8 +1561,10 @@ function renderWinModal(data){
   const modeLabel=mode==='coop'?t('modeCoop'):t('modeTeams');
   const timerLabel=data.useTimer?`${data.timerSecs}s`:t('noTimer');
   const infoEl=document.getElementById('win-info');infoEl.innerHTML='';
+  const themeLabel=(data.theme||'classic')==='football'?t('themeFootball'):t('themeClassic');
   const rows=[
     ['🎮',t('gameMode'),modeLabel],
+    ['🌍',t('themeLbl'),themeLabel],
     ['⊞',t('gridSize'),`${G}×${G}`],
     ['⏱',t('timerToggle'),timerLabel],
     ['🎯',t('statMatched'),`${n} / ${G*G}`],
@@ -1484,7 +1580,7 @@ function renderWinModal(data){
   if(isHost){
     hostCfg.style.display='';
     // Sync cfg buttons with current game values
-    setCfgMode(cfgMode); setCfgSize(cfgSize);
+    setCfgMode(cfgMode); setCfgSize(cfgSize); setCfgTheme(cfgTheme);
     const tt=document.getElementById('cfg-timer-toggle');
     if(tt){ tt.checked=cfgTimerEnabled; document.getElementById('cfg-timer-secs').disabled=!cfgTimerEnabled; document.getElementById('cfg-timer-secs').value=cfgTimerSecs; }
   } else {
@@ -1618,9 +1714,10 @@ async function doStartNewGame(data){
       for(let n=1;n<=nt;n++) (g?.teams?.[n]?.players||[]).forEach(p=>{teamsMap[p.id]=n;});
     } else {nt=2;teamsMap={};}
   }
-  const gameData=buildGameData(players,data.lang||lang,curMode,teamsMap,nt,gs);
+  const curTheme=pendingNewGameHow==='newcfg'?cfgTheme:(data.theme||'classic');
+  const gameData=buildGameData(players,data.lang||lang,curMode,teamsMap,nt,gs,curTheme);
   closeModal('gameover-modal');closeModal('ready-modal');closeModal('win-modal');
-  await update(roomRef,{status:'playing',mode:curMode,numTeams:nt,gridSize:gs,useTimer,timerSecs,game:gameData,readyMap:{}});
+  await update(roomRef,{status:'playing',mode:curMode,numTeams:nt,gridSize:gs,theme:curTheme,useTimer,timerSecs,game:gameData,readyMap:{}});
 }
 
 // (end-reassign panel removed — using win-modal config instead)
@@ -1665,7 +1762,7 @@ window.goHome=()=>{leaveRoom();};
 
 function resetToLobby(){
   roomId=null;roomRef=null;gstate=null;myPlayerId=null;myName='';isHost=false;
-  selectedMode='coop';numTeams=2;teamAssignments={};pendingNewGameHow=null;
+  selectedMode='coop';selectedSize=4;selectedTheme='classic';numTeams=2;teamAssignments={};pendingNewGameHow=null;
   ['create-section','or-div','join-section'].forEach(id=>document.getElementById(id).style.display='');
   ['waiting-section','join-status','teams-config'].forEach(id=>document.getElementById(id).style.display='none');
   document.getElementById('join-code').value='';
