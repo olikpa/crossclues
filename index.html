@@ -480,6 +480,9 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;op
         <span style="font-size:.8rem;color:var(--muted)" id="lbl-cfg-secs">seg</span>
       </div>
     </div>
+    <div id="win-cfg-confirm" style="display:none;margin-bottom:.5rem">
+      <button class="btn-again" onclick="requestNewGame('newcfg')" style="background:var(--accent);color:var(--ink)" id="btn-cfg-confirm">Empezar →</button>
+    </div>
     <div class="win-btns" id="win-btns"></div>
   </div>
 </div>
@@ -691,7 +694,9 @@ const T={
     joinReady:"▶ Join new game",
     playSameConfig:"▶ Same game again",playNewConfig:"⚙️ New game (change settings)",
     noTimer:"Off",
-
+    themeLbl:"Theme",themeClassic:"Classic",themeFootball:"Football",
+    cancelConfig:"Cancel new config",
+    congratsTitle:"Congratulations!",congratsSub:(n,total)=>`You matched ${n} of ${total} crosses!`,
   },
   es:{
     sub:"Juego cooperativo de palabras en línea",yourName:"Tu Nombre",joinName:"Tu Nombre",
@@ -741,7 +746,9 @@ const T={
     joinReady:"▶ Unirme a la nueva partida",
     playSameConfig:"▶ Misma partida de nuevo",playNewConfig:"⚙️ Nueva partida (cambiar config)",
     noTimer:"Sin temporizador",
-
+    themeLbl:"Temática",themeClassic:"Clásica",themeFootball:"Fútbol",
+    cancelConfig:"Cancelar nueva config",
+    congratsTitle:"¡Felicitaciones!",congratsSub:(n,total)=>`¡Adivinaron ${n} de ${total} cruces!`,
   }
 };
 
@@ -1493,6 +1500,14 @@ window.closeGameOverModal=()=>{ closeModal('gameover-modal'); };
 // State for host new-game config inside win modal
 let cfgMode='coop', cfgSize=4, cfgTheme='classic', cfgTimerEnabled=false, cfgTimerSecs=90;
 
+window.toggleHostConfig=(btn)=>{
+  const cfg=document.getElementById('host-config');
+  const confirm=document.getElementById('win-cfg-confirm');
+  const isOpen=cfg.style.display!=='none';
+  cfg.style.display=isOpen?'none':'';
+  confirm.style.display=isOpen?'none':'';
+  btn.textContent=isOpen?t('playNewConfig'):'✕ ' + t('cancelConfig');
+};
 window.setCfgTheme=(th)=>{
   cfgTheme=th;
   document.getElementById('cfg-theme-classic')?.classList.toggle('active',th==='classic');
@@ -1544,7 +1559,7 @@ function renderWinModal(data){
   } else {
     teamsBox.style.display='none';
     document.getElementById('win-title').textContent=t('congratsTitle');
-    document.getElementById('win-sub').textContent=t('congratsSub',n);
+    document.getElementById('win-sub').textContent=t('congratsSub',n,G*G);
   }
 
   // Player chips
@@ -1575,11 +1590,13 @@ function renderWinModal(data){
     infoEl.appendChild(row);
   });
 
-  // Host config block
+  // Host config block - always hidden initially, shown on button click
   const hostCfg=document.getElementById('host-config');
+  const winCfgConfirm=document.getElementById('win-cfg-confirm');
+  if(winCfgConfirm) winCfgConfirm.style.display='none';
   if(isHost){
-    hostCfg.style.display='';
-    // Sync cfg buttons with current game values
+    hostCfg.style.display='none'; // starts hidden
+    // Pre-sync cfg buttons so they're ready when opened
     setCfgMode(cfgMode); setCfgSize(cfgSize); setCfgTheme(cfgTheme);
     const tt=document.getElementById('cfg-timer-toggle');
     if(tt){ tt.checked=cfgTimerEnabled; document.getElementById('cfg-timer-secs').disabled=!cfgTimerEnabled; document.getElementById('cfg-timer-secs').value=cfgTimerSecs; }
@@ -1595,7 +1612,7 @@ function renderWinModal(data){
     b1.onclick=()=>requestNewGame('same');
     const b2=document.createElement('button');b2.className='btn-secondary';
     b2.textContent=t('playNewConfig');
-    b2.onclick=()=>requestNewGame('newcfg');
+    b2.onclick=()=>toggleHostConfig(b2);
     const b3=document.createElement('button');b3.className='btn-home';
     b3.textContent=t('goHome');b3.onclick=()=>goHome();
     btns.appendChild(b1);btns.appendChild(b2);btns.appendChild(b3);
