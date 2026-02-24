@@ -116,9 +116,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;op
 
 /* GRID with zoom */
 .grid-area{display:flex;align-items:center;justify-content:center;padding:1rem;overflow:auto;position:relative}
-.zoom-ctrl{position:sticky;bottom:.7rem;display:flex;justify-content:flex-end;gap:.3rem;z-index:10;padding:.3rem;pointer-events:none}.zoom-btn{pointer-events:all}
-.zoom-btn{width:30px;height:30px;border:1.5px solid var(--border);border-radius:8px;background:var(--card);color:var(--ink);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;box-shadow:0 1px 4px var(--shadow);transition:all .15s;line-height:1}
-.zoom-btn:hover{border-color:var(--accent)}
+
 .grid-wrap{display:flex;flex-direction:column;gap:0;transform-origin:center center;transition:transform .18s ease}
 .col-headers{display:flex;gap:4px}
 .col-hdr{text-align:center;font-size:.65rem;font-weight:600;color:var(--col-clr);text-transform:uppercase;letter-spacing:.04em;line-height:1.2;padding-bottom:4px;word-break:break-word}
@@ -199,30 +197,36 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;op
 .log-scroll::-webkit-scrollbar{width:4px}.log-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 .log-entry{font-size:.76rem;line-height:1.45;color:var(--muted);display:flex;gap:.38rem;align-items:flex-start}
 
-/* END SCREEN */
-#end{align-items:center;justify-content:center;padding:2rem;background:var(--bg)}
-.end-inner{max-width:420px;width:100%;text-align:center;animation:rise .5s ease both}
+/* WIN MODAL */
 @keyframes rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-.end-trophy{font-size:4.5rem;line-height:1;margin-bottom:.9rem}
-.end-title{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;letter-spacing:-.03em;margin-bottom:.38rem}
-.end-sub{color:var(--muted);margin-bottom:1.3rem;font-size:.93rem}
-.end-teams-scores{display:flex;gap:.55rem;margin-bottom:1.3rem;flex-wrap:wrap;justify-content:center}
-.end-team-box{padding:.75rem 1.1rem;border-radius:14px;border:2px solid;min-width:85px}
-.end-team-box.winner{transform:scale(1.06);box-shadow:0 4px 16px var(--shadow)}
-.end-team-score{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;line-height:1}
-.end-team-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;opacity:.75;margin-top:.18rem}
-.end-stats{display:grid;grid-template-columns:1fr 1fr;gap:.65rem;margin-bottom:1.3rem}
-.stat-box{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.1rem .75rem;box-shadow:0 2px 8px var(--shadow)}
-.stat-n{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;color:var(--ink);line-height:1}
-.stat-desc{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-top:.28rem}
-.end-btns{display:flex;flex-direction:column;gap:.62rem}
-.btn-again{padding:.85rem;background:var(--success);border:none;border-radius:12px;color:#fff;font-family:'Syne',sans-serif;font-size:.97rem;font-weight:700;cursor:pointer;transition:opacity .18s}
+.btn-again{padding:.82rem;background:var(--success);border:none;border-radius:12px;color:#fff;font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;transition:opacity .18s;width:100%}
 .btn-again:hover{opacity:.85}
-.btn-home{padding:.85rem;background:transparent;border:1.5px solid var(--border);border-radius:12px;color:var(--muted);font-family:'Instrument Sans',sans-serif;font-size:.88rem;cursor:pointer;transition:all .18s}
+.btn-home{padding:.82rem;background:transparent;border:1.5px solid var(--border);border-radius:12px;color:var(--muted);font-family:'Instrument Sans',sans-serif;font-size:.86rem;cursor:pointer;transition:all .18s;width:100%}
 .btn-home:hover{border-color:var(--muted);color:var(--ink)}
-.btn-secondary{padding:.85rem;background:transparent;border:1.5px solid var(--accent);border-radius:12px;color:var(--accent);font-family:'Syne',sans-serif;font-size:.92rem;font-weight:700;cursor:pointer;transition:all .18s}
+.btn-secondary{padding:.82rem;background:transparent;border:1.5px solid var(--accent);border-radius:12px;color:var(--accent);font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;transition:all .18s;width:100%}
 .btn-secondary:hover{background:var(--accent);color:var(--ink)}
-.end-room-code{font-family:'Syne',sans-serif;font-size:.82rem;font-weight:700;color:var(--muted);letter-spacing:.1em;margin-bottom:.88rem;padding:.36rem .82rem;background:var(--tag-bg);border:1px solid var(--border);border-radius:20px;display:inline-block}
+.win-modal-box{background:var(--card);border:1px solid var(--border);border-radius:22px;padding:1.8rem 1.6rem;box-shadow:0 8px 40px rgba(28,23,16,.22);max-width:380px;width:92%;text-align:center;animation:rise .4s ease both;max-height:90vh;overflow-y:auto}
+.win-trophy{font-size:3.4rem;line-height:1;margin-bottom:.6rem}
+.win-title{font-family:'Syne',sans-serif;font-size:1.7rem;font-weight:800;letter-spacing:-.03em;margin-bottom:.25rem;color:var(--success)}
+.win-sub{color:var(--muted);font-size:.88rem;margin-bottom:.9rem;line-height:1.5}
+.win-players{display:flex;flex-wrap:wrap;gap:.35rem;justify-content:center;margin-bottom:.9rem}
+.win-player-chip{display:flex;align-items:center;gap:.3rem;padding:.25rem .6rem;border-radius:20px;font-size:.8rem;font-weight:600;border:1.5px solid}
+.win-info{background:var(--tag-bg);border:1px solid var(--border);border-radius:12px;padding:.65rem .9rem;margin-bottom:1rem;text-align:left;display:flex;flex-direction:column;gap:.3rem}
+.win-info-row{display:flex;align-items:center;gap:.45rem;font-size:.82rem;color:var(--muted)}
+.win-info-val{font-weight:600;color:var(--ink)}
+.win-teams-scores{display:flex;gap:.45rem;margin-bottom:.9rem;flex-wrap:wrap;justify-content:center}
+.win-team-box{padding:.6rem .9rem;border-radius:12px;border:2px solid;min-width:75px}
+.win-team-box.winner{transform:scale(1.06);box-shadow:0 4px 14px var(--shadow)}
+.win-team-score{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;line-height:1}
+.win-team-label{font-size:.62rem;text-transform:uppercase;letter-spacing:.07em;opacity:.75;margin-top:.14rem}
+.win-btns{display:flex;flex-direction:column;gap:.5rem}
+/* host config inside win modal */
+.host-config{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:.85rem;margin-bottom:.75rem;text-align:left}
+.host-config-title{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:600;margin-bottom:.6rem}
+.config-opt-grid{display:flex;gap:.35rem;flex-wrap:wrap;margin-bottom:.5rem}
+.config-opt-btn{flex:1;min-width:48px;padding:.45rem .25rem;border:1.5px solid var(--border);border-radius:9px;background:transparent;font-family:'Instrument Sans',sans-serif;font-size:.79rem;font-weight:500;color:var(--muted);cursor:pointer;transition:all .18s;text-align:center}
+.config-opt-btn.active{border-color:var(--accent);background:rgba(212,160,23,.1);color:var(--ink);font-weight:600}
+.config-timer-row{display:flex;align-items:center;gap:.6rem;font-size:.82rem;color:var(--muted);padding-top:.4rem;border-top:1px solid var(--border);margin-top:.4rem}
 
 /* MODAL overlay (game over + ready) */
 .modal-bg{display:none;position:fixed;inset:0;z-index:200;align-items:center;justify-content:center;background:rgba(28,23,16,.55);backdrop-filter:blur(3px)}
@@ -347,6 +351,8 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;op
     </div>
     <div class="hdr-btns">
       <button class="hdr-btn" id="btn-sound-game" onclick="toggleSound()" title="Sonido">🔊</button>
+      <button class="hdr-btn" onclick="zoomGrid(-1)" title="Alejar tablero">−</button>
+      <button class="hdr-btn" onclick="zoomGrid(1)" title="Acercar tablero">+</button>
       <button class="hdr-btn green" id="btn-new-game" onclick="requestNewGame()">Nuevo</button>
       <button class="hdr-btn red" id="btn-quit" onclick="quitGame()">Salir</button>
     </div>
@@ -355,10 +361,6 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;op
   <div class="game-body">
     <div class="grid-area">
       <div id="grid-wrap" class="grid-wrap" data-zoom="1"></div>
-      <div class="zoom-ctrl">
-        <button class="zoom-btn" onclick="zoomGrid(-1)" title="Alejar">−</button>
-        <button class="zoom-btn" onclick="zoomGrid(1)" title="Acercar">+</button>
-      </div>
     </div>
     <div class="side">
       <div class="side-section">
@@ -424,45 +426,48 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;op
     <div class="ready-title" id="ready-title">Nuevo Juego</div>
     <div class="ready-sub" id="ready-sub">Esperando que todos confirmen…</div>
     <div class="ready-list" id="ready-list"></div>
-    <button class="btn-home" style="width:100%" onclick="cancelReady()" id="btn-cancel-ready">Cancelar</button>
+    <div id="ready-action-btns" style="display:flex;flex-direction:column;gap:.5rem">
+      <button class="btn-again" id="btn-join-ready" onclick="joinReady()" style="display:none">▶ Unirme a la nueva partida</button>
+      <button class="btn-home" id="btn-leave-ready" onclick="leaveFromReady()">Salir de la sala</button>
+    </div>
   </div>
 </div>
 
-<!-- ═══ END ═══════════════════════════════════════════════ -->
-<div id="end" class="screen">
-  <div class="end-inner">
-    <div class="end-trophy" id="end-trophy">🏆</div>
-    <div class="end-title" id="end-title">¡Felicitaciones!</div>
-    <div class="end-sub" id="end-sub"></div>
-    <div class="end-room-code" id="end-room-code"></div>
-    <div class="end-teams-scores" id="end-teams-scores" style="display:none"></div>
-    <div class="end-stats">
-      <div class="stat-box"><div class="stat-n" id="stat-matched">0</div><div class="stat-desc" id="lbl-stat-matched">Adivinadas</div></div>
-      <div class="stat-box"><div class="stat-n" id="stat-rounds">0</div><div class="stat-desc" id="lbl-stat-rounds">Rondas</div></div>
-    </div>
-    <div class="end-btns" id="end-btns-coop" style="display:none">
-      <button class="btn-again" id="btn-play-again-coop" onclick="requestNewGame()">Nueva Partida</button>
-      <button class="btn-home" id="btn-go-home" onclick="goHome()">Salir de la sala</button>
-    </div>
-    <div class="end-btns" id="end-btns-teams" style="display:none">
-      <button class="btn-again" id="btn-play-same-teams" onclick="requestNewGame('same')">▶ Jugar de nuevo — mismos equipos</button>
-      <button class="btn-secondary" id="btn-play-new-teams" onclick="showTeamReassign()">🔀 Jugar de nuevo — reasignar equipos</button>
-      <button class="btn-home" id="btn-go-home-t" onclick="goHome()">Salir de la sala</button>
-    </div>
-    <div id="end-reassign-panel" style="display:none;margin-top:.5rem">
-      <div class="section-lbl" id="lbl-reassign-teams" style="margin-bottom:.42rem">Reasignar equipos</div>
-      <div class="num-teams-row">
-        <span id="lbl-end-num-teams">Número de equipos:</span>
-        <select id="end-num-teams-sel" onchange="onEndNumTeamsChange()">
-          <option value="2">2</option><option value="3">3</option><option value="4">4</option>
-        </select>
+<!-- ═══ WIN MODAL ══════════════════════════════════════════ -->
+<div id="win-modal" class="modal-bg">
+  <div class="win-modal-box">
+    <div class="win-trophy">🏆</div>
+    <div class="win-title" id="win-title">¡Felicitaciones!</div>
+    <div class="win-sub" id="win-sub"></div>
+    <div class="win-players" id="win-players"></div>
+    <div class="win-teams-scores" id="win-teams-scores" style="display:none"></div>
+    <div class="win-info" id="win-info"></div>
+    <!-- HOST: config for new game with different settings -->
+    <div class="host-config" id="host-config" style="display:none">
+      <div class="host-config-title" id="lbl-new-config">Nueva configuración</div>
+      <div class="host-config-title" style="margin-bottom:.35rem;margin-top:.1rem;font-size:.72rem;color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0" id="lbl-mode-cfg">Modo</div>
+      <div class="config-opt-grid">
+        <button class="config-opt-btn active" id="cfg-mode-coop" onclick="setCfgMode('coop')">🤝 <span id="cfg-lbl-coop">Cooperativo</span></button>
+        <button class="config-opt-btn" id="cfg-mode-teams" onclick="setCfgMode('teams')">⚔️ <span id="cfg-lbl-teams">Equipos</span></button>
       </div>
-      <div class="team-assign-wrap" id="end-team-assign-list"></div>
-      <div style="display:flex;gap:.5rem;margin-top:.65rem">
-        <button class="btn-again" style="flex:1;font-size:.88rem;padding:.62rem" onclick="requestNewGame('new')">Empezar →</button>
-        <button class="btn-home" style="flex:1;font-size:.88rem;padding:.62rem" onclick="hideTeamReassign()">Cancelar</button>
+      <div class="host-config-title" style="margin-bottom:.35rem;margin-top:.4rem;font-size:.72rem;color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0" id="lbl-size-cfg">Tablero</div>
+      <div class="config-opt-grid">
+        <button class="config-opt-btn" id="cfg-size-3" onclick="setCfgSize(3)">3×3</button>
+        <button class="config-opt-btn active" id="cfg-size-4" onclick="setCfgSize(4)">4×4</button>
+        <button class="config-opt-btn" id="cfg-size-5" onclick="setCfgSize(5)">5×5</button>
+        <button class="config-opt-btn" id="cfg-size-6" onclick="setCfgSize(6)">6×6</button>
+      </div>
+      <div class="config-timer-row">
+        <label class="toggle-switch">
+          <input type="checkbox" id="cfg-timer-toggle" onchange="onCfgTimerToggle()">
+          <span class="toggle-slider"></span>
+        </label>
+        <span id="lbl-cfg-timer">Temporizador</span>
+        <input type="number" class="timer-input" id="cfg-timer-secs" value="90" min="15" max="600" disabled style="margin-left:auto">
+        <span style="font-size:.8rem;color:var(--muted)" id="lbl-cfg-secs">seg</span>
       </div>
     </div>
+    <div class="win-btns" id="win-btns"></div>
   </div>
 </div>
 
@@ -584,7 +589,7 @@ const T={
     playSameTeams:"▶ Play Again — same teams",
     playNewTeams:"🔀 Play Again — reassign teams",
     reassignTeams:"Reassign teams",
-    congratsTitle:"Congratulations!",congratsSub:n=>`You matched all ${n} pairs!`,
+
     wrongMsg:(c,r,col)=>`"${c}" was for ${r} × ${col}`,
     p1def:"Player 1",p2def:"Player 2",
     partnerThinking:n=>`${n} is giving a clue…`,
@@ -605,9 +610,12 @@ const T={
     gameOverTitle:"Game Over!",
     gameOverSub:(r,c)=>`You missed: "${r}" × "${c}"`,
     tryAgain:"Try Again",analyzeBoard:"🔍 Analyze the board",
-    readyTitle:"New Game",readySub:"Waiting for everyone to confirm…",
+    readyTitle:"New Game",readySub:"Someone wants to start a new game!",
     readyYou:"Ready ✓",readyWaiting:"Waiting…",readyLeft:"Left",
-    cancelReady:"Cancel",
+    joinReady:"▶ Join new game",
+    playSameConfig:"▶ Same game again",playNewConfig:"⚙️ New game (change settings)",
+    noTimer:"Off",
+
   },
   es:{
     sub:"Juego cooperativo de palabras en línea",yourName:"Tu Nombre",joinName:"Tu Nombre",
@@ -631,7 +639,7 @@ const T={
     playSameTeams:"▶ Jugar de nuevo — mismos equipos",
     playNewTeams:"🔀 Jugar de nuevo — reasignar equipos",
     reassignTeams:"Reasignar equipos",
-    congratsTitle:"¡Felicitaciones!",congratsSub:n=>`¡Adivinaron las ${n} parejas!`,
+
     wrongMsg:(c,r,col)=>`"${c}" era para ${r} × ${col}`,
     p1def:"Jugador 1",p2def:"Jugador 2",
     partnerThinking:n=>`${n} está dando una pista…`,
@@ -652,9 +660,12 @@ const T={
     gameOverTitle:"¡Game Over!",
     gameOverSub:(r,c)=>`Erraron: "${r}" × "${c}"`,
     tryAgain:"Intentar de nuevo",analyzeBoard:"🔍 Analizar el tablero",
-    readyTitle:"Nuevo Juego",readySub:"Esperando que todos confirmen…",
+    readyTitle:"Nueva Partida",readySub:"¡Alguien quiere empezar una nueva partida!",
     readyYou:"Listo ✓",readyWaiting:"Esperando…",readyLeft:"Se fue",
-    cancelReady:"Cancelar",
+    joinReady:"▶ Unirme a la nueva partida",
+    playSameConfig:"▶ Misma partida de nuevo",playNewConfig:"⚙️ Nueva partida (cambiar config)",
+    noTimer:"Sin temporizador",
+
   }
 };
 
@@ -869,6 +880,7 @@ function listenRoom(){
 
     // Handle ready state (waiting for everyone to confirm new game)
     if(data.status==='ready'){
+      closeModal('win-modal');
       renderReadyModal(data);
       return;
     }
@@ -904,7 +916,7 @@ function listenRoom(){
         if(newlyGuessed.length>0) playSound('correct');
       }
     }
-    if(data.status==='ended'&&data.game){renderEndScreen(data);}
+    if(data.status==='ended'&&data.game){renderWinModal(data);}
     if(data.status==='gameover'&&data.game){renderGameOverScreen(data);}
   });
 }
@@ -1388,51 +1400,121 @@ function renderGameOverScreen(data){
 }
 window.closeGameOverModal=()=>{ closeModal('gameover-modal'); };
 
-// ── END SCREEN ────────────────────────────────────────────────
-function renderEndScreen(data){
-  stopLocalTimer();showScreen('end');
-  const g=data.game;const mode=g.mode||'coop';const n=(g.guessed||[]).length;
-  document.getElementById('end-trophy').textContent='🏆';
-  document.getElementById('end-room-code').textContent=t('codedRoom',roomId);
-  document.getElementById('stat-matched').textContent=n;
-  document.getElementById('stat-rounds').textContent=g.rounds||0;
-  document.getElementById('lbl-stat-matched').textContent=t('statMatched');
-  document.getElementById('lbl-stat-rounds').textContent=t('statRounds');
-  document.getElementById('end-btns-coop').style.display=mode==='coop'?'':'none';
-  document.getElementById('end-btns-teams').style.display=mode==='teams'?'':'none';
-  document.getElementById('end-reassign-panel').style.display='none';
-  if(mode==='coop'){
-    document.getElementById('btn-play-again-coop').textContent=t('playAgain');
-    document.getElementById('btn-go-home').textContent=t('goHome');
-  } else {
-    document.getElementById('btn-play-same-teams').textContent=t('playSameTeams');
-    document.getElementById('btn-play-new-teams').textContent=t('playNewTeams');
-    document.getElementById('btn-go-home-t').textContent=t('goHome');
-    endReassignInit(data);
-  }
-  const teamsScores=document.getElementById('end-teams-scores');
+// ── WIN MODAL ────────────────────────────────────────────────
+// State for host new-game config inside win modal
+let cfgMode='coop', cfgSize=4, cfgTimerEnabled=false, cfgTimerSecs=90;
+
+window.setCfgMode=(m)=>{
+  cfgMode=m;
+  document.getElementById('cfg-mode-coop').classList.toggle('active',m==='coop');
+  document.getElementById('cfg-mode-teams').classList.toggle('active',m==='teams');
+};
+window.setCfgSize=(s)=>{
+  cfgSize=s;
+  [3,4,5,6].forEach(n=>document.getElementById(`cfg-size-${n}`)?.classList.toggle('active',n===s));
+};
+window.onCfgTimerToggle=()=>{
+  cfgTimerEnabled=document.getElementById('cfg-timer-toggle').checked;
+  document.getElementById('cfg-timer-secs').disabled=!cfgTimerEnabled;
+};
+
+function renderWinModal(data){
+  stopLocalTimer();
+  const g=data.game;const players=data.players||[];
+  const mode=g.mode||'coop';const n=(g.guessed||[]).length;
+  const G=g.gridSize||g.rowWords?.length||5;
+
+  // Set defaults for host config from current game
+  cfgMode=mode; cfgSize=G;
+  cfgTimerEnabled=data.useTimer||false; cfgTimerSecs=data.timerSecs||90;
+
+  // Title + sub
+  const teamsBox=document.getElementById('win-teams-scores');
   if(mode==='teams'&&g.teams){
     const nt=g.numTeams||2;let maxScore=0;
-    for(let n=1;n<=nt;n++) maxScore=Math.max(maxScore,g.teams[n]?.score||0);
-    teamsScores.style.display='';teamsScores.innerHTML='';
+    for(let nn=1;nn<=nt;nn++) maxScore=Math.max(maxScore,g.teams[nn]?.score||0);
     const scores=[];
-    for(let n=1;n<=nt;n++) scores.push({n,score:g.teams[n]?.score||0});
+    for(let nn=1;nn<=nt;nn++) scores.push({n:nn,score:g.teams[nn]?.score||0});
     scores.sort((a,b)=>b.score-a.score);
-    scores.forEach(({n,score})=>{
-      const tc=TEAM_COLORS[n];
-      const box=document.createElement('div');box.className='end-team-box'+(score===maxScore?' winner':'');
+    teamsBox.style.display='';teamsBox.innerHTML='';
+    scores.forEach(({n:nn,score})=>{
+      const tc=TEAM_COLORS[nn];
+      const box=document.createElement('div');box.className='win-team-box'+(score===maxScore?' winner':'');
       box.style.cssText=`background:${tc.bg};border-color:${tc.hex};color:${tc.hex}`;
-      box.innerHTML=`<div class="end-team-score">${score}</div><div class="end-team-label">${tc.label} ${t('team',n)}</div>`;
-      teamsScores.appendChild(box);
+      box.innerHTML=`<div class="win-team-score">${score}</div><div class="win-team-label">${tc.label} ${t('team',nn)}</div>`;
+      teamsBox.appendChild(box);
     });
     const winners=scores.filter(s=>s.score===maxScore);
-    document.getElementById('end-title').textContent=winners.length===1?`${TEAM_COLORS[winners[0].n].label} ${t('team',winners[0].n)} ${t('wins')}!`:t('tieGame');
-    document.getElementById('end-sub').textContent='';
+    document.getElementById('win-title').textContent=winners.length===1?`${TEAM_COLORS[winners[0].n].label} ${t('team',winners[0].n)} ${t('wins')}!`:t('tieGame');
+    document.getElementById('win-sub').textContent='';
   } else {
-    teamsScores.style.display='none';
-    document.getElementById('end-title').textContent=t('congratsTitle');
-    document.getElementById('end-sub').textContent=t('congratsSub',n);
+    teamsBox.style.display='none';
+    document.getElementById('win-title').textContent=t('congratsTitle');
+    document.getElementById('win-sub').textContent=t('congratsSub',n);
   }
+
+  // Player chips
+  const playersEl=document.getElementById('win-players');playersEl.innerHTML='';
+  players.forEach((p,i)=>{
+    const chip=document.createElement('div');chip.className='win-player-chip';
+    const clr=PLAYER_COLORS[i%PLAYER_COLORS.length];
+    chip.style.cssText=`background:${clr}18;border-color:${clr};color:${clr}`;
+    chip.innerHTML=`<span style="width:7px;height:7px;border-radius:50%;background:${clr};display:inline-block;flex-shrink:0"></span>${p.name}`;
+    playersEl.appendChild(chip);
+  });
+
+  // Game info row
+  const modeLabel=mode==='coop'?t('modeCoop'):t('modeTeams');
+  const timerLabel=data.useTimer?`${data.timerSecs}s`:t('noTimer');
+  const infoEl=document.getElementById('win-info');infoEl.innerHTML='';
+  const rows=[
+    ['🎮',t('gameMode'),modeLabel],
+    ['⊞',t('gridSize'),`${G}×${G}`],
+    ['⏱',t('timerToggle'),timerLabel],
+    ['🎯',t('statMatched'),`${n} / ${G*G}`],
+  ];
+  rows.forEach(([icon,lbl,val])=>{
+    const row=document.createElement('div');row.className='win-info-row';
+    row.innerHTML=`<span>${icon}</span><span>${lbl}</span><span class="win-info-val" style="margin-left:auto">${val}</span>`;
+    infoEl.appendChild(row);
+  });
+
+  // Host config block
+  const hostCfg=document.getElementById('host-config');
+  if(isHost){
+    hostCfg.style.display='';
+    // Sync cfg buttons with current game values
+    setCfgMode(cfgMode); setCfgSize(cfgSize);
+    const tt=document.getElementById('cfg-timer-toggle');
+    if(tt){ tt.checked=cfgTimerEnabled; document.getElementById('cfg-timer-secs').disabled=!cfgTimerEnabled; document.getElementById('cfg-timer-secs').value=cfgTimerSecs; }
+  } else {
+    hostCfg.style.display='none';
+  }
+
+  // Buttons
+  const btns=document.getElementById('win-btns');btns.innerHTML='';
+  if(isHost){
+    const b1=document.createElement('button');b1.className='btn-again';
+    b1.textContent=t('playSameConfig');
+    b1.onclick=()=>requestNewGame('same');
+    const b2=document.createElement('button');b2.className='btn-secondary';
+    b2.textContent=t('playNewConfig');
+    b2.onclick=()=>requestNewGame('newcfg');
+    const b3=document.createElement('button');b3.className='btn-home';
+    b3.textContent=t('goHome');b3.onclick=()=>goHome();
+    btns.appendChild(b1);btns.appendChild(b2);btns.appendChild(b3);
+  } else {
+    const b1=document.createElement('button');b1.className='btn-again';
+    b1.textContent=t('playSameConfig');
+    b1.onclick=()=>requestNewGame('same');
+    const b3=document.createElement('button');b3.className='btn-home';
+    b3.textContent=t('goHome');b3.onclick=()=>goHome();
+    btns.appendChild(b1);btns.appendChild(b3);
+  }
+
+  // Show modal over game board
+  showScreen('game');
+  openModal('win-modal');
 }
 
 // ── READY SYSTEM (new game confirmation) ─────────────────────
@@ -1440,16 +1522,21 @@ function renderEndScreen(data){
 window.requestNewGame=async(how)=>{
   if(!roomRef||!gstate) return;
   pendingNewGameHow=how||null;
-  closeModal('gameover-modal');
+  closeModal('gameover-modal');closeModal('win-modal');
   // Mark me as ready in Firebase
   await update(ref(db,`rooms/${roomId}/readyMap`),{[myPlayerId]:'ready'});
   // Check if everyone is ready or left
   await checkAllReady();
 };
-window.cancelReady=async()=>{
-  if(!roomRef) return;
-  await update(ref(db,`rooms/${roomId}/readyMap`),{[myPlayerId]:null});
-  closeModal('ready-modal');
+// Join the pending new game (for players who see the ready modal)
+window.joinReady=async()=>{
+  if(!roomRef||!gstate) return;
+  await update(ref(db,`rooms/${roomId}/readyMap`),{[myPlayerId]:'ready'});
+  await checkAllReady();
+};
+// Leave from ready modal
+window.leaveFromReady=async()=>{
+  leaveRoom();
 };
 
 async function checkAllReady(){
@@ -1476,7 +1563,6 @@ function renderReadyModal(data){
   const readyMap=data.readyMap||{};
   document.getElementById('ready-title').textContent=t('readyTitle');
   document.getElementById('ready-sub').textContent=t('readySub');
-  document.getElementById('btn-cancel-ready').textContent=t('cancelReady');
   const list=document.getElementById('ready-list');list.innerHTML='';
   players.forEach((p,i)=>{
     const status=readyMap[p.id];
@@ -1493,8 +1579,16 @@ function renderReadyModal(data){
     row.appendChild(dot);row.appendChild(name);row.appendChild(lbl);
     list.appendChild(row);
   });
+  // Show action buttons based on my state
+  const myStatus=readyMap[myPlayerId];
+  const joinBtn=document.getElementById('btn-join-ready');
+  const leaveBtn=document.getElementById('btn-leave-ready');
+  joinBtn.textContent=t('joinReady');
+  leaveBtn.textContent=t('goHome');
+  // Show "join" button only if I haven't decided yet
+  joinBtn.style.display=(myStatus==='ready'||myStatus==='left')?'none':'';
   openModal('ready-modal');
-  // If all ready, start automatically
+  // If all decided, start automatically
   const allDone=players.every(p=>readyMap[p.id]==='ready'||readyMap[p.id]==='left');
   if(allDone&&players.some(p=>readyMap[p.id]==='ready')){
     doStartNewGame(data);
@@ -1502,69 +1596,34 @@ function renderReadyModal(data){
 }
 
 async function doStartNewGame(data){
-  // Only host (or first ready player) actually starts
   if(!roomRef) return;
   const players=data.players||[];
   const g=data.game;
-  const curMode=data.mode||g?.mode||'coop';
-  let nt,teamsMap;
-  if(curMode==='teams'){
-    if(pendingNewGameHow==='new'){
-      nt=endNumTeams;teamsMap=endTeamAssignments;
-    } else {
+  let curMode,nt,teamsMap,gs,useTimer,timerSecs;
+  if(pendingNewGameHow==='newcfg'&&isHost){
+    // Host chose new config from the win modal
+    curMode=cfgMode;
+    nt=2;teamsMap={};
+    gs=cfgSize;
+    useTimer=cfgTimerEnabled;
+    timerSecs=parseInt(document.getElementById('cfg-timer-secs')?.value)||cfgTimerSecs||90;
+  } else {
+    // Same config as previous game
+    curMode=data.mode||g?.mode||'coop';
+    gs=data.gridSize||g?.gridSize||selectedSize||5;
+    useTimer=data.useTimer||false;
+    timerSecs=data.timerSecs||90;
+    if(curMode==='teams'){
       nt=data.numTeams||g?.numTeams||2;teamsMap={};
       for(let n=1;n<=nt;n++) (g?.teams?.[n]?.players||[]).forEach(p=>{teamsMap[p.id]=n;});
-    }
-  } else {nt=2;teamsMap={};}
-  const gs=data.gridSize||g?.gridSize||selectedSize||5;
+    } else {nt=2;teamsMap={};}
+  }
   const gameData=buildGameData(players,data.lang||lang,curMode,teamsMap,nt,gs);
-  closeModal('gameover-modal');closeModal('ready-modal');
-  await update(roomRef,{status:'playing',mode:curMode,numTeams:nt,gridSize:gs,game:gameData,readyMap:{}});
+  closeModal('gameover-modal');closeModal('ready-modal');closeModal('win-modal');
+  await update(roomRef,{status:'playing',mode:curMode,numTeams:nt,gridSize:gs,useTimer,timerSecs,game:gameData,readyMap:{}});
 }
 
-// ── END SCREEN TEAM REASSIGN ──────────────────────────────────
-let endTeamAssignments={};let endNumTeams=2;
-function endReassignInit(data){
-  const g=data.game;const nt=g.numTeams||2;
-  endNumTeams=nt;endTeamAssignments={};
-  for(let n=1;n<=nt;n++)(g.teams?.[n]?.players||[]).forEach(p=>{endTeamAssignments[p.id]=n;});
-  const sel=document.getElementById('end-num-teams-sel');if(sel)sel.value=String(nt);
-  renderEndTeamAssign(data.players||[]);
-  document.getElementById('lbl-reassign-teams').textContent=t('reassignTeams');
-  document.getElementById('lbl-end-num-teams').textContent=T[lang].numTeams||'Número de equipos:';
-}
-function renderEndTeamAssign(players){
-  const container=document.getElementById('end-team-assign-list');if(!container)return;
-  container.innerHTML='';
-  players.forEach(p=>{
-    if(!endTeamAssignments[p.id]) endTeamAssignments[p.id]=1;
-    endTeamAssignments[p.id]=Math.min(endTeamAssignments[p.id],endNumTeams);
-    const row=document.createElement('div');row.className='team-assign-row';
-    const nameEl=document.createElement('span');nameEl.className='team-assign-name';
-    nameEl.textContent=p.id===myPlayerId?`${p.name} (${t('youLabel')})`:p.name;
-    const sel=document.createElement('select');sel.className='team-sel';
-    for(let n=1;n<=endNumTeams;n++){
-      const opt=document.createElement('option');
-      opt.value=n;opt.textContent=`${TEAM_COLORS[n].label} ${t('team',n)}`;
-      sel.appendChild(opt);
-    }
-    sel.value=String(endTeamAssignments[p.id]);
-    sel.onchange=()=>{endTeamAssignments[p.id]=parseInt(sel.value);};
-    row.appendChild(nameEl);row.appendChild(sel);container.appendChild(row);
-  });
-}
-window.onEndNumTeamsChange=()=>{
-  endNumTeams=parseInt(document.getElementById('end-num-teams-sel').value)||2;
-  if(gstate) renderEndTeamAssign(gstate.players||[]);
-};
-window.showTeamReassign=()=>{
-  document.getElementById('end-reassign-panel').style.display='';
-  document.getElementById('end-btns-teams').style.display='none';
-};
-window.hideTeamReassign=()=>{
-  document.getElementById('end-reassign-panel').style.display='none';
-  document.getElementById('end-btns-teams').style.display='';
-};
+// (end-reassign panel removed — using win-modal config instead)
 
 // ── QUIT / LEAVE ──────────────────────────────────────────────
 async function leaveRoom(){
@@ -1614,7 +1673,7 @@ function resetToLobby(){
   document.getElementById('start-game-btn').style.display='';
   document.getElementById('mode-btn-coop').classList.add('active');
   document.getElementById('mode-btn-teams').classList.remove('active');
-  closeModal('gameover-modal');closeModal('ready-modal');
+  closeModal('gameover-modal');closeModal('ready-modal');closeModal('win-modal');
   showScreen('lobby');applyLobbyTrans();
 }
 window.copyRoomCode=()=>{if(!roomId)return;navigator.clipboard.writeText(roomId).catch(()=>{});showToast(t('copiedCode'));};
