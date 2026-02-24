@@ -116,7 +116,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;op
 
 /* GRID with zoom */
 .grid-area{display:flex;align-items:center;justify-content:center;padding:1rem;overflow:auto;position:relative}
-.zoom-ctrl{position:absolute;bottom:.7rem;right:.7rem;display:flex;gap:.3rem;z-index:10}
+.zoom-ctrl{position:sticky;bottom:.7rem;display:flex;justify-content:flex-end;gap:.3rem;z-index:10;padding:.3rem;pointer-events:none}.zoom-btn{pointer-events:all}
 .zoom-btn{width:30px;height:30px;border:1.5px solid var(--border);border-radius:8px;background:var(--card);color:var(--ink);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;box-shadow:0 1px 4px var(--shadow);transition:all .15s;line-height:1}
 .zoom-btn:hover{border-color:var(--accent)}
 .grid-wrap{display:flex;flex-direction:column;gap:0;transform-origin:center center;transition:transform .18s ease}
@@ -339,7 +339,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;op
 <!-- ═══ GAME ═══════════════════════════════════════════════ -->
 <div id="game" class="screen">
   <div class="game-header">
-    <div class="header-logo"><span class="r">Cross</span><span class="c">✕Clues</span></div>
+    <div class="header-logo"><span class="r">Cross</span><span class="c">✕Clues</span><span style="font-size:.55rem;font-weight:400;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-left:.35rem;align-self:flex-end;padding-bottom:.1rem"> by olikpa</span></div>
     <div class="header-center">
       <span class="score-chip" id="hdr-score">0/16</span>
       <span class="timer-chip" id="hdr-timer" style="display:none">1:30</span>
@@ -347,8 +347,6 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;op
     </div>
     <div class="hdr-btns">
       <button class="hdr-btn" id="btn-sound-game" onclick="toggleSound()" title="Sonido">🔊</button>
-      <button class="hdr-btn" id="btn-zoom-out" onclick="zoomGrid(-1)">−</button>
-      <button class="hdr-btn" id="btn-zoom-in" onclick="zoomGrid(1)">+</button>
       <button class="hdr-btn green" id="btn-new-game" onclick="requestNewGame()">Nuevo</button>
       <button class="hdr-btn red" id="btn-quit" onclick="quitGame()">Salir</button>
     </div>
@@ -357,6 +355,10 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;op
   <div class="game-body">
     <div class="grid-area">
       <div id="grid-wrap" class="grid-wrap" data-zoom="1"></div>
+      <div class="zoom-ctrl">
+        <button class="zoom-btn" onclick="zoomGrid(-1)" title="Alejar">−</button>
+        <button class="zoom-btn" onclick="zoomGrid(1)" title="Acercar">+</button>
+      </div>
     </div>
     <div class="side">
       <div class="side-section">
@@ -430,7 +432,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;op
 <div id="end" class="screen">
   <div class="end-inner">
     <div class="end-trophy" id="end-trophy">🏆</div>
-    <div class="end-title" id="end-title">¡Felicidades!</div>
+    <div class="end-title" id="end-title">¡Felicitaciones!</div>
     <div class="end-sub" id="end-sub"></div>
     <div class="end-room-code" id="end-room-code"></div>
     <div class="end-teams-scores" id="end-teams-scores" style="display:none"></div>
@@ -629,7 +631,7 @@ const T={
     playSameTeams:"▶ Jugar de nuevo — mismos equipos",
     playNewTeams:"🔀 Jugar de nuevo — reasignar equipos",
     reassignTeams:"Reasignar equipos",
-    congratsTitle:"¡Felicidades!",congratsSub:n=>`¡Adivinasteis las ${n} parejas!`,
+    congratsTitle:"¡Felicitaciones!",congratsSub:n=>`¡Adivinaron las ${n} parejas!`,
     wrongMsg:(c,r,col)=>`"${c}" era para ${r} × ${col}`,
     p1def:"Jugador 1",p2def:"Jugador 2",
     partnerThinking:n=>`${n} está dando una pista…`,
@@ -725,7 +727,17 @@ window.zoomGrid=(dir)=>{
 window.setLang=(l)=>{
   lang=l;
   document.querySelectorAll('.lang-pill').forEach((b,i)=>b.classList.toggle('active',(i===0&&l==='en')||(i===1&&l==='es')));
-  applyLobbyTrans();
+  // Pre-fill last used name
+try{
+  const saved=localStorage.getItem('cc_last_name');
+  if(saved){
+    const cn=document.getElementById('create-name');
+    const jn=document.getElementById('join-name');
+    if(cn) cn.value=saved;
+    if(jn) jn.value=saved;
+  }
+}catch(e){}
+applyLobbyTrans();
 };
 function applyLobbyTrans(){
   const ids={'lg-sub':'sub','lbl-your-name':'yourName','lbl-join-name':'joinName',
@@ -789,6 +801,7 @@ function renderTeamAssign(players){
 // ── CREATE ROOM ───────────────────────────────────────────────
 window.createRoom=async()=>{
   const name=document.getElementById('create-name').value.trim()||t('p1def');
+  try{localStorage.setItem('cc_last_name',name);}catch(e){}
   const useTimer=document.getElementById('timer-toggle').checked;
   const timerSecs=parseInt(document.getElementById('timer-secs').value)||90;
   myPlayerId=genPlayerId();myName=name;isHost=true;roomId=genCode();
@@ -807,6 +820,7 @@ window.createRoom=async()=>{
 // ── JOIN ROOM ─────────────────────────────────────────────────
 window.joinRoom=async()=>{
   const name=document.getElementById('join-name').value.trim()||t('p2def');
+  try{localStorage.setItem('cc_last_name',name);}catch(e){}
   const code=document.getElementById('join-code').value.trim().toUpperCase();
   if(!code||code.length<4){showJoinError(t('joinError'));return;}
   const snap=await get(ref(db,`rooms/${code}`));
@@ -1426,6 +1440,7 @@ function renderEndScreen(data){
 window.requestNewGame=async(how)=>{
   if(!roomRef||!gstate) return;
   pendingNewGameHow=how||null;
+  closeModal('gameover-modal');
   // Mark me as ready in Firebase
   await update(ref(db,`rooms/${roomId}/readyMap`),{[myPlayerId]:'ready'});
   // Check if everyone is ready or left
@@ -1564,10 +1579,8 @@ async function leaveRoom(){
           off(roomRef);
         } else {
           const updates={players:updatedPlayers};
-          // Mark as left in readyMap if in ready state
-          if(data.status==='ready'){
-            updates[`readyMap/${myPlayerId}`]='left';
-          }
+          // Always mark as left in readyMap so pending ready checks resolve
+          updates[`readyMap/${myPlayerId}`]='left';
           if(data.game?.teams){
             const newTeams=deepCopy(data.game.teams);
             const nt=data.game.numTeams||2;
@@ -1607,6 +1620,17 @@ function resetToLobby(){
 window.copyRoomCode=()=>{if(!roomId)return;navigator.clipboard.writeText(roomId).catch(()=>{});showToast(t('copiedCode'));};
 
 applyLobbyTrans();
+
+// Remove player when tab hidden (closed/backgrounded on mobile)
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState==='hidden' && roomRef && myPlayerId && gstate){
+    leaveRoom();
+  }
+});
+// Also catch desktop tab/window close
+window.addEventListener('pagehide', ()=>{
+  if(roomRef && myPlayerId && gstate) leaveRoom();
+});
 </script>
 </body>
 </html>
