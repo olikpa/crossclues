@@ -882,40 +882,38 @@ const HURRY_CFG={
     color:'#e07b00', shadow:'rgba(224,123,0,.6)',
     emoji:'😤',
     play:(ctx)=>{
-      // Silbato: pitch agudo doble
+      // Silbato original: sube y baja
       const osc=ctx.createOscillator(),g=ctx.createGain();
       osc.connect(g);g.connect(ctx.destination);
       osc.type='sine';
       osc.frequency.setValueAtTime(1400,ctx.currentTime);
-      osc.frequency.linearRampToValueAtTime(2100,ctx.currentTime+0.08);
-      osc.frequency.setValueAtTime(1400,ctx.currentTime+0.16);
-      osc.frequency.linearRampToValueAtTime(2100,ctx.currentTime+0.24);
-      g.gain.setValueAtTime(0,ctx.currentTime);
-      g.gain.linearRampToValueAtTime(0.2,ctx.currentTime+0.03);
-      g.gain.setValueAtTime(0.2,ctx.currentTime+0.13);
-      g.gain.linearRampToValueAtTime(0,ctx.currentTime+0.16);
-      g.gain.linearRampToValueAtTime(0.2,ctx.currentTime+0.19);
-      g.gain.setValueAtTime(0.2,ctx.currentTime+0.29);
-      g.gain.linearRampToValueAtTime(0,ctx.currentTime+0.34);
-      osc.start();osc.stop(ctx.currentTime+0.36);
+      osc.frequency.exponentialRampToValueAtTime(2000,ctx.currentTime+0.15);
+      osc.frequency.exponentialRampToValueAtTime(1600,ctx.currentTime+0.3);
+      osc.frequency.exponentialRampToValueAtTime(2200,ctx.currentTime+0.38);
+      osc.frequency.exponentialRampToValueAtTime(1800,ctx.currentTime+0.5);
+      g.gain.setValueAtTime(0.18,ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.52);
+      osc.start();osc.stop(ctx.currentTime+0.54);
     }
   },
   'APURATE P*TO':{
     color:'#d32f2f', shadow:'rgba(211,47,47,.6)',
     emoji:'🤬',
     play:(ctx)=>{
-      // Bocina: onda cuadrada baja y larga
-      const osc=ctx.createOscillator(),g=ctx.createGain();
-      osc.connect(g);g.connect(ctx.destination);
-      osc.type='square';
-      osc.frequency.setValueAtTime(180,ctx.currentTime);
-      osc.frequency.setValueAtTime(160,ctx.currentTime+0.15);
-      osc.frequency.setValueAtTime(180,ctx.currentTime+0.3);
-      g.gain.setValueAtTime(0,ctx.currentTime);
-      g.gain.linearRampToValueAtTime(0.14,ctx.currentTime+0.04);
-      g.gain.setValueAtTime(0.14,ctx.currentTime+0.42);
-      g.gain.linearRampToValueAtTime(0,ctx.currentTime+0.5);
-      osc.start();osc.stop(ctx.currentTime+0.52);
+      // Beep beep bocina de auto: dos pitidos cortos
+      [0, 0.28].forEach(offset=>{
+        const osc=ctx.createOscillator(),g=ctx.createGain();
+        osc.connect(g);g.connect(ctx.destination);
+        osc.type='sine';
+        osc.frequency.setValueAtTime(520,ctx.currentTime+offset);
+        osc.frequency.setValueAtTime(480,ctx.currentTime+offset+0.08);
+        g.gain.setValueAtTime(0,ctx.currentTime+offset);
+        g.gain.linearRampToValueAtTime(0.25,ctx.currentTime+offset+0.02);
+        g.gain.setValueAtTime(0.25,ctx.currentTime+offset+0.16);
+        g.gain.linearRampToValueAtTime(0,ctx.currentTime+offset+0.22);
+        osc.start(ctx.currentTime+offset);
+        osc.stop(ctx.currentTime+offset+0.24);
+      });
     }
   },
   'DALE BOCA':{
