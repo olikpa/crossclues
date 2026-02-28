@@ -131,26 +131,32 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;op
     background:var(--surface);font-family:'Instrument Sans',sans-serif;font-size:.78rem;
     font-weight:600;color:var(--ink);cursor:pointer;transition:all .15s;white-space:nowrap
   }
-  .gmb-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .gmb-btn:active{border-color:var(--accent);color:var(--accent)}
   .gmb-hurry{border-color:var(--accent);color:var(--accent)}
-  /* Compact header on mobile */
-  .game-header{padding:.45rem .65rem;gap:.3rem}
-  .header-logo{font-size:.78rem;flex-shrink:0}
-  .header-center{gap:.28rem;flex:1;justify-content:center;min-width:0}
-  .score-chip{font-size:.7rem;padding:.16rem .4rem}
-  .timer-chip{font-size:.78rem;padding:.12rem .4rem;min-width:36px}
-  .room-chip{font-size:.6rem;padding:.12rem .34rem}
-  .hdr-btns{gap:.25rem;flex-shrink:0}
-  .hdr-btn{padding:.24rem .44rem;font-size:.7rem}
-  .hdr-zoom{display:none!important}
+  /* Compact header on mobile — hide desktop-only controls */
+  .hdr-desktop-only{display:none!important}
+  .game-header{padding:.4rem .6rem;gap:.25rem}
+  /* Hide "by olikpa" on mobile */
+  .header-logo .logo-by-inline{display:none}
+  .header-logo{font-size:.82rem;flex-shrink:0}
+  .header-center{gap:.25rem;flex:1;justify-content:center;min-width:0;overflow:hidden}
+  .score-chip{font-size:.72rem;padding:.16rem .42rem}
+  .timer-chip{font-size:.78rem;padding:.12rem .4rem;min-width:34px}
+  .room-chip{font-size:.62rem;padding:.12rem .36rem;max-width:72px;overflow:hidden;text-overflow:ellipsis}
+  .hdr-btns{gap:.28rem;flex-shrink:0}
+  .hdr-btn{padding:.26rem .52rem;font-size:.73rem}
+}
+/* Desktop: hide mobile toolbar */
+@media(min-width:721px){
+  .grid-mobile-bar{display:none!important}
 }
 /* Hurry menu opens upward when triggered from mobile bar */
 .hurry-menu-up{bottom:calc(100% + 6px);top:auto!important}
 
 /* GRID with zoom */
-.grid-area{display:flex;align-items:flex-start;justify-content:center;padding:1.5rem 1rem 1rem;overflow:auto;position:relative}
+.grid-area{display:flex;align-items:center;justify-content:center;padding:1.5rem 1rem;overflow:auto;position:relative}
 
-.grid-wrap{display:flex;flex-direction:column;gap:0;transform-origin:top center;transition:transform .18s ease}
+.grid-wrap{display:flex;flex-direction:column;gap:0;transform-origin:center center;transition:transform .18s ease}
 .col-headers{display:flex;gap:4px}
 .col-hdr{text-align:center;font-size:.65rem;font-weight:600;color:var(--col-clr);text-transform:uppercase;letter-spacing:.04em;line-height:1.2;padding-bottom:4px;word-break:break-word}
 .grid-row-wrap{display:flex;align-items:center;gap:4px}
@@ -407,14 +413,14 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;op
 <!-- ═══ GAME ═══════════════════════════════════════════════ -->
 <div id="game" class="screen">
   <div class="game-header">
-    <div class="header-logo"><span class="r">Cross</span><span class="c">✕Clues</span><span style="font-size:.55rem;font-weight:400;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-left:.35rem;align-self:flex-end;padding-bottom:.1rem"> by olikpa</span></div>
+    <div class="header-logo"><span class="r">Cross</span><span class="c">✕Clues</span><span class="logo-by-inline" style="font-size:.55rem;font-weight:400;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-left:.35rem;align-self:flex-end;padding-bottom:.1rem"> by olikpa</span></div>
     <div class="header-center">
       <span class="score-chip" id="hdr-score">0/16</span>
       <span class="timer-chip" id="hdr-timer" style="display:none">1:30</span>
       <span class="room-chip" id="hdr-room" onclick="copyRoomCode()">—</span>
     </div>
     <div class="hdr-btns">
-      <div class="hurry-wrap" id="hurry-wrap">
+      <div class="hurry-wrap hdr-desktop-only" id="hurry-wrap">
         <button class="hdr-btn hurry" id="btn-hurry" onclick="toggleHurryMenu(event)" title="Apurar">📣</button>
         <div class="hurry-menu" id="hurry-menu">
           <button class="hurry-option" onclick="sendHurry('DALE VIEJO!!!')">😤 DALE VIEJO!!!</button>
@@ -422,9 +428,9 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;op
           <button class="hurry-option" onclick="sendHurry('DALE BOCA')">💙💛 DALE BOCA</button>
         </div>
       </div>
-      <button class="hdr-btn" id="btn-sound-game" onclick="toggleSound()" title="Sonido">🔊</button>
-      <button class="hdr-btn hdr-zoom" onclick="zoomGrid(-1)" title="Alejar tablero">−</button>
-      <button class="hdr-btn hdr-zoom" onclick="zoomGrid(1)" title="Acercar tablero">+</button>
+      <button class="hdr-btn hdr-desktop-only" id="btn-sound-game" onclick="toggleSound()" title="Sonido">🔊</button>
+      <button class="hdr-btn hdr-zoom hdr-desktop-only" onclick="zoomGrid(-1)" title="Alejar tablero">−</button>
+      <button class="hdr-btn hdr-zoom hdr-desktop-only" onclick="zoomGrid(1)" title="Acercar tablero">+</button>
       <button class="hdr-btn green" id="btn-new-game" onclick="requestNewGame()">Nuevo</button>
       <button class="hdr-btn red" id="btn-quit" onclick="quitGame()">Salir</button>
     </div>
@@ -436,6 +442,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;op
       <!-- toolbar sits below grid, only visible on mobile -->
       <div class="grid-mobile-bar" id="grid-mobile-bar">
         <button class="gmb-btn" onclick="zoomGrid(-1)">− Alejar</button>
+        <button class="gmb-btn" onclick="zoomGrid(1)">+ Acercar</button>
         <div class="hurry-wrap" id="hurry-wrap-mobile">
           <button class="gmb-btn gmb-hurry" onclick="toggleHurryMenuMobile(event)">📣 Mensaje</button>
           <div class="hurry-menu hurry-menu-up" id="hurry-menu-mobile">
@@ -444,7 +451,6 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;op
             <button class="hurry-option" onclick="sendHurry('DALE BOCA')">💙💛 DALE BOCA</button>
           </div>
         </div>
-        <button class="gmb-btn" onclick="zoomGrid(1)">+ Acercar</button>
       </div>
     </div>
     <div class="side">
@@ -1198,9 +1204,11 @@ function listenRoom(){
       closeModal('gameover-modal');
       applyGameTrans();showScreen('game');
       document.getElementById('hdr-room').textContent=roomId;
-      // Apply initial zoom
+      // Apply initial zoom (only on desktop)
       const _gw=document.getElementById('grid-wrap');
-      if(_gw) _gw.style.transform=`scale(${gridZoom})`;
+      const _isMobile=window.innerWidth<=720;
+      if(_gw) _gw.style.transform=_isMobile?'scale(1)':`scale(${gridZoom})`;
+      if(_isMobile) gridZoom=1;
       renderGame(data);
       // Sound: when clue arrives for guessers
       if(data.game.phase==='guessing'&&(prevPhase!=='guessing'||prevClue!==data.game.currentClue)){
