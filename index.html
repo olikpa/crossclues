@@ -114,6 +114,30 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;op
 .game-body{flex:1;display:grid;grid-template-columns:1fr 284px;min-height:0;overflow:hidden}
 @media(max-width:720px){.game-body{grid-template-columns:1fr;grid-template-rows:1fr auto;overflow:auto}}
 
+/* Mobile toolbar below grid */
+.mobile-grid-toolbar{display:none;align-items:center;justify-content:center;gap:.5rem;padding:.5rem .8rem;background:var(--card);border-top:1px solid var(--border);flex-shrink:0}
+@media(max-width:720px){
+  .mobile-grid-toolbar{display:flex}
+  .hdr-btns-desktop-only{display:none!important}
+  .game-header{flex-wrap:nowrap;padding:.5rem .7rem;gap:.4rem}
+  .header-logo{font-size:.82rem!important;white-space:nowrap;flex-shrink:0}
+  .header-center{gap:.3rem;flex:1;min-width:0;justify-content:center}
+  .score-chip{font-size:.72rem;padding:.18rem .45rem}
+  .timer-chip{font-size:.82rem;padding:.14rem .45rem;min-width:38px}
+  .room-chip{font-size:.62rem;padding:.14rem .38rem}
+  .hdr-btns{gap:.28rem;flex-shrink:0}
+  .hdr-btn{padding:.26rem .5rem;font-size:.72rem}
+  .game-body{grid-template-columns:1fr;overflow:auto}
+}
+/* Desktop: hide mobile toolbar */
+@media(min-width:721px){
+  .mobile-grid-toolbar{display:none!important}
+  .hdr-btns-desktop-only{display:contents}
+  .hdr-btns{display:flex;align-items:center;gap:.35rem}
+}
+/* Hurry menu opening upward for mobile toolbar */
+.hurry-menu-up{bottom:calc(100% + 6px);top:auto!important}
+
 /* GRID with zoom */
 .grid-area{display:flex;align-items:center;justify-content:center;padding:1rem;overflow:auto;position:relative}
 
@@ -381,19 +405,22 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;op
       <span class="room-chip" id="hdr-room" onclick="copyRoomCode()">—</span>
     </div>
     <div class="hdr-btns">
-      <div class="hurry-wrap" id="hurry-wrap">
-        <button class="hdr-btn hurry" id="btn-hurry" onclick="toggleHurryMenu(event)" title="Apurar">📣</button>
-        <div class="hurry-menu" id="hurry-menu">
-          <button class="hurry-option" onclick="sendHurry('DALE VIEJO!!!')">😤 DALE VIEJO!!!</button>
-          <button class="hurry-option" onclick="sendHurry('APURATE P*TO')">🤬 APURATE P*TO</button>
-          <button class="hurry-option" onclick="sendHurry('DALE BOCA')">💙💛 DALE BOCA</button>
-        </div>
-      </div>
       <button class="hdr-btn" id="btn-sound-game" onclick="toggleSound()" title="Sonido">🔊</button>
-      <button class="hdr-btn" onclick="zoomGrid(-1)" title="Alejar tablero">−</button>
-      <button class="hdr-btn" onclick="zoomGrid(1)" title="Acercar tablero">+</button>
       <button class="hdr-btn green" id="btn-new-game" onclick="requestNewGame()">Nuevo</button>
       <button class="hdr-btn red" id="btn-quit" onclick="quitGame()">Salir</button>
+      <!-- hurry/zoom in header only on desktop -->
+      <div class="hdr-btns-desktop-only" id="hdr-btns-desktop">
+        <div class="hurry-wrap" id="hurry-wrap">
+          <button class="hdr-btn hurry" id="btn-hurry" onclick="toggleHurryMenu(event)" title="Apurar">📣</button>
+          <div class="hurry-menu" id="hurry-menu">
+            <button class="hurry-option" onclick="sendHurry('DALE VIEJO!!!')">😤 DALE VIEJO!!!</button>
+            <button class="hurry-option" onclick="sendHurry('APURATE P*TO')">🤬 APURATE P*TO</button>
+            <button class="hurry-option" onclick="sendHurry('DALE BOCA')">💙💛 DALE BOCA</button>
+          </div>
+        </div>
+        <button class="hdr-btn" onclick="zoomGrid(-1)" title="Alejar tablero">−</button>
+        <button class="hdr-btn" onclick="zoomGrid(1)" title="Acercar tablero">+</button>
+      </div>
     </div>
   </div>
   <div class="teams-score-bar" id="teams-score-bar" style="display:none"></div>
@@ -440,6 +467,19 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;op
       </div>
       <div class="side-lbl" style="padding:.65rem .88rem .18rem;flex-shrink:0" id="lbl-log">Registro</div>
       <div class="log-scroll" id="log-scroll"></div>
+    </div>
+  </div>
+  <!-- Mobile-only toolbar below grid (outside game-body, inside #game) -->
+  <div class="mobile-grid-toolbar" id="mobile-grid-toolbar">
+    <button class="hdr-btn" onclick="zoomGrid(-1)" title="Alejar">−</button>
+    <button class="hdr-btn" onclick="zoomGrid(1)" title="Acercar">+</button>
+    <div class="hurry-wrap" id="hurry-wrap-mobile">
+      <button class="hdr-btn hurry" onclick="toggleHurryMenuMobile(event)" title="Apurar">📣</button>
+      <div class="hurry-menu hurry-menu-up" id="hurry-menu-mobile">
+        <button class="hurry-option" onclick="sendHurry('DALE VIEJO!!!')">😤 DALE VIEJO!!!</button>
+        <button class="hurry-option" onclick="sendHurry('APURATE P*TO')">🤬 APURATE P*TO</button>
+        <button class="hurry-option" onclick="sendHurry('DALE BOCA')">💙💛 DALE BOCA</button>
+      </div>
     </div>
   </div>
 </div>
@@ -789,7 +829,7 @@ let lang='es', myPlayerId=null, myName='', isHost=false;
 let roomId=null, roomRef=null, gstate=null;
 let selectedMode='coop', selectedSize=4, selectedTheme='classic', numTeams=2, teamAssignments={};
 let timerInterval=null, localTimerLeft=0;
-let soundEnabled=true, gridZoom=1;
+let soundEnabled=true, gridZoom=1.2;
 let pendingNewGameHow=null; // 'same'|'new'|null
 
 const t=(k,...a)=>{const v=T[lang]?.[k];return typeof v==='function'?v(...a):(v??k);};
@@ -862,9 +902,15 @@ window.toggleHurryMenu=(e)=>{
   const menu=document.getElementById('hurry-menu');
   menu.classList.toggle('open');
 };
+window.toggleHurryMenuMobile=(e)=>{
+  e.stopPropagation();
+  const menu=document.getElementById('hurry-menu-mobile');
+  menu.classList.toggle('open');
+};
 // Close menu when clicking outside
 document.addEventListener('click',()=>{
   document.getElementById('hurry-menu')?.classList.remove('open');
+  document.getElementById('hurry-menu-mobile')?.classList.remove('open');
 });
 
 window.sendHurry=async(msg)=>{
@@ -882,18 +928,22 @@ const HURRY_CFG={
     color:'#e07b00', shadow:'rgba(224,123,0,.6)',
     emoji:'😤',
     play:(ctx)=>{
-      // Silbato original: sube y baja
+      // Silbato doble: dos pitidos ascendentes
       const osc=ctx.createOscillator(),g=ctx.createGain();
       osc.connect(g);g.connect(ctx.destination);
       osc.type='sine';
       osc.frequency.setValueAtTime(1400,ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(2000,ctx.currentTime+0.15);
-      osc.frequency.exponentialRampToValueAtTime(1600,ctx.currentTime+0.3);
-      osc.frequency.exponentialRampToValueAtTime(2200,ctx.currentTime+0.38);
-      osc.frequency.exponentialRampToValueAtTime(1800,ctx.currentTime+0.5);
-      g.gain.setValueAtTime(0.18,ctx.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.52);
-      osc.start();osc.stop(ctx.currentTime+0.54);
+      osc.frequency.linearRampToValueAtTime(2100,ctx.currentTime+0.08);
+      osc.frequency.setValueAtTime(1400,ctx.currentTime+0.16);
+      osc.frequency.linearRampToValueAtTime(2100,ctx.currentTime+0.24);
+      g.gain.setValueAtTime(0,ctx.currentTime);
+      g.gain.linearRampToValueAtTime(0.2,ctx.currentTime+0.03);
+      g.gain.setValueAtTime(0.2,ctx.currentTime+0.13);
+      g.gain.linearRampToValueAtTime(0,ctx.currentTime+0.16);
+      g.gain.linearRampToValueAtTime(0.2,ctx.currentTime+0.19);
+      g.gain.setValueAtTime(0.2,ctx.currentTime+0.29);
+      g.gain.linearRampToValueAtTime(0,ctx.currentTime+0.34);
+      osc.start();osc.stop(ctx.currentTime+0.36);
     }
   },
   'APURATE P*TO':{
