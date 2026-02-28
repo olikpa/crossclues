@@ -296,13 +296,16 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;op
 
 /* FLOATING REACTION */
 .reaction-container{position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden}
-.reaction-bubble{position:absolute;font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(1.3rem,3.5vw,2rem);white-space:nowrap;animation:reactionFly 3.4s cubic-bezier(.22,1,.36,1) both;user-select:none;letter-spacing:-.01em}
+.reaction-bubble{position:absolute;font-family:'Syne',sans-serif;font-weight:800;white-space:nowrap;animation:reactionFly 3.2s cubic-bezier(.22,1,.36,1) both;user-select:none;letter-spacing:-.01em}
 @keyframes reactionFly{
   0%  {opacity:0;transform:scale(.4) translateY(0)}
-  8%  {opacity:1;transform:scale(1.25) translateY(-20px)}
-  18% {transform:scale(1) translateY(-40px)}
-  60% {opacity:1;transform:scale(1) translateY(-180px) rotate(var(--rot))}
-  100%{opacity:0;transform:scale(.8) translateY(-320px) rotate(var(--rot))}
+  8%  {opacity:1;transform:scale(1.15) translateY(-15px)}
+  18% {transform:scale(1) translateY(-35px)}
+  60% {opacity:1;transform:scale(1) translateY(var(--fly-y,-160px)) rotate(var(--rot))}
+  100%{opacity:0;transform:scale(.8) translateY(var(--fly-y2,-280px)) rotate(var(--rot))}
+}
+@media(max-width:720px){
+  .reaction-bubble{max-width:55vw;overflow:hidden;text-overflow:clip}
 }
 
 .toast{position:fixed;bottom:1.4rem;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:var(--bg);padding:.6rem 1.1rem;border-radius:24px;font-size:.87rem;font-weight:500;z-index:500;transition:transform .3s ease;pointer-events:none;white-space:nowrap;max-width:90vw;text-align:center}
@@ -1016,25 +1019,35 @@ function spawnReaction(msg){
   const container=document.getElementById('reaction-container');
   if(!container) return;
   const cfg=HURRY_CFG[msg]||{color:'#e07b00',shadow:'rgba(224,123,0,.5)',emoji:'📣'};
-  const COUNT=7;
+  const isMobile=window.innerWidth<=720;
+  const COUNT=isMobile?6:7;
+  // On mobile: alternate emoji-only and short text; on desktop: full variety
+  const variants=isMobile
+    ? [cfg.emoji, msg, cfg.emoji, cfg.emoji, msg, cfg.emoji]
+    : [cfg.emoji, msg, cfg.emoji+' '+msg, cfg.emoji, msg, cfg.emoji+' '+msg, cfg.emoji];
   for(let i=0;i<COUNT;i++){
     setTimeout(()=>{
       const el=document.createElement('div');
       el.className='reaction-bubble';
-      // For DALE BOCA alternate blue/yellow; others single color
       let color;
       if(cfg.colors) color=cfg.colors[i%2];
       else color=cfg.color;
       const textShadow=`0 2px 10px ${cfg.shadow},0 0 20px ${cfg.shadow}`;
-      // Show emoji + text together on some, emoji alone on others for variety
-      el.textContent = (i%3===0) ? cfg.emoji : (i%3===1 ? msg : cfg.emoji+' '+msg);
-      const x=5+Math.random()*88;
-      const rot=(-18+Math.random()*36)+'deg';
-      const scale=0.7+Math.random()*0.6;
-      el.style.cssText=`left:${x}%;bottom:8%;--rot:${rot};font-size:${scale*1.9}rem;color:${color};text-shadow:${textShadow};`;
+      el.textContent=variants[i%variants.length];
+      // Mobile: keep x in tighter safe zone so text doesn't overflow screen edge
+      const xMin=isMobile?8:5;
+      const xRange=isMobile?62:80;
+      const x=xMin+Math.random()*xRange;
+      const rot=(-15+Math.random()*30)+'deg';
+      // Mobile: smaller scale, less fly height
+      const scale=isMobile?(0.55+Math.random()*0.4):(0.7+Math.random()*0.6);
+      const fontSize=isMobile?(scale*1.4):(scale*1.9);
+      const flyY=isMobile?`-${110+Math.random()*60}px`:`-${160+Math.random()*80}px`;
+      const flyY2=isMobile?`-${200+Math.random()*80}px`:`-${280+Math.random()*80}px`;
+      el.style.cssText=`left:${x}%;bottom:${isMobile?'18%':'8%'};--rot:${rot};--fly-y:${flyY};--fly-y2:${flyY2};font-size:${fontSize}rem;color:${color};text-shadow:${textShadow};`;
       container.appendChild(el);
       el.addEventListener('animationend',()=>el.remove(),{once:true});
-    }, i*100);
+    }, i*110);
   }
 }
 
