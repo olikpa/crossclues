@@ -853,7 +853,9 @@ window.zoomGrid=(dir)=>{
 window.setLang=(l)=>{
   lang=l;
   document.querySelectorAll('.lang-pill').forEach((b,i)=>b.classList.toggle('active',(i===0&&l==='en')||(i===1&&l==='es')));
-  
+  applyLobbyTrans();
+};
+
 // ── HURRY SYSTEM ─────────────────────────────────────────────
 window.toggleHurryMenu=(e)=>{
   e.stopPropagation();
