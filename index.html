@@ -243,6 +243,29 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;op
 .ready-row{display:flex;align-items:center;gap:.5rem;font-size:.84rem}
 .ready-icon{flex-shrink:0;font-size:.95rem}
 
+
+/* HURRY BUTTON + DROPDOWN */
+.hurry-wrap{position:relative}
+.hdr-btn.hurry{border-color:#e07b00;color:#e07b00;font-size:.82rem}
+.hdr-btn.hurry:hover{background:#e07b00;color:#fff}
+.hurry-menu{display:none;position:absolute;top:calc(100% + 6px);right:0;background:var(--card);border:1.5px solid var(--border);border-radius:14px;box-shadow:0 6px 24px rgba(28,23,16,.18);z-index:300;overflow:hidden;min-width:170px;animation:dropIn .15s ease both}
+@keyframes dropIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.hurry-menu.open{display:block}
+.hurry-option{display:block;width:100%;padding:.65rem 1rem;border:none;background:transparent;font-family:'Instrument Sans',sans-serif;font-size:.88rem;font-weight:600;color:var(--ink);cursor:pointer;text-align:left;transition:background .12s;white-space:nowrap}
+.hurry-option:hover{background:var(--tag-bg)}
+.hurry-option:active{background:var(--border)}
+
+/* FLOATING REACTION */
+.reaction-container{position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden}
+.reaction-bubble{position:absolute;font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(1.4rem,4vw,2.2rem);color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.35),0 0 0 3px rgba(224,123,0,.5);white-space:nowrap;animation:reactionFly 3.2s cubic-bezier(.22,1,.36,1) both;user-select:none}
+@keyframes reactionFly{
+  0%  {opacity:0;transform:scale(.4) translateY(0)}
+  8%  {opacity:1;transform:scale(1.25) translateY(-20px)}
+  18% {transform:scale(1) translateY(-40px)}
+  60% {opacity:1;transform:scale(1) translateY(-180px) rotate(var(--rot))}
+  100%{opacity:0;transform:scale(.8) translateY(-320px) rotate(var(--rot))}
+}
+
 .toast{position:fixed;bottom:1.4rem;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:var(--bg);padding:.6rem 1.1rem;border-radius:24px;font-size:.87rem;font-weight:500;z-index:500;transition:transform .3s ease;pointer-events:none;white-space:nowrap;max-width:90vw;text-align:center}
 .toast.show{transform:translateX(-50%) translateY(0)}
 </style>
@@ -358,6 +381,14 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;op
       <span class="room-chip" id="hdr-room" onclick="copyRoomCode()">—</span>
     </div>
     <div class="hdr-btns">
+      <div class="hurry-wrap" id="hurry-wrap">
+        <button class="hdr-btn hurry" id="btn-hurry" onclick="toggleHurryMenu(event)" title="Apurar">📣</button>
+        <div class="hurry-menu" id="hurry-menu">
+          <button class="hurry-option" onclick="sendHurry('DALE VIEJO!!!')">😤 DALE VIEJO!!!</button>
+          <button class="hurry-option" onclick="sendHurry('APURATE P*TO')">🤬 APURATE P*TO</button>
+          <button class="hurry-option" onclick="sendHurry('DALE BOCA')">💙💛 DALE BOCA</button>
+        </div>
+      </div>
       <button class="hdr-btn" id="btn-sound-game" onclick="toggleSound()" title="Sonido">🔊</button>
       <button class="hdr-btn" onclick="zoomGrid(-1)" title="Alejar tablero">−</button>
       <button class="hdr-btn" onclick="zoomGrid(1)" title="Acercar tablero">+</button>
@@ -487,6 +518,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;op
   </div>
 </div>
 
+<div class="reaction-container" id="reaction-container"></div>
 <div class="toast" id="toast"></div>
 
 <script type="module">
@@ -821,7 +853,79 @@ window.zoomGrid=(dir)=>{
 window.setLang=(l)=>{
   lang=l;
   document.querySelectorAll('.lang-pill').forEach((b,i)=>b.classList.toggle('active',(i===0&&l==='en')||(i===1&&l==='es')));
-  // Pre-fill last used name
+  
+// ── HURRY SYSTEM ─────────────────────────────────────────────
+window.toggleHurryMenu=(e)=>{
+  e.stopPropagation();
+  const menu=document.getElementById('hurry-menu');
+  menu.classList.toggle('open');
+};
+// Close menu when clicking outside
+document.addEventListener('click',()=>{
+  document.getElementById('hurry-menu')?.classList.remove('open');
+});
+
+window.sendHurry=async(msg)=>{
+  document.getElementById('hurry-menu')?.classList.remove('open');
+  if(!roomRef||!roomId) return;
+  // Write hurry event to Firebase
+  await update(ref(db,`rooms/${roomId}/hurry`),{
+    msg, from:myName||'?', ts:Date.now()
+  });
+};
+
+function playWhistle(){
+  if(!soundEnabled) return;
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    // Short sharp whistle: rising then falling
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    osc.connect(gain);gain.connect(ctx.destination);
+    osc.type='sine';
+    osc.frequency.setValueAtTime(1400,ctx.currentTime);
+    osc.frequency.linearRampToValueAtTime(2000,ctx.currentTime+0.08);
+    osc.frequency.linearRampToValueAtTime(1600,ctx.currentTime+0.18);
+    osc.frequency.linearRampToValueAtTime(2200,ctx.currentTime+0.26);
+    osc.frequency.linearRampToValueAtTime(1800,ctx.currentTime+0.36);
+    gain.gain.setValueAtTime(0,ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0.22,ctx.currentTime+0.03);
+    gain.gain.setValueAtTime(0.22,ctx.currentTime+0.34);
+    gain.gain.linearRampToValueAtTime(0,ctx.currentTime+0.4);
+    osc.start();osc.stop(ctx.currentTime+0.4);
+  }catch(e){}
+}
+
+function spawnReaction(msg){
+  const container=document.getElementById('reaction-container');
+  if(!container) return;
+  const COUNT=6;
+  for(let i=0;i<COUNT;i++){
+    setTimeout(()=>{
+      const el=document.createElement('div');
+      el.className='reaction-bubble';
+      el.textContent=msg;
+      // Random horizontal spread, random rotation
+      const x=10+Math.random()*80; // % from left
+      const rot=(-15+Math.random()*30)+'deg';
+      const scale=0.75+Math.random()*0.5;
+      el.style.cssText=`left:${x}%;bottom:10%;--rot:${rot};font-size:${scale*2}rem;`;
+      container.appendChild(el);
+      el.addEventListener('animationend',()=>el.remove(),{once:true});
+    }, i*120);
+  }
+}
+
+// Listen for hurry events in listenRoom
+let lastHurryTs=0;
+function handleHurryUpdate(hurry){
+  if(!hurry||hurry.ts<=lastHurryTs) return;
+  lastHurryTs=hurry.ts;
+  playWhistle();
+  spawnReaction(hurry.msg);
+}
+
+// Pre-fill last used name
 try{
   const saved=localStorage.getItem('cc_last_name');
   if(saved){
@@ -1007,6 +1111,7 @@ function listenRoom(){
     }
     if(data.status==='ended'&&data.game){renderWinModal(data);}
     if(data.status==='gameover'&&data.game){renderGameOverScreen(data);}
+    if(data.hurry) handleHurryUpdate(data.hurry);
   });
 }
 
