@@ -164,7 +164,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;op
 .col-hdr{text-align:center;font-size:.65rem;font-weight:600;color:var(--col-clr);text-transform:uppercase;letter-spacing:.04em;line-height:1.2;padding-bottom:4px;word-break:break-word}
 .grid-row-wrap{display:flex;align-items:center;gap:4px}
 .row-hdr{text-align:right;padding-right:7px;font-size:.65rem;font-weight:600;color:var(--row-clr);text-transform:uppercase;letter-spacing:.04em;line-height:1.2;word-break:break-word}
-.cell{border:1.5px solid var(--border);border-radius:9px;background:var(--card);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;transition:all .15s;overflow:hidden;box-shadow:0 1px 3px var(--shadow);flex-direction:column;gap:2px}
+.cell{border:1.5px solid var(--border);border-radius:9px;background:var(--card);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;transition:all .15s;overflow:hidden;box-shadow:0 2px 6px rgba(60,40,10,.13),0 0 0 1px rgba(60,40,10,.06);flex-direction:column;gap:2px}
 .cell::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(192,57,43,.05),rgba(26,111,168,.05));opacity:0;transition:opacity .15s}
 .cell:hover::before{opacity:1}
 .cell:hover{border-color:var(--accent);transform:scale(1.06);z-index:2;box-shadow:0 4px 12px var(--shadow)}
@@ -1299,14 +1299,17 @@ function listenRoom(){
     if(data.status==='playing'&&data.game){
       closeModal('ready-modal');
       closeModal('gameover-modal');
+      const _wasOnGame=document.getElementById('game').classList.contains('active');
       applyGameTrans();showScreen('game');
       document.getElementById('hdr-room').textContent=roomId;
-      // Apply initial zoom (only on desktop)
-      const _gw=document.getElementById('grid-wrap');
-      const _isMobile=window.innerWidth<=720;
-      if(_gw) _gw.style.transform=_isMobile?'scale(1)':`scale(${gridZoom})`;
-      if(_isMobile) gridZoom=1;
-      renderGame(data);
+      // Apply initial zoom only when first entering game screen
+      if(!_wasOnGame){
+        const _gw=document.getElementById('grid-wrap');
+        const _isMobile=window.innerWidth<=720;
+        if(_isMobile){ gridZoom=1; if(_gw) _gw.style.transform='scale(1)'; }
+        else{ if(_gw) _gw.style.transform=`scale(${gridZoom})`; }
+      }
+      renderGame(data, prevPhase);
       // Sound: when clue arrives for guessers
       if(data.game.phase==='guessing'&&(prevPhase!=='guessing'||prevClue!==data.game.currentClue)){
         const mode=data.game.mode||'coop';
@@ -1368,7 +1371,7 @@ window.hostStartGame=async()=>{
     }
   }
   const gameData=buildGameData(players,data.lang||lang,mode,teamAssignments,nt,gs,th);
-  await update(roomRef,{status:'playing',mode,numTeams:nt,gridSize:gs,theme:th,game:gameData,readyMap:{}});
+  await update(roomRef,{status:'playing',mode,numTeams:nt,gridSize:gs,theme:th,maxLives:selectedLives,game:gameData,readyMap:{}});
 };
 
 // ── BUILD GAME ────────────────────────────────────────────────
@@ -1430,7 +1433,7 @@ function currentTarget(g){
 }
 
 // ── RENDER GAME ───────────────────────────────────────────────
-function renderGame(data){
+function renderGame(data, prevPhase){
   const g=data.game;const players=data.players||[];
   const mode=g.mode||'coop';
   const guessedSet=new Set(g.guessed||[]);
@@ -1561,6 +1564,7 @@ function renderPlayersStrip(players,giverPlayer,mode,teams,numT,activeTeamN){
 
 // ── GRID ─────────────────────────────────────────────────────
 function buildGrid(g,guessedSet,missedSet,phase,amGuesser){
+  if(!g.rowWords||!g.colWords||!g.rowWords.length) return; // data not ready yet
   const wrongChosen=g.wrongChosenCell||null;
   const correctFlash=g.correctFlashCell||null;
   const G=g.gridSize||g.rowWords?.length||5;
