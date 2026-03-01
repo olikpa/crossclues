@@ -194,12 +194,12 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;op
 .cell.correct-flash::before{display:none}
 @keyframes popIn{0%{transform:scale(.86);opacity:.5}60%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
 /* missed = orange permanent (after game continues or rounds) */
-.cell.missed{background:#fff0e0;border-color:#e07b00;border-width:2px;cursor:default;box-shadow:0 0 0 3px rgba(224,123,0,.22)}
-.cell.missed:hover{transform:none;border-color:#e07b00}
+.cell.missed{background:var(--wrong-bg);border-color:var(--wrong);border-width:2px;cursor:default;box-shadow:0 0 0 3px rgba(192,57,43,.22)}
+.cell.missed:hover{transform:none;border-color:var(--wrong)}
 .cell.missed::before{display:none}
 .cell.missed-pop{animation:missedPop .4s cubic-bezier(.36,1.4,.64,1) both}
 @keyframes missedPop{0%{transform:scale(.9)}60%{transform:scale(1.08)}100%{transform:scale(1)}}
-.cell-miss-icon{font-size:1.2rem;font-weight:700;color:#e07b00;line-height:1}
+.cell-miss-icon{font-size:1.2rem;font-weight:700;color:var(--wrong);line-height:1}
 .cell-correct-tick{font-size:1.2rem;font-weight:700;color:var(--wrong);line-height:1}
 .cell.active-target{border-color:var(--accent);box-shadow:0 0 0 3px rgba(212,160,23,.25)}
 .cell-coord{position:absolute;bottom:2px;right:4px;font-family:'Syne',sans-serif;font-size:.46rem;font-weight:700;color:var(--muted);opacity:.5}
@@ -1524,7 +1524,7 @@ function renderGame(data, prevPhase){
       document.getElementById('waiting-note-text').textContent=t('waitingGuess');
     }
   }
-  buildGrid(g,guessedSet,missedSet,g.phase,amGuesser);
+  buildGrid(g,guessedSet,missedSet,g.phase,amGuesser,(gstate?.maxLives||0)>0);
   renderLog(g.log||[]);
 }
 
@@ -1563,7 +1563,7 @@ function renderPlayersStrip(players,giverPlayer,mode,teams,numT,activeTeamN){
 }
 
 // ── GRID ─────────────────────────────────────────────────────
-function buildGrid(g,guessedSet,missedSet,phase,amGuesser){
+function buildGrid(g,guessedSet,missedSet,phase,amGuesser,livesMode){
   if(!g.rowWords||!g.colWords||!g.rowWords.length) return; // data not ready yet
   const wrongChosen=g.wrongChosenCell||null;
   const correctFlash=g.correctFlashCell||null;
@@ -1624,9 +1624,25 @@ function buildGrid(g,guessedSet,missedSet,phase,amGuesser){
         el.classList.add('correct-flash','disabled');
         el.innerHTML=`<div class="cell-correct-tick">✓</div><div class="cell-coord">${String.fromCharCode(65+r)}${c+1}</div>`;
       } else if(key===wrongChosen){
-        // ORANGE with X — this is what the player actually picked
+        // ORANGE with X — this is what the player actually picked (temporary when lives remain)
         el.classList.add('wrong-chosen','disabled');
         el.innerHTML=`<div class="cell-miss-icon">✕</div><div class="cell-coord">${String.fromCharCode(65+r)}${c+1}</div>`;
+        // If lives mode: auto-clear after 4s so cell becomes playable again
+        if(livesMode){
+          const _wkey=key;const _el=el;
+          setTimeout(()=>{
+            // Only clear if still showing wrong-chosen (not yet guessed/missed by a later turn)
+            if(_el.classList.contains('wrong-chosen')){
+              const [_wr,_wc]=_wkey.split(',').map(Number);
+              _el.classList.remove('wrong-chosen','disabled');
+              _el.innerHTML=`<div class="cell-coord">${String.fromCharCode(65+_wr)}${_wc+1}</div>`;
+              // Re-enable click only if game is still in guessing phase
+              if(gstate?.game?.phase==='guessing'){
+                _el.addEventListener('click',()=>onCellClick(_wr,_wc));
+              }
+            }
+          },4000);
+        }
       } else {
         el.innerHTML=`<div class="cell-coord">${String.fromCharCode(65+r)}${c+1}</div>`;
         if(phase==='guessing'&&amGuesser){
@@ -1846,7 +1862,7 @@ function renderGameOverScreen(data){
   // Render frozen board
   const guessedSet=new Set(g.guessed||[]);
   const missedSet=new Set(g.missed||[]);
-  buildGrid(g,guessedSet,missedSet,'giving',false);
+  buildGrid(g,guessedSet,missedSet,'giving',false,(gstate?.maxLives||0)>0);
   renderLog(g.log||[]);
   openModal('gameover-modal');
 }
