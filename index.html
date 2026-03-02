@@ -1314,64 +1314,118 @@ const SIMILAR_EN=[
 // ── FOOTBALL WORDS (theme: football) ────────────────────────
 // Language-agnostic: same words used for both ES and EN since they are proper nouns
 const FOOTBALL_WORDS = [
-  // Competiciones
-  "Champions League","Copa Libertadores","Premier League","La Liga","Serie A",
-  "Bundesliga","Ligue 1","Copa del Rey","Mundial de Fútbol","Copa América",
-  "Eurocopa","MLS","Europa League","FA Cup","Copa Italia","Copa Alemania",
-  "Community Shield","Copa Sudamericana","Recopa Sudamericana","Mundial de Clubes",
-  "UEFA Nations League",
-  // Clubes Europa
-  "Real Madrid","FC Barcelona","Atletico de Madrid","Sevilla","Valencia","Athletic Bilbao",
-  "Manchester City","Liverpool","Manchester United","Arsenal","Chelsea","Tottenham","Aston Villa",
-  "Juventus","AC Milan","Inter de Milan","AS Roma","Napoli","Lazio","Fiorentina",
-  "Bayern Munich","Borussia Dortmund","Bayer Leverkusen","RB Leipzig",
-  "PSG","Olympique de Lyon","Olympique de Marsella",
-  "Benfica","Porto","Sporting de Lisboa",
-  "Ajax","PSV Eindhoven","Feyenoord",
-  // Clubes Sudamérica
-  "Boca Juniors","River Plate","Independiente","Racing Club","San Lorenzo",
-  "Flamengo","Palmeiras","Corinthians","Sao Paulo","Gremio","Santos","Cruzeiro",
-  "Peñarol","Nacional","Colo Colo","Universidad de Chile",
-  "Atletico Nacional","Millonarios",
-  // Clubes MLS
-  "Inter Miami","LA Galaxy","New York City FC",
-  // DTs
-  "Pep Guardiola","Alex Ferguson","Carlo Ancelotti","Jose Mourinho","Jurgen Klopp",
-  "Diego Simeone","Zinedine Zidane","Johan Cruyff","Rinus Michels","Vicente del Bosque",
-  "Marcello Lippi","Arrigo Sacchi","Fabio Capello","Louis van Gaal","Arsene Wenger",
-  "Ottmar Hitzfeld","Brian Clough","Jupp Heynckes","Lionel Scaloni","Marcelo Bielsa",
-  "Carlos Bianchi","Luiz Felipe Scolari","Tele Santana","Carlos Bilardo","Cesar Luis Menotti",
-  "Mario Zagallo","Giovanni Trapattoni","Guus Hiddink","Antonio Conte","Massimiliano Allegri",
-  // Jugadores históricos / clásicos
-  "Lionel Messi","Diego Maradona","Pelé","Cristiano Ronaldo","Franz Beckenbauer",
-  "Michel Platini","Gerd Müller","Eusebio","Marco van Basten","George Best",
-  "Bobby Charlton","Garrincha","Zico","Romario","Roberto Baggio",
-  "Paolo Maldini","Franco Baresi","Lev Yashin","Gianluigi Buffon","Iker Casillas",
-  "Manuel Neuer","Sergio Ramos","Carles Puyol","Andres Iniesta","Xavi Hernandez",
-  "Luka Modric","Toni Kroos","Karim Benzema","Thierry Henry","Wayne Rooney",
-  "Luis Suarez","Neymar Jr","Kaka","Andrea Pirlo","Steven Gerrard",
-  "Frank Lampard","Paul Scholes","David Beckham","Gabriel Batistuta","Hernan Crespo",
-  "Juan Roman Riquelme","Javier Zanetti","Cafu","Roberto Carlos","Dani Alves",
-  "Fabio Cannavaro","Alessandro Del Piero","Francesco Totti","Raul Gonzalez",
-  "Oliver Kahn","Peter Schmeichel","Dino Zoff","Gordon Banks",
-  "Ruud Gullit","Lothar Matthäus","Dennis Bergkamp","Clarence Seedorf",
-  "Hugo Sanchez","Mario Kempes","Daniel Passarella","Enzo Francescoli",
-  "Carlos Valderrama","Hristo Stoichkov","Eric Cantona","Alan Shearer",
-  "Ruud van Nistelrooy","Miroslav Klose","Filippo Inzaghi","David Villa","Fernando Torres",
-  "Sergio Agüero","Angel Di Maria",
-  // Jugadores actuales
-  "Kylian Mbappé","Erling Haaland","Robert Lewandowski","Zlatan Ibrahimovic",
-  "Kevin De Bruyne","Mohamed Salah","Harry Kane","Vinicius Jr","Jude Bellingham",
-  "Rodri","Antoine Griezmann","Lautaro Martinez","Alisson Becker","Thibaut Courtois",
-  "Jan Oblak","Marcelo","Gerard Pique","Patrick Vieira","Claude Makelele",
-  "Roy Keane","Pavel Nedved","George Weah","Michael Owen","Luis Figo","Rivaldo",
-  "Shevchenko","Petr Cech","Rio Ferdinand","John Terry","Gary Neville","Ashley Cole",
-  "Javier Mascherano","Radamel Falcao","James Rodriguez","Alexis Sanchez","Arturo Vidal",
-  "Edinson Cavani","Diego Forlan","Virgil van Dijk","Joshua Kimmich"
+  // ── JUGADORES (Top 2002-Actualidad + Campeones 2022) ─────────
+  "Lionel Messi","Cristiano Ronaldo","Ronaldinho","Zinedine Zidane","Ronaldo Nazário",
+  "Andrés Iniesta","Xavi Hernández","Luka Modrić","Karim Benzema","Robert Lewandowski",
+  "Kylian Mbappé","Erling Haaland","Neymar Jr.","Thierry Henry","Kaká",
+  "Luis Suárez","Zlatan Ibrahimović","Sergio Ramos","Manuel Neuer","Gianluigi Buffon",
+  "Iker Casillas","Philipp Lahm","Dani Alves","Carles Puyol","Fabio Cannavaro",
+  "Steven Gerrard","Frank Lampard","Andrea Pirlo","Paul Scholes","Kevin De Bruyne",
+  "Mohamed Salah","Harry Kane","Gareth Bale","Wayne Rooney","Samuel Eto'o",
+  "Didier Drogba","Sergio Agüero","Angel Di María","Toni Kroos","Casemiro",
+  "Virgil van Dijk","Antoine Griezmann","Thomas Müller","Eden Hazard","David Villa",
+  "Arjen Robben","Franck Ribéry","Mesut Özil","Radamel Falcao","Vinícius Jr.",
+  "Diego Maradona","Alessandro Del Piero","Francesco Totti","Patrick Vieira","Roberto Carlos",
+  "Rivaldo","Cafú","Michael Ballack","Petr Čech","Rio Ferdinand","N'Golo Kanté",
+  // Campeones del Mundo Argentina 2022
+  "Emiliano Martínez","Franco Armani","Gerónimo Rulli",
+  "Nahuel Molina","Gonzalo Montiel","Cristian Romero","Germán Pezzella",
+  "Nicolás Otamendi","Lisandro Martínez","Marcos Acuña","Nicolás Tagliafico",
+  "Rodrigo De Paul","Leandro Paredes","Alexis Mac Allister",
+  "Guido Rodríguez","Alejandro Gómez","Enzo Fernández","Exequiel Palacios",
+  "Lautaro Martínez","Julián Álvarez","Paulo Dybala","Ángel Correa","Thiago Almada",
+  // ── EQUIPOS ──────────────────────────────────────────────────
+  "River Plate","Boca Juniors","Racing Club","Independiente",
+  "Flamengo","Palmeiras","São Paulo","Santos",
+  "Real Madrid","FC Barcelona","Atlético de Madrid","Sevilla FC",
+  "Manchester City","Liverpool FC","Manchester United","Arsenal FC",
+  "PSG","Inter de Milán","Juventus","AC Milan","Bayern Munich","Tottenham","Borussia Dortmund",
+  // ── ESTADIOS ─────────────────────────────────────────────────
+  "Santiago Bernabéu","Camp Nou","Wembley","Maracaná",
+  "La Bombonera","San Siro","Anfield","Old Trafford","Allianz Arena","El Monumental",
+  // ── CAMPEONATOS ──────────────────────────────────────────────
+  "Champions League","Copa Libertadores","Europa League",
+  "Copa América","Mundial","Mundial de Clubes","Copa Sudamericana","Premier League","Copa del Rey",
+  // ── DIRECTORES TÉCNICOS ──────────────────────────────────────
+  "Pep Guardiola","Carlo Ancelotti","José Mourinho","Jürgen Klopp","Lionel Scaloni",
+  "Carlos Bianchi","Sir Alex Ferguson","Diego Simeone","Arsène Wenger",
+  "Vicente del Bosque","Marcello Lippi","Louis van Gaal","Marcelo Gallardo","Luis Enrique",
 ];
 
-// Football has no similar-word groups (all are proper nouns, all distinct)
-const SIMILAR_FOOTBALL = [];
+// ── CRUCES POSIBLES: grupos que NO deben aparecer
+//    juntos en la misma fila O columna del tablero ──────────────
+const SIMILAR_FOOTBALL = [
+  // Porteros
+  new Set(["Manuel Neuer","Gianluigi Buffon","Iker Casillas","Emiliano Martínez","Franco Armani","Gerónimo Rulli","Petr Čech"]),
+  // Laterales derechos
+  new Set(["Dani Alves","Philipp Lahm","Cafú","Nahuel Molina","Gonzalo Montiel"]),
+  // Defensas centrales
+  new Set(["Sergio Ramos","Carles Puyol","Fabio Cannavaro","Virgil van Dijk","Nicolás Otamendi","Lisandro Martínez","Cristian Romero","Germán Pezzella","Rio Ferdinand"]),
+  // Laterales izquierdos
+  new Set(["Roberto Carlos","Marcos Acuña","Nicolás Tagliafico"]),
+  // Mediocampistas creativos / 10
+  new Set(["Andrés Iniesta","Xavi Hernández","Andrea Pirlo","Kevin De Bruyne","Mesut Özil","Eden Hazard","Rodrigo De Paul","Alexis Mac Allister","Enzo Fernández","Exequiel Palacios","Alejandro Gómez","Leandro Paredes","Luka Modrić"]),
+  // Mediocampistas de contención / box-to-box
+  new Set(["Casemiro","N'Golo Kanté","Patrick Vieira","Guido Rodríguez","Paul Scholes","Frank Lampard","Steven Gerrard","Toni Kroos","Michael Ballack","Philipp Lahm"]),
+  // Extremos y habilidosos
+  new Set(["Arjen Robben","Franck Ribéry","Gareth Bale","Kylian Mbappé","Vinícius Jr.","Angel Di María","Neymar Jr.","Eden Hazard","Mohamed Salah","Ronaldinho"]),
+  // Delanteros centro / 9
+  new Set(["Robert Lewandowski","Erling Haaland","Harry Kane","Sergio Agüero","Didier Drogba","Samuel Eto'o","Lautaro Martínez","Julián Álvarez","Luis Suárez","Zlatan Ibrahimović","Karim Benzema","Ronaldo Nazário","Radamel Falcao","Thierry Henry","David Villa","Thomas Müller"]),
+  // Nro 10 históricos / fantasistas
+  new Set(["Lionel Messi","Diego Maradona","Zinedine Zidane","Kaká","Francesco Totti","Alessandro Del Piero","Antoine Griezmann","Paulo Dybala"]),
+  // Campeones del Mundo Argentina 2022
+  new Set(["Lionel Messi","Emiliano Martínez","Franco Armani","Gerónimo Rulli","Nahuel Molina","Gonzalo Montiel","Cristian Romero","Germán Pezzella","Nicolás Otamendi","Lisandro Martínez","Marcos Acuña","Nicolás Tagliafico","Rodrigo De Paul","Leandro Paredes","Alexis Mac Allister","Guido Rodríguez","Alejandro Gómez","Enzo Fernández","Exequiel Palacios","Lautaro Martínez","Julián Álvarez","Paulo Dybala","Ángel Correa","Thiago Almada","Diego Maradona"]),
+  // Clubes argentinos
+  new Set(["River Plate","Boca Juniors","Racing Club","Independiente"]),
+  // Clubes brasileros
+  new Set(["Flamengo","Palmeiras","São Paulo","Santos"]),
+  // Clubes españoles
+  new Set(["Real Madrid","FC Barcelona","Atlético de Madrid","Sevilla FC"]),
+  // Clubes ingleses
+  new Set(["Manchester City","Liverpool FC","Manchester United","Arsenal FC","Tottenham"]),
+  // Clubes europeos resto
+  new Set(["PSG","Inter de Milán","Juventus","AC Milan","Bayern Munich","Borussia Dortmund"]),
+  // Estadio ↔ Club
+  new Set(["Santiago Bernabéu","Real Madrid"]),
+  new Set(["Camp Nou","FC Barcelona"]),
+  new Set(["La Bombonera","Boca Juniors"]),
+  new Set(["El Monumental","River Plate"]),
+  new Set(["Anfield","Liverpool FC"]),
+  new Set(["Old Trafford","Manchester United"]),
+  new Set(["Allianz Arena","Bayern Munich"]),
+  new Set(["San Siro","AC Milan","Inter de Milán"]),
+  // Campeonatos por zona
+  new Set(["Copa Libertadores","Copa Sudamericana","Copa América"]),
+  new Set(["Champions League","Europa League","Premier League","Copa del Rey"]),
+  new Set(["Mundial","Mundial de Clubes"]),
+  // DTs que se confunden
+  new Set(["Pep Guardiola","José Mourinho","Jürgen Klopp","Arsène Wenger","Sir Alex Ferguson"]),
+  new Set(["Marcelo Gallardo","Carlos Bianchi","Lionel Scaloni"]),
+  new Set(["Carlo Ancelotti","Diego Simeone","Vicente del Bosque","José Mourinho","Luis Enrique"]),
+  new Set(["Louis van Gaal","Marcello Lippi","Vicente del Bosque"]),
+  // DT ↔ Club/título emblemático
+  new Set(["Carlos Bianchi","Boca Juniors","Copa Libertadores","Mundial de Clubes"]),
+  new Set(["Lionel Scaloni","Copa América","Mundial"]),
+  new Set(["Pep Guardiola","FC Barcelona","Manchester City","Bayern Munich","Champions League"]),
+  new Set(["Marcelo Gallardo","River Plate","Copa Libertadores","Copa Sudamericana"]),
+  new Set(["Sir Alex Ferguson","Manchester United","Premier League","Champions League"]),
+  new Set(["Carlo Ancelotti","AC Milan","Real Madrid","Champions League"]),
+  new Set(["Diego Simeone","Atlético de Madrid","Europa League","Copa del Rey"]),
+  // Jugador ↔ Club emblemático
+  new Set(["Cristiano Ronaldo","Real Madrid","Manchester United","Juventus","Santiago Bernabéu","Old Trafford"]),
+  new Set(["Diego Maradona","Boca Juniors","La Bombonera"]),
+  new Set(["Julián Álvarez","River Plate","El Monumental","Manchester City"]),
+  new Set(["Alessandro Del Piero","Juventus"]),
+  new Set(["Steven Gerrard","Liverpool FC","Anfield"]),
+  new Set(["Wayne Rooney","Manchester United","Old Trafford"]),
+  new Set(["Zinedine Zidane","Real Madrid","Santiago Bernabéu"]),
+  // Jugador ↔ Selección/torneos
+  new Set(["Andrés Iniesta","Xavi Hernández","Iker Casillas","David Villa","Vicente del Bosque"]),
+  new Set(["Ronaldinho","Ronaldo Nazário","Rivaldo","Cafú","Roberto Carlos"]),
+  new Set(["Zinedine Zidane","Thierry Henry"]),
+];
+
+
 
 // ── TRANSLATIONS ─────────────────────────────────────────────
 const T={
