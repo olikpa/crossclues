@@ -43,6 +43,8 @@
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
+html{font-size:17px}
+
 body{
   font-family:'DM Sans',sans-serif;
   background:var(--bg);
@@ -448,11 +450,11 @@ body::after{
 
 /* ── CELLS ───────────────────────────────────────── */
 .cell{
-  border:1px solid var(--border);border-radius:10px;
+  border:none;border-radius:10px;
   background:var(--card);display:flex;align-items:center;
   justify-content:center;cursor:pointer;position:relative;
   transition:all .15s;overflow:hidden;
-  box-shadow:0 2px 6px rgba(0,0,0,.25),0 0 0 1px rgba(255,255,255,.02) inset;
+  box-shadow:0 0 0 1px var(--border),0 2px 6px rgba(0,0,0,.25);
   flex-direction:column;gap:2px;
 }
 .cell::before{
@@ -462,45 +464,45 @@ body::after{
 }
 .cell:hover::before{opacity:1}
 .cell:hover{
-  border-color:var(--accent);transform:scale(1.07);z-index:2;
-  box-shadow:0 6px 20px rgba(0,0,0,.4),0 0 14px rgba(124,109,250,.22);
+  box-shadow:0 0 0 1.5px var(--accent),0 6px 20px rgba(0,0,0,.4),0 0 14px rgba(124,109,250,.22);
+  transform:scale(1.07);z-index:2;
 }
 .cell.disabled{cursor:default}
-.cell.disabled:hover{border-color:var(--border);transform:none;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+.cell.disabled:hover{box-shadow:0 0 0 1px var(--border),0 2px 6px rgba(0,0,0,.25);transform:none;}
 .cell.disabled::before{display:none}
 .cell.guessed{
-  background:var(--success-bg);border-color:var(--success-border);
-  cursor:default;box-shadow:0 0 0 1px rgba(0,229,176,.25),0 0 18px rgba(0,229,176,.12);
+  background:var(--success-bg);
+  cursor:default;box-shadow:0 0 0 1px var(--success-border),0 0 18px rgba(0,229,176,.12);
 }
-.cell.guessed:hover{transform:none;border-color:var(--success-border)}
+.cell.guessed:hover{transform:none;box-shadow:0 0 0 1px var(--success-border),0 0 18px rgba(0,229,176,.12);}
 .cell.guessed-pop{animation:guessedPop .45s cubic-bezier(.36,1.56,.64,1) both}
 @keyframes guessedPop{0%{transform:scale(.85);opacity:.6}60%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
-.cell.guessed-t1{background:var(--t1-bg);border-color:rgba(255,107,138,.4);cursor:default;box-shadow:0 0 14px rgba(255,107,138,.18)}
-.cell.guessed-t2{background:var(--t2-bg);border-color:rgba(94,231,255,.4);cursor:default;box-shadow:0 0 14px rgba(94,231,255,.18)}
-.cell.guessed-t3{background:var(--t3-bg);border-color:rgba(192,132,252,.4);cursor:default;box-shadow:0 0 14px rgba(192,132,252,.18)}
-.cell.guessed-t4{background:var(--t4-bg);border-color:rgba(0,229,176,.4);cursor:default;box-shadow:0 0 14px rgba(0,229,176,.18)}
-.cell.guessed-neutral{background:rgba(107,114,158,.1);border-color:rgba(107,114,158,.3);cursor:default}
+.cell.guessed-t1{background:var(--t1-bg);cursor:default;box-shadow:0 0 0 1px rgba(255,107,138,.4),0 0 14px rgba(255,107,138,.18)}
+.cell.guessed-t2{background:var(--t2-bg);cursor:default;box-shadow:0 0 0 1px rgba(94,231,255,.4),0 0 14px rgba(94,231,255,.18)}
+.cell.guessed-t3{background:var(--t3-bg);cursor:default;box-shadow:0 0 0 1px rgba(192,132,252,.4),0 0 14px rgba(192,132,252,.18)}
+.cell.guessed-t4{background:var(--t4-bg);cursor:default;box-shadow:0 0 0 1px rgba(0,229,176,.4),0 0 14px rgba(0,229,176,.18)}
+.cell.guessed-neutral{background:rgba(107,114,158,.1);box-shadow:0 0 0 1px rgba(107,114,158,.3);cursor:default}
 .cell.guessed-t1:hover,.cell.guessed-t2:hover,.cell.guessed-t3:hover,.cell.guessed-t4:hover,.cell.guessed-neutral:hover{transform:none}
 .cell-check{font-size:1.3rem;color:inherit;line-height:1}
 .cell-team-label{font-size:.54rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;opacity:.75}
 .cell.wrong-chosen{
-  background:rgba(255,165,0,.08);border-color:rgba(255,165,0,.5);
-  cursor:default;box-shadow:0 0 14px rgba(255,165,0,.18);animation:popIn .3s ease both;
+  background:rgba(255,165,0,.08);
+  cursor:default;box-shadow:0 0 0 1px rgba(255,165,0,.5),0 0 14px rgba(255,165,0,.18);animation:popIn .3s ease both;
 }
-.cell.wrong-chosen:hover{transform:none;border-color:rgba(255,165,0,.5)}
+.cell.wrong-chosen:hover{transform:none;}
 .cell.wrong-chosen::before{display:none}
 .cell.correct-flash{
-  background:var(--wrong-bg);border-color:var(--wrong-border);
-  cursor:default;box-shadow:0 0 14px rgba(255,82,112,.22);animation:popIn .3s ease both;
+  background:var(--wrong-bg);
+  cursor:default;box-shadow:0 0 0 1px var(--wrong-border),0 0 14px rgba(255,82,112,.22);animation:popIn .3s ease both;
 }
-.cell.correct-flash:hover{transform:none;border-color:var(--wrong-border)}
+.cell.correct-flash:hover{transform:none;}
 .cell.correct-flash::before{display:none}
 @keyframes popIn{0%{transform:scale(.86);opacity:.5}60%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
 .cell.missed{
-  background:var(--wrong-bg);border-color:var(--wrong-border);
-  cursor:default;box-shadow:0 0 10px rgba(255,82,112,.18);
+  background:var(--wrong-bg);
+  cursor:default;box-shadow:0 0 0 1px var(--wrong-border),0 0 10px rgba(255,82,112,.18);
 }
-.cell.missed:hover{transform:none;border-color:var(--wrong-border)}
+.cell.missed:hover{transform:none;}
 .cell.missed::before{display:none}
 .cell.missed-pop{animation:missedPop .4s cubic-bezier(.36,1.4,.64,1) both}
 @keyframes missedPop{0%{transform:scale(.9)}60%{transform:scale(1.08)}100%{transform:scale(1)}}
@@ -508,8 +510,7 @@ body::after{
 .cell.wrong-chosen .cell-miss-icon{color:rgba(255,165,0,.95)}
 .cell-correct-tick{font-size:1.1rem;color:var(--wrong);line-height:1}
 .cell.active-target{
-  border-color:var(--accent);
-  box-shadow:0 0 0 2px rgba(124,109,250,.2),0 0 14px rgba(124,109,250,.12);
+  box-shadow:0 0 0 2px var(--accent),0 0 14px rgba(124,109,250,.12);
 }
 .cell-coord{
   position:absolute;bottom:2px;right:4px;
@@ -1081,7 +1082,13 @@ body::after{
     <!-- RIGHT PANEL -->
     <div class="side">
 
-      <!-- ACTION ZONE — current turn context, always at top -->
+      <!-- PLAYERS STRIP — always at top -->
+      <div class="side-section">
+        <div class="side-lbl" id="lbl-players">Jugadores</div>
+        <div class="players-strip" id="players-strip"></div>
+      </div>
+
+      <!-- ACTION ZONE — current turn context -->
       <div class="action-zone">
 
         <!-- Current player row -->
@@ -1126,12 +1133,6 @@ body::after{
         </div>
 
       </div><!-- /action-zone -->
-
-      <!-- PLAYERS STRIP -->
-      <div class="side-section">
-        <div class="side-lbl" id="lbl-players">Jugadores</div>
-        <div class="players-strip" id="players-strip"></div>
-      </div>
 
       <!-- LOG -->
       <div class="side-lbl" style="padding:.6rem .85rem .14rem;flex-shrink:0" id="lbl-log">Registro</div>
