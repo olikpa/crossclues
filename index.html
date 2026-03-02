@@ -157,7 +157,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;op
 .hurry-menu-up{bottom:calc(100% + 6px);top:auto!important}
 
 /* GRID with zoom */
-.grid-area{display:flex;align-items:center;justify-content:center;padding:1.5rem 1rem;overflow:auto;position:relative}
+.grid-area{display:flex;align-items:center;justify-content:center;padding:1.5rem 1rem;overflow:hidden;position:relative}
 
 .grid-wrap{display:flex;flex-direction:column;gap:0;transform-origin:center center;transition:transform .18s ease}
 .col-headers{display:flex;gap:4px}
@@ -461,7 +461,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;op
   </div>
   <div class="teams-score-bar" id="teams-score-bar" style="display:none"></div>
   <div class="game-body">
-    <div class="grid-area">
+    <div class="grid-area" id="grid-area">
       <div id="grid-wrap" class="grid-wrap" data-zoom="1"></div>
       <!-- toolbar sits below grid, only visible on mobile -->
       <div class="grid-mobile-bar" id="grid-mobile-bar">
@@ -1321,6 +1321,9 @@ function listenRoom(){
       const _wasOnGame=document.getElementById('game').classList.contains('active');
       applyGameTrans();showScreen('game');
       document.getElementById('hdr-room').textContent=roomId;
+      // Reset grid scroll position on every update
+      const _ga=document.getElementById('grid-area');
+      if(_ga){ _ga.scrollTop=0; _ga.scrollLeft=0; }
       // Apply initial zoom only when first entering game screen
       if(!_wasOnGame){
         const _gw=document.getElementById('grid-wrap');
@@ -1445,8 +1448,10 @@ function getMyTeam(g){
 }
 function currentTarget(g){
   const gs=new Set(g.guessed||[]);
-  for(let i=g.targetIndex||0;i<(g.targetOrder||[]).length;i++){
-    if(!gs.has(g.targetOrder[i]))return g.targetOrder[i];
+  const ms=new Set(g.missed||[]);
+  for(let i=0;i<(g.targetOrder||[]).length;i++){
+    const cell=g.targetOrder[i];
+    if(!gs.has(cell)&&!ms.has(cell))return cell;
   }
   return null;
 }
