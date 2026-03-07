@@ -2223,7 +2223,19 @@ window.saveSettingsEdit=async()=>{
   if(!roomRef) return;
   const useTimer=document.getElementById('timer-toggle').checked;
   const timerSecs=parseInt(document.getElementById('timer-secs').value)||90;
-  await update(roomRef,{useTimer,timerSecs,maxLives:selectedLives,mode:selectedMode,numTeams,gridSize:selectedSize,theme:selectedTheme});
+  // Also pick up any name change from the create-name field
+  const nameField=document.getElementById('create-name');
+  const newName=nameField?.value.trim();
+  const updates={useTimer,timerSecs,maxLives:selectedLives,mode:selectedMode,numTeams,gridSize:selectedSize,theme:selectedTheme};
+  if(newName&&newName!==myName){
+    myName=newName;
+    try{localStorage.setItem('cc_last_name',newName);}catch(e){}
+    const snap=await get(roomRef);
+    if(snap.exists()){
+      updates.players=(snap.val().players||[]).map(p=>p.id===myPlayerId?{...p,name:newName}:p);
+    }
+  }
+  await update(roomRef,updates);
   // Restore UI
   document.getElementById('create-section').style.display='none';
   document.getElementById('waiting-section').style.display='';
@@ -2279,6 +2291,10 @@ function renderLobbyPlayers(players){
       input.id='waiting-name-input';
       input.className='player-name-input';
       input.title=lang==='es'?'Tocá para editar tu nombre':'Tap to edit your name';
+      const pencil=document.createElement('span');
+      pencil.textContent='✏️';
+      pencil.style.cssText='font-size:.7rem;opacity:.5;cursor:text;flex-shrink:0;';
+      pencil.onclick=()=>input.focus();
       const saveBtn=document.createElement('button');
       saveBtn.className='name-save-btn';saveBtn.textContent='✓';
       saveBtn.title=lang==='es'?'Guardar':'Save';
@@ -2291,7 +2307,7 @@ function renderLobbyPlayers(players){
         if(e.key==='Escape'){input.value=myName;saveBtn.style.display='none';}
       });
       saveBtn.addEventListener('click',updateMyName);
-      chip.appendChild(dot);chip.appendChild(input);chip.appendChild(saveBtn);
+      chip.appendChild(dot);chip.appendChild(pencil);chip.appendChild(input);chip.appendChild(saveBtn);
       list.appendChild(chip);
       // Restore focus if was editing
       if(editingValue!==null) setTimeout(()=>{input.focus();input.setSelectionRange(input.value.length,input.value.length);},0);
