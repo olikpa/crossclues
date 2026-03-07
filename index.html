@@ -2458,6 +2458,10 @@ function renderGame(data, prevPhase){
   if(data.useTimer){
     document.getElementById('hdr-timer').style.display='';
     if(g.timerStartedAt) startLocalTimer(data.timerSecs,g.timerStartedAt); else stopLocalTimer();
+    // If giving phase just started for me, set timerStartedAt in Firebase (giver is responsible)
+    if(g.phase==='giving'&&!g.timerStartedAt&&amGiver&&data.useTimer){
+      update(ref(db,`rooms/${roomId}/game`),{timerStartedAt:Date.now()});
+    }
   } else {document.getElementById('hdr-timer').style.display='none';stopLocalTimer();}
   renderPlayersStrip(players,giverPlayer,mode,g.teams,g.numTeams,activeTeamN);
   const giverColor=mode==='teams'?TEAM_COLORS[activeTeamN||1].hex:PLAYER_COLORS[(g.currentPlayerIndex??0)%PLAYER_COLORS.length];
@@ -2891,6 +2895,18 @@ function renderTimerDisplay(){
   const m=Math.floor(localTimerLeft/60),s=localTimerLeft%60;
   el.textContent=`${m}:${s.toString().padStart(2,'0')}`;
   el.classList.toggle('urgent',localTimerLeft<=10);
+  if(localTimerLeft<=5&&localTimerLeft>0) playTickSound();
+}
+function playTickSound(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    const o=ctx.createOscillator(),g=ctx.createGain();
+    o.type='sine';o.frequency.value=1200;
+    g.gain.setValueAtTime(0.18,ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.08);
+    o.connect(g);g.connect(ctx.destination);
+    o.start();o.stop(ctx.currentTime+0.09);
+  }catch(e){}
 }
 async function handleTimerExpiry(){
   if(!gstate?.game) return;
@@ -2907,11 +2923,45 @@ async function handleTimerExpiry(){
     isMyResp=(g.phase==='giving'&&giver?.id===myPlayerId)||(g.phase==='guessing'&&giver?.id!==myPlayerId);
   }
   if(!isMyResp) return;
-  const newLog=[...(g.log||[]),{icon:'⏱️',text:'Time expired'}];
-  const upd=advanceTurn(g,players,g.guessed||[],g.missed||[],newLog,
-    (g.targetIndex||0)+(g.phase==='guessing'?1:0),g.guessedByTeam||{},false,0,0);
-  upd.phase='giving';upd.currentClue='';upd.timerStartedAt=null;
-  await update(ref(db,`rooms/${roomId}/game`),upd);
+  const tgt=currentTarget(g);
+  const tr=tgt?parseInt(tgt.split(',')[0]):0;
+  const tc=tgt?parseInt(tgt.split(',')[1]):0;
+  const newLog=[...(g.log||[]),{icon:'⏱️',text:lang==='es'?'¡Se acabó el tiempo!':'Time\'s up!'}];
+  playSound('wrong');
+
+  if(mode==='teams'){
+    // Teams: mark target cell as missed, lose turn
+    const newMissed=[...(g.missed||[])];
+    if(tgt&&!newMissed.includes(tgt)) newMissed.push(tgt);
+    const newTargetIndex=(g.targetIndex||0)+1;
+    newLog[newLog.length-1].text+=(lang==='es'?' — turno perdido':' — turn lost');
+    const upd=advanceTurn(g,players,g.guessed||[],newMissed,newLog,newTargetIndex,g.guessedByTeam||{},false,tr,tc);
+    upd.phase='giving';upd.currentClue='';upd.timerStartedAt=null;
+    await update(ref(db,`rooms/${roomId}/game`),upd);
+  } else {
+    // Coop: with lives → lose a life; without lives → game over
+    const maxLives=gstate?.maxLives||0;
+    const newMissed=[...(g.missed||[])];
+    if(tgt&&!newMissed.includes(tgt)) newMissed.push(tgt);
+    const newTargetIndex=(g.targetIndex||0)+1;
+    const livesUsed=newMissed.length;
+    const gameOver=(maxLives===0)||(livesUsed>=maxLives);
+    if(gameOver){
+      newLog.push({icon:'💥',text:'GAME OVER'});
+      await update(ref(db,`rooms/${roomId}/game`),{
+        guessed:g.guessed||[],missed:newMissed,targetIndex:newTargetIndex,
+        log:newLog,phase:'giving',currentClue:'',timerStartedAt:null,
+        gameOverCell:tgt||'',gameOverClue:g.currentClue||'—',
+        gameOverRow:g.rowWords?.[tr]||'?',gameOverCol:g.colWords?.[tc]||'?',
+      });
+      setTimeout(async()=>{ await update(roomRef,{status:'gameover'}); },3000);
+    } else {
+      newLog.push({icon:'💔',text:lang==='es'?`Error — quedan ${maxLives-livesUsed} vida(s)`:`Error — ${maxLives-livesUsed} life/lives left`});
+      const upd=advanceTurn(g,players,g.guessed||[],newMissed,newLog,newTargetIndex,g.guessedByTeam||{},false,tr,tc);
+      upd.phase='giving';upd.currentClue='';upd.timerStartedAt=null;
+      await update(ref(db,`rooms/${roomId}/game`),upd);
+    }
+  }
 }
 
 // ── GAME OVER ─────────────────────────────────────────────────
@@ -3426,43 +3476,59 @@ function schedMelody(ctx,freq,t,dur){
 }
 
 window.toggleLobbyMusic=()=>{
-  const btn=document.getElementById('btn-music-lobby');
   if(lobbyMusicPlaying){
     lobbyMusicStop();
-    if(btn){btn.textContent='🎵';btn.classList.remove('playing');}
+    _updateMusicBtn(false);
+    try{localStorage.removeItem('cc_music_ok');}catch(e){}
   } else {
-    lobbyMusicStart();
-    if(btn){btn.textContent='🔇';btn.classList.add('playing');}
+    try{localStorage.setItem('cc_music_ok','1');}catch(e){}
+    _startMusicUI();
   }
 };
 
-// Autostart on first user interaction (browser requires gesture)
+// Autostart music
+// Browsers block audio without user gesture — but we can auto-start if they've visited before
+function _startMusicUI(){
+  if(lobbyMusicPlaying) return;
+  if(!lobbyMusicCtx){
+    try{ lobbyMusicCtx=new(window.AudioContext||window.webkitAudioContext)(); }catch(e){return;}
+  }
+  if(lobbyMusicCtx.state==='suspended'){
+    lobbyMusicCtx.resume().then(()=>{
+      lobbyMusicPlaying=true;
+      lobbyBeatTime=lobbyMusicCtx.currentTime+0.05;
+      lobbyScheduleLoop();
+      _updateMusicBtn(true);
+    });
+  } else {
+    lobbyMusicPlaying=true;
+    lobbyBeatTime=lobbyMusicCtx.currentTime+0.05;
+    lobbyScheduleLoop();
+    _updateMusicBtn(true);
+  }
+}
+function _updateMusicBtn(playing){
+  const btn=document.getElementById('btn-music-lobby');
+  if(btn){btn.textContent=playing?'🔇':'🎵';btn.classList.toggle('playing',playing);}
+}
+// First-click handler for new visitors
 function _tryAutoStartMusic(){
   if(_musicAutoStarted||lobbyMusicPlaying) return;
   _musicAutoStarted=true;
   document.removeEventListener('click',_tryAutoStartMusic,true);
   document.removeEventListener('keydown',_tryAutoStartMusic,true);
-  // Create AudioContext synchronously inside the event handler — required by browsers
-  if(!lobbyMusicCtx){
-    try{ lobbyMusicCtx=new(window.AudioContext||window.webkitAudioContext)(); }catch(e){return;}
-  }
-  // Start immediately (we're inside the user gesture)
-  if(lobbyMusicCtx.state==='suspended'){
-    lobbyMusicCtx.resume().then(()=>{ _startMusicUI(); });
-  } else {
-    _startMusicUI();
-  }
-}
-function _startMusicUI(){
-  if(lobbyMusicPlaying) return;
-  lobbyMusicPlaying=true;
-  lobbyBeatTime=lobbyMusicCtx.currentTime+0.05;
-  lobbyScheduleLoop();
-  const btn=document.getElementById('btn-music-lobby');
-  if(btn){btn.textContent='🔇';btn.classList.add('playing');}
+  try{localStorage.setItem('cc_music_ok','1');}catch(e){}
+  _startMusicUI();
 }
 document.addEventListener('click',_tryAutoStartMusic,true);
 document.addEventListener('keydown',_tryAutoStartMusic,true);
+// Auto-start immediately if returning visitor (already gave gesture before)
+try{
+  if(localStorage.getItem('cc_music_ok')==='1'){
+    // Slight delay so page is ready
+    setTimeout(()=>{ if(!lobbyMusicPlaying) _startMusicUI(); }, 300);
+  }
+}catch(e){}
 
 // Stop music when leaving lobby
 function stopLobbyMusicIfPlaying(){
