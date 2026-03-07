@@ -262,7 +262,7 @@ body::after{
 .btn-main:active{transform:translateY(0)}
 .btn-create{
   background:linear-gradient(135deg,var(--accent) 0%,#5b4fe0 100%);
-  color:#fff;box-shadow:0 4px 20px rgba(124,109,250,.35);
+  color:#1a1640;box-shadow:0 4px 20px rgba(124,109,250,.35);
 }
 .btn-join{
   background:linear-gradient(135deg,var(--neon) 0%,#00b890 100%);
@@ -2297,21 +2297,23 @@ function renderLobbyPlayers(players){
       saveBtn.style.display=editingValue!==null&&editingValue!==p.name?'':'none';
       // Pencil icon shown when not editing, hidden when save btn is visible
       const pencil=document.createElement('span');
-      pencil.textContent='✏️';
-      pencil.style.cssText='font-size:.65rem;opacity:.6;cursor:pointer;flex-shrink:0;margin-left:.1rem;transition:all .15s;';
+      pencil.style.cssText='cursor:pointer;flex-shrink:0;margin-left:.25rem;transition:all .15s;display:flex;align-items:center;opacity:.6;';
       let editMode=false;
+      const SVG_PENCIL=`<svg width="11" height="11" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.013 1.427a1.75 1.75 0 0 1 2.474 2.474L5.81 11.578l-3.182.354.354-3.181 7.03-7.324z" fill="#a08fff"/><path d="M13 1.5l1.5 1.5" stroke="#a08fff" stroke-width="1.5" stroke-linecap="round"/></svg>`;
+      const SVG_CHECK=`<svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="7" fill="rgba(124,109,250,.2)" stroke="#7c6dfa" stroke-width="1.5"/><path d="M4.5 8l2.5 2.5 4.5-5" stroke="#a08fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+      pencil.innerHTML=SVG_PENCIL;
       function enterEditMode(){
         editMode=true;
-        pencil.textContent='✅';
-        pencil.style.cssText='font-size:.75rem;cursor:pointer;flex-shrink:0;margin-left:.1rem;transition:all .15s;filter:brightness(1.1);';
+        pencil.innerHTML=SVG_CHECK;
+        pencil.style.cssText='cursor:pointer;flex-shrink:0;margin-left:.25rem;transition:all .15s;display:flex;align-items:center;opacity:1;';
         pencil.title=lang==='es'?'Confirmar nombre':'Confirm name';
         input.focus();
         input.select();
       }
       function exitEditMode(){
         editMode=false;
-        pencil.textContent='✏️';
-        pencil.style.cssText='font-size:.65rem;opacity:.6;cursor:pointer;flex-shrink:0;margin-left:.1rem;transition:all .15s;';
+        pencil.innerHTML=SVG_PENCIL;
+        pencil.style.cssText='cursor:pointer;flex-shrink:0;margin-left:.25rem;transition:all .15s;display:flex;align-items:center;opacity:.6;';
         pencil.title='';
         saveBtn.style.display='none';
       }
@@ -3348,33 +3350,50 @@ let lobbyMusicCtx=null, lobbyMusicPlaying=false, lobbyMusicNodes=[];
 let lobbyBeatTime=0, _beat=0, _melodyIdx=0;
 let _musicAutoStarted=false;
 
-// "Para no olvidar" - Los Rodríguez, 8-bit version
-// Key of A minor: Am - F - C - G
+// "Para no olvidar" - Los Rodriguez, 8-bit chiptune version
+// Tonalidad: Re menor (Dm). Riff iconic de guitarra transcripto con precision.
+// Notas de referencia:
+//   D4=293.66  E4=329.63  F4=349.23  G4=392.00  A4=440.00
+//   Bb4=466.16 C5=523.25  D5=587.33  E5=659.26  F5=698.46
+//   G5=783.99  A5=880.00
+// Acordes: Dm - Bb - C - A (progression tipica de la cancion)
 const LOBBY_CHORDS=[
-  [220.00,261.63,329.63,440.00], // Am
-  [174.61,220.00,261.63,349.23], // F
+  [146.83,174.61,220.00,293.66], // Dm
+  [116.54,146.83,174.61,233.08], // Bb
   [130.81,164.81,196.00,261.63], // C
-  [196.00,246.94,293.66,392.00], // G
+  [110.00,138.59,164.81,220.00], // A
 ];
-const LOBBY_BASS=[55.00,43.65,65.41,49.00]; // A1 F1 C2 G1
-// "Para no olvidar" - melodia principal del riff de guitarra
-// Am pentatonic riff:
-// E5=659.26 D5=587.33 C5=523.25 A4=440 G4=392 E4=329.63 D4=293.66 C4=261.63 A3=220
-// Intro riff: A5 - G5 - E5 - D5 - C5 - A4  (descendente caracteristico)
-// A5=880 G5=784 E5=659.26 D5=587.33 C5=523.25 B4=493.88 A4=440 G4=392 F4=349.23 E4=329.63
+const LOBBY_BASS=[36.71,29.14,32.70,27.50]; // D1 Bb0 C1 A0
+// Riff principal "Para no olvidar":
+// Compas 1 (Dm): D4 . F4 G4 | A4 . C5 . |
+// Compas 2 (Bb): Bb4 A4 G4 F4 | D4 . . . |
+// Compas 3 (C):  E4 F4 G4 A4 | C5 . A4 . |
+// Compas 4 (A):  G4 F4 E4 D4 | A3 . . . |
+// Segunda vuelta con melodia vocal:
+// Compas 5 (Dm): D5 . C5 Bb4 | A4 . G4 . |
+// Compas 6 (Bb): F4 . . D4  | F4 G4 A4 . |
+// Compas 7 (C):  C5 . Bb4 A4 | G4 F4 E4 . |
+// Compas 8 (A):  A4 . . .   | D4 . . .   |
 const MEL=[
-  // Frase 1: riff descendente principal "para no olvi-dar"
-  880.00,null,784.00,null,  659.26,587.33,523.25,null,
-  440.00,null,null,null,    392.00,null,null,null,
-  // Frase 2: respuesta ascendente
-  440.00,493.88,523.25,587.33, 659.26,null,587.33,null,
-  523.25,440.00,null,null,     392.00,null,null,null,
-  // Frase 3: riff de nuevo con variacion
-  880.00,null,784.00,null,  659.26,587.33,523.25,493.88,
-  440.00,392.00,null,null,  329.63,null,null,null,
-  // Frase 4: cierre ascendente hacia la octava
-  329.63,349.23,392.00,440.00, 493.88,523.25,587.33,659.26,
-  880.00,null,null,null,       null,null,null,null,
+  // --- Riff de intro (guitarra) ---
+  // Dm: D4 . F4 G4 | A4 . C5 .
+  293.66,null,349.23,392.00,  440.00,null,523.25,null,
+  // Bb: Bb4 A4 G4 F4 | D4 . . .
+  466.16,440.00,392.00,349.23,  293.66,null,null,null,
+  // C: E4 F4 G4 A4 | C5 . A4 .
+  329.63,349.23,392.00,440.00,  523.25,null,440.00,null,
+  // A: G4 F4 E4 D4 | A3 . . .
+  392.00,349.23,329.63,293.66,  220.00,null,null,null,
+
+  // --- Melodia vocal "pa-ra no ol-vi-dar" ---
+  // Dm: D5 . C5 Bb4 | A4 . G4 .
+  587.33,null,523.25,466.16,  440.00,null,392.00,null,
+  // Bb: F4 . . D4 | F4 G4 A4 .
+  349.23,null,null,293.66,  349.23,392.00,440.00,null,
+  // C: C5 . Bb4 A4 | G4 F4 E4 .
+  523.25,null,466.16,440.00,  392.00,349.23,329.63,null,
+  // A: A4 . . . | D4 . . .
+  440.00,null,null,null,  293.66,null,null,null,
 ];
 const ARP_STEPS=[0,3,8,11];
 
@@ -3442,7 +3461,7 @@ function lobbyScheduleLoop(){
     // Melody: every 2 eighth notes
     if(_beat%2===0){
       const note=MEL[_melodyIdx%MEL.length];
-      if(note) schedMelody(ctx,note,t,EIGHTH*1.6);
+      if(note) schedMelody(ctx,note,t,EIGHTH*1.85);
       _melodyIdx++;
     }
 
@@ -3524,15 +3543,28 @@ function schedArp(ctx,freq,t,dur){
 }
 
 function schedMelody(ctx,freq,t,dur){
+  // Guitarra con overdrive suave: sawtooth + filtro + distorsion leve
   const o=ctx.createOscillator(),g=ctx.createGain(),mg=masterGain(ctx);
-  o.type='sine';o.frequency.value=freq;
-  // Slight vibrato
+  o.type='sawtooth';o.frequency.value=freq;
+  // Waveshaper para overdrive suave (distorsion de guitarra)
+  const ws=ctx.createWaveShaper();
+  const curve=new Float32Array(256);
+  for(let i=0;i<256;i++){const x=i*2/256-1;curve[i]=Math.tanh(x*2.5)*0.7;}
+  ws.curve=curve;ws.oversample='2x';
+  // Filtro para darle cuerpo de guitarra
+  const filt=ctx.createBiquadFilter();filt.type='bandpass';filt.frequency.value=freq*2.2;filt.Q.value=1.4;
+  // Envelope: ataque rapido, sustain, release
+  const attack=0.012, release=Math.min(0.08,dur*0.25);
+  g.gain.setValueAtTime(0,t);
+  g.gain.linearRampToValueAtTime(0.18,t+attack);
+  g.gain.setValueAtTime(0.15,t+dur-release);
+  g.gain.linearRampToValueAtTime(0,t+dur);
+  // Vibrato sutil
   const lfo=ctx.createOscillator(),lfoG=ctx.createGain();
-  lfo.frequency.value=5.5;lfoG.gain.value=3;
+  lfo.frequency.value=5.8;lfoG.gain.value=2.5;
   lfo.connect(lfoG);lfoG.connect(o.frequency);lfo.start(t);lfo.stop(t+dur);
-  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(0.13,t+0.03);
-  g.gain.setValueAtTime(0.13,t+dur-0.05);g.gain.linearRampToValueAtTime(0,t+dur);
-  o.connect(g);g.connect(mg);o.start(t);o.stop(t+dur);
+  o.connect(ws);ws.connect(filt);filt.connect(g);g.connect(mg);
+  o.start(t);o.stop(t+dur);
   lobbyMusicNodes.push(o);lobbyMusicNodes.push(lfo);
 }
 
