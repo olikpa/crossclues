@@ -274,14 +274,21 @@ body::after{
   background:var(--bg2);border:1px dashed var(--border2);
   border-radius:14px;padding:1.1rem;text-align:center;margin-bottom:.9rem;
   transition:border-color .15s, background .15s;
+  position:relative;
 }
 .room-code-display:hover{border-color:var(--accent);background:var(--accent-bg)}
 .room-code-display:active{transform:scale(.98)}
-.room-code-copy-hint{
-  font-size:.72rem;color:var(--muted);margin-top:.4rem;
-  transition:color .15s;
+.room-code-copy-btn{
+  position:absolute;top:.55rem;right:.6rem;
+  background:transparent;border:1px solid var(--border);border-radius:7px;
+  padding:.28rem .38rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;opacity:.55;
 }
-.room-code-display:hover .room-code-copy-hint{color:var(--accent2)}
+.room-code-copy-btn:hover{opacity:1;border-color:var(--accent);background:var(--accent-bg);}
+.room-code-copy-btn svg{display:block;}
+.room-code-copy-btn.copied{border-color:var(--neon);opacity:1;}
+.room-code-copy-btn.copied svg path{stroke:var(--neon);}
 .room-code-label{font-size:.65rem;text-transform:uppercase;letter-spacing:.15em;color:var(--muted);margin-bottom:.4rem}
 .room-code-value{
   font-family:'DM Mono',monospace;font-size:2rem;font-weight:500;
@@ -1048,10 +1055,15 @@ body::after{
 
       <!-- Waiting room (replaces create form once room exists) -->
       <div id="waiting-section" style="display:none">
-        <div class="room-code-display" onclick="copyRoomCode()" title="Copiar código" style="cursor:pointer">
-          <div class="room-code-label" id="lbl-room-code">Código de Sala — tocá para copiar</div>
+        <div class="room-code-display">
+          <button class="room-code-copy-btn" id="room-code-copy-btn" onclick="copyRoomCode()" title="Copiar código">
+            <svg id="copy-icon-svg" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="5.5" y="1.5" width="9" height="11" rx="1.5" stroke="#a08fff" stroke-width="1.4"/>
+              <rect x="1.5" y="4.5" width="9" height="11" rx="1.5" fill="var(--card)" stroke="#a08fff" stroke-width="1.4"/>
+            </svg>
+          </button>
+          <div class="room-code-label" id="lbl-room-code">Código de Sala</div>
           <div class="room-code-value" id="room-code-value">———</div>
-          <div class="room-code-copy-hint" id="room-code-copy-hint">📋 Copiar</div>
         </div>
 
         <!-- Game settings summary -->
@@ -2644,19 +2656,34 @@ function buildGrid(g,guessedSet,missedSet,phase,amGuesser){
       const el=document.getElementById(`cell-${r}-${c}`);
       el.className='cell';
       if(isGuessed){
-        const tNum=teamN?parseInt(teamN):null;
-        const isNeutral=tNum===0;
-        let cls, color;
-        if(isNeutral){
-          cls='guessed-neutral'; color='var(--muted)';
-        } else if(tNum&&tNum>0){
-          cls=`guessed-t${tNum}`; color=TEAM_COLORS[tNum].hex;
+        const rawTeam=gbt[key]||null;
+        const isError=rawTeam&&String(rawTeam).startsWith('err:');
+        const errTeamN=isError?parseInt(String(rawTeam).split(':')[1]):null;
+        const tNum=isError?null:(rawTeam?parseInt(rawTeam):null);
+        const isNeutral=!isError&&tNum===0;
+        if(isError){
+          // Cell was clicked by mistake — show ✕ in erroring team's color
+          const tc=TEAM_COLORS[errTeamN]||{};
+          const errColor=tc.hex||'var(--wrong)';
+          el.classList.add('wrong-chosen','disabled');
+          el.style.background=tc.bg||'rgba(255,82,112,.08)';
+          el.style.borderColor=errColor;
+          el.style.boxShadow=`0 0 10px ${errColor}44`;
+          el.innerHTML=`<div class="cell-miss-icon" style="color:${errColor}">✕</div><div class="cell-team-label" style="color:${errColor};font-size:.6rem;opacity:.8">${tc.label||''}</div>`;
+          if(!wasGuessed){el.classList.add('guessed-pop');el.addEventListener('animationend',()=>el.classList.remove('guessed-pop'),{once:true});}
         } else {
-          cls='guessed'; color='var(--success)';
+          let cls, color;
+          if(isNeutral){
+            cls='guessed-neutral'; color='var(--muted)';
+          } else if(tNum&&tNum>0){
+            cls=`guessed-t${tNum}`; color=TEAM_COLORS[tNum].hex;
+          } else {
+            cls='guessed'; color='var(--success)';
+          }
+          el.classList.add(cls,'disabled');
+          el.innerHTML=`<div class="cell-check" style="color:${color}">✓</div>${(tNum&&tNum>0)?`<div class="cell-team-label" style="color:${color}">${TEAM_COLORS[tNum].label}</div>`:isNeutral?'<div class="cell-team-label" style="color:var(--muted)">—</div>':''}`;
+          if(!wasGuessed){el.classList.add('guessed-pop');el.addEventListener('animationend',()=>el.classList.remove('guessed-pop'),{once:true});}
         }
-        el.classList.add(cls,'disabled');
-        el.innerHTML=`<div class="cell-check" style="color:${color}">✓</div>${(tNum&&tNum>0)?`<div class="cell-team-label" style="color:${color}">${TEAM_COLORS[tNum].label}</div>`:isNeutral?'<div class="cell-team-label" style="color:var(--muted)">—</div>':''}`;
-        if(!wasGuessed){el.classList.add('guessed-pop');el.addEventListener('animationend',()=>el.classList.remove('guessed-pop'),{once:true});}
       } else if(isMissed){
         el.classList.add('missed','disabled');
         el.innerHTML=`<div class="cell-miss-icon">✕</div><div class="cell-coord">${String.fromCharCode(65+r)}${c+1}</div>`;
@@ -2767,6 +2794,7 @@ window.onCellClick=async(r,c)=>{
       if(mode==='teams'&&g.teams){
         const newTeams=deepCopy(g.teams);
         for(const[,tn]of Object.entries(newGbt)){
+          if(String(tn).startsWith('err:'))continue;
           const tNum=parseInt(tn);
           if(tNum>0&&newTeams[tNum]) newTeams[tNum].score=(newTeams[tNum].score||0)+1;
         }
@@ -2799,9 +2827,10 @@ window.onCellClick=async(r,c)=>{
         if((g.teams[n]?.assignedCells||[]).includes(`${tr},${tc}`)){correctCellOwner=n;break;}
       }
       // Mark both cells as guessed/resolved
+      // wrongKey: store "err:AT" so renderer shows ✕ in the erroring team's color (no points for owner)
       if(!newGuessed.includes(wrongKey)) newGuessed.push(wrongKey);
       if(!newGuessed.includes(`${tr},${tc}`)) newGuessed.push(`${tr},${tc}`);
-      newGbt[wrongKey]=wrongCellOwner;
+      newGbt[wrongKey]=`err:${at}`;
       newGbt[`${tr},${tc}`]=correctCellOwner;
       newTargetIndex++;
       const wrongOwnerLabel=wrongCellOwner>0?TEAM_COLORS[wrongCellOwner].label:'neutra';
@@ -2817,7 +2846,7 @@ window.onCellClick=async(r,c)=>{
       if(gameOver){
         const wu={guessed:newGuessed,guessedByTeam:newGbt,targetIndex:newTargetIndex,log:newLog,phase:'giving',currentClue:'',timerStartedAt:null};
         const newTeams=deepCopy(g.teams);
-        for(const[,tn]of Object.entries(newGbt)){const tNum=parseInt(tn);if(tNum>0&&newTeams[tNum])newTeams[tNum].score=(newTeams[tNum].score||0)+1;}
+        for(const[,tn]of Object.entries(newGbt)){if(String(tn).startsWith("err:"))continue;const tNum=parseInt(tn);if(tNum>0&&newTeams[tNum])newTeams[tNum].score=(newTeams[tNum].score||0)+1;}
         wu.teams=newTeams;
         await update(ref(db,`rooms/${roomId}/game`),wu);
         await update(roomRef,{status:'ended'});
@@ -2884,6 +2913,7 @@ function advanceTurn(g,players,newGuessed,newMissed,newLog,newTargetIndex,newGbt
     // Recalculate scores from guessedByTeam
     for(let n=1;n<=nt;n++) newTeams[n].score=0;
     for(const[,tn]of Object.entries(newGbt)){
+      if(String(tn).startsWith('err:'))continue;
       const tNum=parseInt(tn);
       if(tNum>0&&newTeams[tNum]) newTeams[tNum].score=(newTeams[tNum].score||0)+1;
     }
@@ -3339,8 +3369,15 @@ window.copyRoomCode=()=>{
   if(!roomId)return;
   navigator.clipboard.writeText(roomId).catch(()=>{});
   showToast(t('copiedCode'));
-  const hint=document.getElementById('room-code-copy-hint');
-  if(hint){hint.textContent='✓ ¡Copiado!';setTimeout(()=>{hint.textContent='📋 Copiar';},2000);}
+  const btn=document.getElementById('room-code-copy-btn');
+  if(btn){
+    btn.classList.add('copied');
+    btn.innerHTML=`<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 8.5l3.5 3.5 6.5-7" stroke="var(--neon)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    setTimeout(()=>{
+      btn.classList.remove('copied');
+      btn.innerHTML=`<svg id="copy-icon-svg" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="5.5" y="1.5" width="9" height="11" rx="1.5" stroke="#a08fff" stroke-width="1.4"/><rect x="1.5" y="4.5" width="9" height="11" rx="1.5" fill="var(--card)" stroke="#a08fff" stroke-width="1.4"/></svg>`;
+    },2000);
+  }
 };
 
 applyLobbyTrans();
@@ -3350,52 +3387,48 @@ let lobbyMusicCtx=null, lobbyMusicPlaying=false, lobbyMusicNodes=[];
 let lobbyBeatTime=0, _beat=0, _melodyIdx=0;
 let _musicAutoStarted=false;
 
-// "Para no olvidar" - Los Rodriguez, 8-bit chiptune version
-// Tonalidad: Re menor (Dm). Riff iconic de guitarra transcripto con precision.
-// Notas de referencia:
-//   D4=293.66  E4=329.63  F4=349.23  G4=392.00  A4=440.00
-//   Bb4=466.16 C5=523.25  D5=587.33  E5=659.26  F5=698.46
-//   G5=783.99  A5=880.00
-// Acordes: Dm - Bb - C - A (progression tipica de la cancion)
+// "Moliendo Cafe" - Hugo Blanco, trompeta chiptune
+// Tonalidad: Re menor (Dm). Compas de 3/4 (vals). Tempo 116 BPM.
+// Notas: D4=293.66 E4=329.63 F4=349.23 G4=392 A4=440 Bb4=466.16
+//        C5=523.25 D5=587.33 E5=659.26 F5=698.46 G5=784 A5=880
+// Progresion: Dm - A7 - Gm - Dm (ciclo de vals)
 const LOBBY_CHORDS=[
   [146.83,174.61,220.00,293.66], // Dm
-  [116.54,146.83,174.61,233.08], // Bb
-  [130.81,164.81,196.00,261.63], // C
-  [110.00,138.59,164.81,220.00], // A
+  [110.00,138.59,164.81,220.00], // A7
+  [146.83,196.00,233.08,293.66], // Gm
+  [146.83,174.61,220.00,293.66], // Dm
 ];
-const LOBBY_BASS=[36.71,29.14,32.70,27.50]; // D1 Bb0 C1 A0
-// Riff principal "Para no olvidar":
-// Compas 1 (Dm): D4 . F4 G4 | A4 . C5 . |
-// Compas 2 (Bb): Bb4 A4 G4 F4 | D4 . . . |
-// Compas 3 (C):  E4 F4 G4 A4 | C5 . A4 . |
-// Compas 4 (A):  G4 F4 E4 D4 | A3 . . . |
-// Segunda vuelta con melodia vocal:
-// Compas 5 (Dm): D5 . C5 Bb4 | A4 . G4 . |
-// Compas 6 (Bb): F4 . . D4  | F4 G4 A4 . |
-// Compas 7 (C):  C5 . Bb4 A4 | G4 F4 E4 . |
-// Compas 8 (A):  A4 . . .   | D4 . . .   |
+const LOBBY_BASS=[36.71,27.50,49.00,36.71]; // D1 A1 G1 D1
+// Melodia exacta de "Moliendo Cafe" (trompeta / voz principal):
+// La frase mas reconocible es la del estribillo:
+// "Mo-lien-do ca-fe..." — Do Re Mi Fa | Mi Re Do La
+// y el intro instrumental de trompeta sobre Dm
+//
+// INTRO TROMPETA (compases 3/4 = 3 corcheas por grupo):
+// [Dm] D5  .  D5 | C5  D5  .  | A4  .  .  |  .  .  .  |
+// [A7] E5  .  E5 | D5  E5  .  | C#5 .  .  |  .  .  .  |
+// [Gm] F5  .  F5 | E5  F5  .  | D5  .  .  |  .  .  .  |
+// [Dm] A4 Bb4 C5 | D5  .  .  |  .  .  .  |  .  .  .  |
+//
+// ESTRIBILLO "Mo-lien-do ca-fe":
+// [Dm] D5 C5 Bb4| A4  .  D5 | C5 Bb4 A4 | G4  .   .  |
+// [A7] E5 D5 C5 | B4  .  E5 | D5 C5  B4 | A4  .   .  |
+// [Gm] F5 E5 D5 | C5  .  F5 | E5 D5  C5 | Bb4 .   .  |
+// [Dm] A4 G4 F4 | E4  D4  . |  .  .   . |  D5 .   .  |
 const MEL=[
-  // --- Riff de intro (guitarra) ---
-  // Dm: D4 . F4 G4 | A4 . C5 .
-  293.66,null,349.23,392.00,  440.00,null,523.25,null,
-  // Bb: Bb4 A4 G4 F4 | D4 . . .
-  466.16,440.00,392.00,349.23,  293.66,null,null,null,
-  // C: E4 F4 G4 A4 | C5 . A4 .
-  329.63,349.23,392.00,440.00,  523.25,null,440.00,null,
-  // A: G4 F4 E4 D4 | A3 . . .
-  392.00,349.23,329.63,293.66,  220.00,null,null,null,
+  // INTRO — trompeta, motivo de 3 notas
+  587.33,null,587.33,  523.25,587.33,null,  440.00,null,null,  null,null,null,
+  659.26,null,659.26,  587.33,659.26,null,  554.37,null,null,  null,null,null,
+  698.46,null,698.46,  659.26,698.46,null,  587.33,null,null,  null,null,null,
+  440.00,466.16,523.25, 587.33,null,null,   null,null,null,    null,null,null,
 
-  // --- Melodia vocal "pa-ra no ol-vi-dar" ---
-  // Dm: D5 . C5 Bb4 | A4 . G4 .
-  587.33,null,523.25,466.16,  440.00,null,392.00,null,
-  // Bb: F4 . . D4 | F4 G4 A4 .
-  349.23,null,null,293.66,  349.23,392.00,440.00,null,
-  // C: C5 . Bb4 A4 | G4 F4 E4 .
-  523.25,null,466.16,440.00,  392.00,349.23,329.63,null,
-  // A: A4 . . . | D4 . . .
-  440.00,null,null,null,  293.66,null,null,null,
+  // ESTRIBILLO — "Mo-lien-do ca-fe"
+  587.33,523.25,466.16, 440.00,null,587.33, 523.25,466.16,440.00, 392.00,null,null,
+  659.26,587.33,523.25, 493.88,null,659.26, 587.33,523.25,493.88, 440.00,null,null,
+  698.46,659.26,587.33, 523.25,null,698.46, 659.26,587.33,523.25, 466.16,null,null,
+  440.00,392.00,349.23, 329.63,293.66,null, null,null,null,       587.33,null,null,
 ];
-const ARP_STEPS=[0,3,8,11];
+const ARP_STEPS=[0,3,6,9]; // vals: 3 tiempos por compas
 
 function lobbyMusicInit(){
   if(lobbyMusicCtx) return;
@@ -3420,50 +3453,47 @@ function lobbyMusicStop(){
 
 function lobbyScheduleLoop(){
   if(!lobbyMusicPlaying||!lobbyMusicCtx) return;
-  const BPM=96, EIGHTH=60/BPM/2, ctx=lobbyMusicCtx;
-  const BAR=32; // 32 eighth notes per bar (2 bars per chord)
+  // Vals 3/4: QUARTER = 1 beat. BAR = 6 eighth notes (3 beats x 2 subdivisions)
+  // BPM 116 -> QUARTER = 60/116s -> EIGHTH = 60/116/2 s
+  const BPM=116, EIGHTH=60/BPM/2, ctx=lobbyMusicCtx;
+  const BAR=6; // 6 eighth notes = 1 compas de 3/4
+  // Cada acorde dura 4 compases = 24 eighths
+  const CHORD_BAR=24;
   while(lobbyBeatTime < ctx.currentTime + 2.5){
     const t=lobbyBeatTime;
-    const barPos=_beat%BAR;
-    const chordPos=Math.floor(_beat/BAR)%LOBBY_CHORDS.length;
+    const barPos=_beat%BAR;           // posicion dentro del compas (0-5)
+    const chordPos=Math.floor(_beat/CHORD_BAR)%LOBBY_CHORDS.length;
     const chord=LOBBY_CHORDS[chordPos];
+    const globalPos=_beat%CHORD_BAR;
 
-    // Kick: rock pattern - Para no olvidar groove
-    if(barPos===0||barPos===6||barPos===16||barPos===22) schedKick(ctx,t,1.0);
-    if(barPos===10||barPos===28) schedKick(ctx,t,0.7);
+    // VALS PERCUSSION:
+    // Tiempo 1 (barPos 0): bombo fuerte
+    // Tiempo 2 (barPos 2): platillo/acorde
+    // Tiempo 3 (barPos 4): platillo/acorde
+    if(barPos===0) schedKick(ctx,t,1.0);
+    if(barPos===2||barPos===4) schedHat(ctx,t,0.07,true);
 
-    // Snare: backbeat on 8 and 24
-    if(barPos===8||barPos===24) schedSnare(ctx,t);
-
-    // Hi-hat: eighth notes
-    schedHat(ctx,t,barPos%2===0?0.065:0.035);
-
-    // Open hat for rock feel
-    if(barPos===4||barPos===12||barPos===20||barPos===28) schedHat(ctx,t,0.09,true);
-
-    // Bass: hits on 0, 3, 6, 8, 11, 14 (syncopated funk pattern)
-    if([0,3,6,8,11,14].includes(barPos)){
-      const bassFreq=LOBBY_BASS[chordPos]*(barPos>=8?2:1);
-      schedBass(ctx,bassFreq,t,EIGHTH*1.8);
+    // Bajo: golpe en tiempo 1 de cada compas
+    if(barPos===0){
+      const bassFreq=LOBBY_BASS[chordPos]*2;
+      schedBass(ctx,bassFreq,t,EIGHTH*1.6);
     }
 
-    // Chord stab: on 0 and 8 with short attack
-    if(barPos===0||barPos===8){
-      chord.forEach((freq,i)=>schedStab(ctx,freq,t+i*0.01,EIGHTH*3));
+    // Acorde (stab) en tiempos 2 y 3
+    if(barPos===2||barPos===4){
+      chord.forEach((freq,i)=>schedStab(ctx,freq,t+i*0.008,EIGHTH*1.8));
     }
 
-    // Arp: on ARP_STEPS
-    if(ARP_STEPS.includes(barPos)){
-      const arpFreq=chord[(ARP_STEPS.indexOf(barPos))%chord.length]*2;
-      schedArp(ctx,arpFreq,t,EIGHTH*0.8);
+    // Arp suave en tiempo 1
+    if(barPos===0){
+      const arpFreq=chord[globalPos%chord.length]*2;
+      schedArp(ctx,arpFreq,t,EIGHTH*0.7);
     }
 
-    // Melody: every 2 eighth notes
-    if(_beat%2===0){
-      const note=MEL[_melodyIdx%MEL.length];
-      if(note) schedMelody(ctx,note,t,EIGHTH*1.85);
-      _melodyIdx++;
-    }
+    // Melody: cada eighth note (cada subdivision)
+    const note=MEL[_melodyIdx%MEL.length];
+    if(note) schedMelody(ctx,note,t,EIGHTH*1.7);
+    _melodyIdx++;
 
     _beat++;
     lobbyBeatTime+=EIGHTH;
@@ -3543,29 +3573,28 @@ function schedArp(ctx,freq,t,dur){
 }
 
 function schedMelody(ctx,freq,t,dur){
-  // Guitarra con overdrive suave: sawtooth + filtro + distorsion leve
+  // Trompeta sintetica: onda cuadrada + filtro brillante + envelope de brass
   const o=ctx.createOscillator(),g=ctx.createGain(),mg=masterGain(ctx);
-  o.type='sawtooth';o.frequency.value=freq;
-  // Waveshaper para overdrive suave (distorsion de guitarra)
-  const ws=ctx.createWaveShaper();
-  const curve=new Float32Array(256);
-  for(let i=0;i<256;i++){const x=i*2/256-1;curve[i]=Math.tanh(x*2.5)*0.7;}
-  ws.curve=curve;ws.oversample='2x';
-  // Filtro para darle cuerpo de guitarra
-  const filt=ctx.createBiquadFilter();filt.type='bandpass';filt.frequency.value=freq*2.2;filt.Q.value=1.4;
-  // Envelope: ataque rapido, sustain, release
-  const attack=0.012, release=Math.min(0.08,dur*0.25);
+  o.type='square';o.frequency.value=freq;
+  // Filtro pasa-banda para timbre de trompeta (brillante, no tan cuadrado)
+  const filt=ctx.createBiquadFilter();
+  filt.type='bandpass';filt.frequency.value=freq*3;filt.Q.value=2.0;
+  // Segunda armonico para richness
+  const o2=ctx.createOscillator(),g2=ctx.createGain();
+  o2.type='sawtooth';o2.frequency.value=freq;
+  g2.gain.value=0.3;
+  // Envelope brass: ataque medio, sustain, caida abrupta
+  const attack=0.025, hold=Math.max(0,dur-0.06), release=0.05;
   g.gain.setValueAtTime(0,t);
-  g.gain.linearRampToValueAtTime(0.18,t+attack);
-  g.gain.setValueAtTime(0.15,t+dur-release);
+  g.gain.linearRampToValueAtTime(0.22,t+attack);
+  g.gain.setValueAtTime(0.20,t+attack+hold);
   g.gain.linearRampToValueAtTime(0,t+dur);
-  // Vibrato sutil
-  const lfo=ctx.createOscillator(),lfoG=ctx.createGain();
-  lfo.frequency.value=5.8;lfoG.gain.value=2.5;
-  lfo.connect(lfoG);lfoG.connect(o.frequency);lfo.start(t);lfo.stop(t+dur);
-  o.connect(ws);ws.connect(filt);filt.connect(g);g.connect(mg);
-  o.start(t);o.stop(t+dur);
-  lobbyMusicNodes.push(o);lobbyMusicNodes.push(lfo);
+  o.connect(filt);filt.connect(g);
+  o2.connect(g2);g2.connect(g);
+  g.connect(mg);
+  o.start(t);o.stop(t+dur+0.02);
+  o2.start(t);o2.stop(t+dur+0.02);
+  lobbyMusicNodes.push(o);lobbyMusicNodes.push(o2);
 }
 
 window.toggleLobbyMusic=()=>{
